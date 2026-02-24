@@ -1,0 +1,24 @@
+{
+  "name": "@cloudflare-agent-kanban/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@cloudflare-agent-kanban/db": "workspace:*",
+    "@cloudflare-agent-kanban/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare-agent-kanban/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
