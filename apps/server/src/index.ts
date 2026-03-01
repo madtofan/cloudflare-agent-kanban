@@ -6,6 +6,7 @@ import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
+import { BatchHandlerPlugin } from "@orpc/server/plugins";
 import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -19,7 +20,7 @@ app.use(
 	cors({
 		origin: env.CORS_ORIGIN,
 		allowMethods: ["GET", "POST", "PUT", "OPTIONS", "DELETE"],
-		allowHeaders: ["Content-Type", "Authorization"],
+		allowHeaders: ["Content-Type", "Authorization", "x-orpc-batch"],
 		credentials: true,
 	})
 );
@@ -31,6 +32,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ZodToJsonSchemaConverter()],
 		}),
+		new BatchHandlerPlugin(),
 	],
 	interceptors: [
 		onError((error) => {
@@ -40,6 +42,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
+	plugins: [new BatchHandlerPlugin()],
 	interceptors: [
 		onError((error) => {
 			console.error(error);

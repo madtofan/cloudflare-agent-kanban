@@ -7,6 +7,8 @@
   ],
   "type": "module",
   "scripts": {
+    "configure": "turbo -F @cloudflare-agent-kanban/infra configure",
+    "login": "turbo -F @cloudflare-agent-kanban/infra login",
     "dev": "turbo dev",
     "build": "turbo build",
     "check-types": "turbo check-types",

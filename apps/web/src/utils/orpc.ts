@@ -3,6 +3,7 @@ import type { AppRouterClient } from "@cloudflare-agent-kanban/api/routers/index
 import { env } from "@cloudflare-agent-kanban/env/web";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
+import { BatchLinkPlugin } from "@orpc/client/plugins";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -28,6 +29,17 @@ export const link = new RPCLink({
 			credentials: "include",
 		});
 	},
+	plugins: [
+		new BatchLinkPlugin({
+			mode: typeof window === "undefined" ? "buffered" : "streaming",
+			groups: [
+				{
+					condition: (_options) => true,
+					context: {}, // Context used for the rest of the request lifecycle
+				},
+			],
+		}),
+	],
 });
 
 export const client: AppRouterClient = createORPCClient(link);

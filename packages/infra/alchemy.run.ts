@@ -3,9 +3,21 @@ import alchemy from "alchemy";
 import { D1Database, Vite, Worker } from "alchemy/cloudflare";
 import { config } from "dotenv";
 
-config({ path: "./.env" });
-config({ path: "../../apps/web/.env" });
-config({ path: "../../apps/server/.env" });
+config({
+	path: process.env.NODE_ENV === "production" ? "./.env.prod" : "./.env",
+});
+config({
+	path:
+		process.env.NODE_ENV === "production"
+			? "../../apps/web/.env.prod"
+			: "../../apps/web/.env",
+});
+config({
+	path:
+		process.env.NODE_ENV === "production"
+			? "../../apps/server/.env.prod"
+			: "../../apps/server/.env",
+});
 
 const app = await alchemy("cloudflare-agent-kanban");
 

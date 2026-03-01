@@ -31,9 +31,11 @@ This project uses SQLite with Drizzle ORM.
 1. Start the local SQLite database (optional):
    D1 local development and migrations are handled automatically by Alchemy during dev and deploy.
 
-2. Update your `.env` file in the `apps/server` directory with the appropriate connection details if needed.
+2. Update your `.env` file in the `apps/server` & `apps/web` & `packages/infra` directory with the appropriate connection details if needed.
 
-3. Apply the schema to your database:
+3. Update your `.env.prod` file in the `apps/server` & `apps/web` & `packages/infra` directory with the appropriate connection details if needed.
+
+4. Apply the schema to your database:
 
 ```bash
 pnpm run db:push

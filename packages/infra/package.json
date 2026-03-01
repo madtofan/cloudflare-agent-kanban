@@ -3,9 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "configure": "alchemy configure",
     "dev": "alchemy dev",
-    "deploy": "alchemy deploy",
-    "destroy": "alchemy destroy"
+    "deploy": "NODE_ENV='production' alchemy deploy",
+    "destroy": "alchemy destroy",
+    "login": "alchemy login"
   },
   "dependencies": {
     "dotenv": "catalog:",
