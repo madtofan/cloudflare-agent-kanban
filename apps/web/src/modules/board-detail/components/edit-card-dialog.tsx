@@ -175,7 +175,7 @@ function EditCardDialog({
 							className="max-h-max flex-1 overflow-auto border-t pt-4"
 							value="links"
 						>
-							<CardLinks boardId={boardId} cardId={card.id!} />
+							<CardLinks boardId={boardId} cardId={card.id ?? ""} />
 						</TabsContent>
 						<TabsContent
 							className="max-h-max flex-1 overflow-auto border-t pt-4"

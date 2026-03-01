@@ -3,6 +3,14 @@ import { Loader2, MessageSquare, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
@@ -17,6 +25,7 @@ function CardComments({ cardId }: CardCommentsProps) {
 	const { currentUser, boardOwnerId, boardMemberRole } =
 		useBoardDetailContext();
 	const [commentContent, setCommentContent] = useState("");
+	const [deleteCommentId, setDeleteCommentId] = useState<string | null>(null);
 
 	const { data: comments, isLoading } = useQuery(
 		orpc.card.getComments.queryOptions({
@@ -76,8 +85,13 @@ function CardComments({ cardId }: CardCommentsProps) {
 	};
 
 	const handleDeleteComment = (commentId: string) => {
-		if (confirm("Are you sure you want to delete this comment?")) {
-			deleteCommentMutation.mutate({ cardId: commentId });
+		setDeleteCommentId(commentId);
+	};
+
+	const confirmDeleteComment = () => {
+		if (deleteCommentId) {
+			deleteCommentMutation.mutate({ cardId: deleteCommentId });
+			setDeleteCommentId(null);
 		}
 	};
 
@@ -94,11 +108,12 @@ function CardComments({ cardId }: CardCommentsProps) {
 	return (
 		<div className="flex h-full flex-1 flex-col overflow-hidden">
 			<div className="flex flex-1 flex-col overflow-auto">
-				{isLoading ? (
+				{isLoading && (
 					<div className="flex h-full items-center justify-center">
 						<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
 					</div>
-				) : comments && comments.length > 0 ? (
+				)}
+				{!isLoading && comments && comments.length > 0 && (
 					<div className="mb-4 space-y-4">
 						{comments.map((comment) => (
 							<div className="rounded-lg border p-4" key={comment.id}>
@@ -108,7 +123,9 @@ function CardComments({ cardId }: CardCommentsProps) {
 											<img
 												alt={comment.user.name ?? "User"}
 												className="h-8 w-8 rounded-full"
+												height={32}
 												src={comment.user.image}
+												width={32}
 											/>
 										) : (
 											<div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
@@ -136,6 +153,7 @@ function CardComments({ cardId }: CardCommentsProps) {
 										</Button>
 									)}
 								</div>
+								{/* eslint-disable-next-line react/no-dangerously-set-inner-html */}
 								<div
 									className="rich-text-preview mt-2 text-sm"
 									dangerouslySetInnerHTML={{ __html: comment.content }}
@@ -143,7 +161,8 @@ function CardComments({ cardId }: CardCommentsProps) {
 							</div>
 						))}
 					</div>
-				) : (
+				)}
+				{!isLoading && (!comments || comments.length === 0) && (
 					<div className="flex h-32 items-center justify-center text-muted-foreground">
 						No comments yet. Be the first to comment!
 					</div>
@@ -167,6 +186,28 @@ function CardComments({ cardId }: CardCommentsProps) {
 					</Button>
 				</div>
 			</div>
+
+			<Dialog
+				onOpenChange={(open) => !open && setDeleteCommentId(null)}
+				open={!!deleteCommentId}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete Comment</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete this comment?
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button onClick={() => setDeleteCommentId(null)} variant="outline">
+							Cancel
+						</Button>
+						<Button onClick={confirmDeleteComment} variant="destructive">
+							Delete
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

@@ -74,7 +74,7 @@ function EditColumnDialog({
 		validators: {
 			onSubmit: formSchema,
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: ({ value }) => {
 			updateColumnMutation.mutate({
 				boardId: column.boardId,
 				columnId: column.id,
@@ -99,8 +99,8 @@ function EditColumnDialog({
 							Edit the column details below.
 						</DialogDescription>
 					</DialogHeader>
-					<form.Field
-						children={(field) => {
+					<form.Field name="name">
+						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
@@ -124,8 +124,7 @@ function EditColumnDialog({
 								</Field>
 							);
 						}}
-						name="name"
-					/>
+					</form.Field>
 					<DialogFooter>
 						<Button onClick={() => onDialogOpenClose(false)} variant="outline">
 							Cancel

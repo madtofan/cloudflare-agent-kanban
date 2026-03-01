@@ -6,6 +6,7 @@ import {
 } from "@cloudflare-agent-kanban/db/schema/auth";
 import {
 	board,
+	type CardLinkType,
 	card,
 	cardComment,
 	cardHistory,
@@ -33,7 +34,7 @@ const columnIdSchema = z.object({ columnId: z.string() });
 const cardIdSchema = z.object({ cardId: z.string() });
 
 function getReverseLinkType(linkType: string): string {
-	const reverseMap: Record<string, string> = {
+	const reverseMap: Record<CardLinkType, string> = {
 		parent_of: "child_of",
 		child_of: "parent_of",
 		blocked_by: "blocks",
@@ -45,7 +46,7 @@ function getReverseLinkType(linkType: string): string {
 		part_of: "implements",
 		implements: "part_of",
 	};
-	return reverseMap[linkType] ?? linkType;
+	return reverseMap[linkType as CardLinkType] ?? linkType;
 }
 
 export type Card = InferSelectModel<typeof card>;

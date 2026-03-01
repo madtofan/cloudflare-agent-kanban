@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	Field,
@@ -105,7 +106,7 @@ function ProjectMembersSheet({
 		validators: {
 			onSubmit: addMemberSchema,
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: ({ value }) => {
 			addMemberMutation.mutate({
 				projectId,
 				email: value.email,
@@ -143,8 +144,8 @@ function ProjectMembersSheet({
 							form.handleSubmit();
 						}}
 					>
-						<form.Field
-							children={(field) => {
+						<form.Field name="email">
+							{(field) => {
 								const isInvalid =
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
@@ -179,11 +180,10 @@ function ProjectMembersSheet({
 									</Field>
 								);
 							}}
-							name="email"
-						/>
+						</form.Field>
 
-						<form.Field
-							children={(field) => (
+						<form.Field name="role">
+							{(field) => (
 								<Field>
 									<FieldLabel>Role</FieldLabel>
 									<select
@@ -201,8 +201,7 @@ function ProjectMembersSheet({
 									</FieldDescription>
 								</Field>
 							)}
-							name="role"
-						/>
+						</form.Field>
 
 						<Separator className="my-4" />
 					</form>
@@ -271,17 +270,12 @@ function MemberItem({
 		<div className="flex items-center justify-between rounded-lg border bg-card p-3">
 			<div className="flex items-center gap-3">
 				<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-					{member.user.image ? (
-						<img
-							alt={member.user.name ?? ""}
-							className="h-10 w-10 rounded-full"
-							src={member.user.image}
-						/>
-					) : (
-						<span className="font-medium text-sm">
+					<Avatar className="size-32">
+						<AvatarImage src={member.user.image ?? undefined} />
+						<AvatarFallback>
 							{member.user.name?.[0]?.toUpperCase() ?? "?"}
-						</span>
-					)}
+						</AvatarFallback>
+					</Avatar>
 				</div>
 				<div>
 					<p className="font-medium text-sm">

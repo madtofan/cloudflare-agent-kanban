@@ -1,3 +1,4 @@
+import type { CardLinkType } from "@cloudflare-agent-kanban/db/schema/kanban";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Plus, X } from "lucide-react";
 import { useState } from "react";
@@ -70,7 +71,7 @@ export default function CardLinks({ cardId, boardId }: CardLinksProps) {
 		createLinkMutation.mutate({
 			sourceCardId: cardId,
 			targetCardId,
-			linkType: selectedLinkType as any,
+			linkType: selectedLinkType as CardLinkType,
 		});
 	};
 

@@ -43,7 +43,7 @@ function KanbanCardComponent({
 		transition,
 		isDragging,
 	} = useSortable({
-		id: card.id!,
+		id: card.id ?? "",
 		data: { type: "card", card },
 	});
 
@@ -78,7 +78,7 @@ function KanbanCardComponent({
 				style={style}
 				{...attributes}
 				{...listeners}
-				className={`w-full cursor-grab rounded-md border bg-card p-3 text-left shadow-sm mb-2 ${isDragging ? "opacity-50" : ""}`}
+				className={`mb-2 w-full cursor-grab rounded-md border bg-card p-3 text-left shadow-sm ${isDragging ? "opacity-50" : ""}`}
 				onClick={handleOnCardClick}
 			>
 				<div className="mb-2 flex items-center gap-2">

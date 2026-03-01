@@ -118,24 +118,26 @@ export function ReactSelect({
 					...base,
 					padding: "0.25rem",
 				}),
-				option: (base, state) => ({
-					...base,
-					fontSize: "0.75rem",
-					padding: "0.5rem 0.625rem",
-					borderRadius: "var(--radius-sm)",
-					backgroundColor: state.isSelected
-						? "var(--accent)"
-						: state.isFocused
-							? "var(--accent)"
-							: "transparent",
-					color: state.isSelected
-						? "var(--accent-foreground)"
-						: "var(--foreground)",
-					cursor: "pointer",
-					"&:active": {
-						backgroundColor: "var(--accent)",
-					},
-				}),
+				option: (base, state) => {
+					let backgroundColor = "transparent";
+					if (state.isSelected || state.isFocused) {
+						backgroundColor = "var(--accent)";
+					}
+					return {
+						...base,
+						fontSize: "0.75rem",
+						padding: "0.5rem 0.625rem",
+						borderRadius: "var(--radius-sm)",
+						backgroundColor,
+						color: state.isSelected
+							? "var(--accent-foreground)"
+							: "var(--foreground)",
+						cursor: "pointer",
+						"&:active": {
+							backgroundColor: "var(--accent)",
+						},
+					};
+				},
 				noOptionsMessage: (base) => ({
 					...base,
 					fontSize: "0.75rem",

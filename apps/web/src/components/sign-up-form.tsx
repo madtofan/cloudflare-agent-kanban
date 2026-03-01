@@ -10,6 +10,8 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
+const USERNAME_REGEX = /^[a-z0-9_-]+$/;
+
 export default function SignUpForm({
 	onSwitchToSignIn,
 }: {
@@ -57,7 +59,7 @@ export default function SignUpForm({
 					.min(6, "Username must be at least 6 characters")
 					.max(30, "Username must be at most 30 characters")
 					.regex(
-						/^[a-z0-9_-]+$/,
+						USERNAME_REGEX,
 						"Username can only contain lowercase letters, numbers, hyphens, and underscores"
 					),
 				password: z.string().min(8, "Password must be at least 8 characters"),

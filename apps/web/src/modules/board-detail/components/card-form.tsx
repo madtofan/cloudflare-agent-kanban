@@ -53,9 +53,9 @@ function CardForm({
 			OrpcOutput["project"]["getMembers"]["members"][0]["user"]
 		>();
 		if (projectMembersData && !isLoadingMembers) {
-			projectMembersData.members.forEach((member) => {
+			for (const member of projectMembersData.members) {
 				memberMap.set(member.user.id, member.user);
-			});
+			}
 			if (projectMembersData.owner) {
 				memberMap.set(projectMembersData.owner.id, projectMembersData.owner);
 			}
@@ -82,7 +82,7 @@ function CardForm({
 		validators: {
 			onSubmit: cardFormSchema,
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: ({ value }) => {
 			onSubmit(value);
 		},
 	});
@@ -121,8 +121,8 @@ function CardForm({
 			}}
 		>
 			<div className="space-y-4 overflow-y-auto pr-2">
-				<form.Field
-					children={(field) => {
+				<form.Field name="title">
+					{(field) => {
 						const isInvalid =
 							field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
@@ -146,20 +146,20 @@ function CardForm({
 							</Field>
 						);
 					}}
-					name="title"
-				/>
-				<form.Field
-					children={(field) => {
+				</form.Field>
+				<form.Field name="type">
+					{(field) => {
 						return (
 							<Field>
 								<FieldLabel>Type</FieldLabel>
 								<div className="flex flex-wrap gap-2 p-2">
 									{cardTypes.map((type) => (
 										<button
-											className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${field.state.value === type.value
+											className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${
+												field.state.value === type.value
 													? "ring-2 ring-offset-2 ring-offset-background"
 													: "opacity-70 ring-0 hover:opacity-100"
-												}`}
+											}`}
 											key={`${type.value}${field.state.value}`}
 											onClick={() => field.handleChange(type.value)}
 											style={
@@ -181,10 +181,9 @@ function CardForm({
 							</Field>
 						);
 					}}
-					name="type"
-				/>
-				<form.Field
-					children={(field) => {
+				</form.Field>
+				<form.Field name="description">
+					{(field) => {
 						return (
 							<Field>
 								<FieldLabel>Description</FieldLabel>
@@ -199,10 +198,9 @@ function CardForm({
 							</Field>
 						);
 					}}
-					name="description"
-				/>
-				<form.Field
-					children={(field) => {
+				</form.Field>
+				<form.Field name="acceptanceCriteria">
+					{(field) => {
 						return (
 							<Field>
 								<FieldLabel>Acceptance Criteria</FieldLabel>
@@ -217,11 +215,10 @@ function CardForm({
 							</Field>
 						);
 					}}
-					name="acceptanceCriteria"
-				/>
+				</form.Field>
 				{!isLoadingMembers && projectMembersData && (
-					<form.Field
-						children={(field) => {
+					<form.Field name="assigneeId">
+						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -238,17 +235,15 @@ function CardForm({
 								</Field>
 							);
 						}}
-						name="assigneeId"
-					/>
+					</form.Field>
 				)}
 			</div>
 			<DialogFooter className="mt-4 flex-shrink-0">
 				<Button onClick={onCancel} variant="outline">
 					Cancel
 				</Button>
-				<form.Subscribe
-					selector={(state) => state.isDirty}
-					children={(isDirty) => (
+				<form.Subscribe selector={(state) => state.isDirty}>
+					{(isDirty) => (
 						<Button disabled={isPending || !isDirty} type="submit">
 							{isPending ? (
 								<Loader2 className="h-4 w-4 animate-spin" />
@@ -257,7 +252,7 @@ function CardForm({
 							)}
 						</Button>
 					)}
-				/>
+				</form.Subscribe>
 			</DialogFooter>
 		</form>
 	);

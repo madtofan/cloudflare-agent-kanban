@@ -26,30 +26,17 @@ const BoardDetailContext = createContext<BoardDetailContextType>({
 	boardId: "",
 	projectId: "",
 	isTriggeringCard: false,
-	triggerCardAgent: () => {},
+	triggerCardAgent: () => {
+		// empty default function
+	},
 	currentUser: null,
 	boardOwnerId: null,
 	boardMemberRole: null,
 });
 
 export const useBoardDetailContext = () => {
-	try {
-		const context = useContext(BoardDetailContext);
-		return context;
-	} catch {
-		console.error(
-			"useBoardDetailContext should only be used within its provider"
-		);
-		return {
-			boardId: "",
-			projectId: "",
-			isTriggeringCard: false,
-			triggerCardAgent: () => {},
-			currentUser: null,
-			boardOwnerId: null,
-			boardMemberRole: null,
-		};
-	}
+	const context = useContext(BoardDetailContext);
+	return context;
 };
 
 interface BoardDetailProviderProps {

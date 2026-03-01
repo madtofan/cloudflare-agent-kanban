@@ -1,4 +1,5 @@
 import { db } from "@cloudflare-agent-kanban/db";
+// biome-ignore lint/performance/noNamespaceImport: We really want to import all of the schema
 import * as schema from "@cloudflare-agent-kanban/db/schema/auth";
 import { env } from "@cloudflare-agent-kanban/env/server";
 import { betterAuth } from "better-auth";
@@ -11,7 +12,7 @@ export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "sqlite",
 
-		schema: schema,
+		schema,
 	}),
 	trustedOrigins: [env.CORS_ORIGIN],
 	emailAndPassword: {

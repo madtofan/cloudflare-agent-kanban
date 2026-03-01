@@ -7,6 +7,14 @@ import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import {
 	Field,
 	FieldDescription,
 	FieldError,
@@ -54,6 +62,7 @@ function BoardSettingsSheet({
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
 	const isOwner = initialData?.ownerId === userId;
 
@@ -99,7 +108,7 @@ function BoardSettingsSheet({
 		validators: {
 			onSubmit: formSchema,
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: ({ value }) => {
 			updateBoardMutation.mutate({
 				boardId,
 				name: value.name,
@@ -110,159 +119,180 @@ function BoardSettingsSheet({
 	});
 
 	const handleDelete = () => {
-		if (
-			confirm(
-				"Are you sure you want to delete this board? This action cannot be undone."
-			)
-		) {
-			setIsDeleting(true);
-			deleteBoardMutation.mutate({ boardId });
-		}
+		setShowDeleteConfirm(true);
+	};
+
+	const confirmDelete = () => {
+		setShowDeleteConfirm(false);
+		setIsDeleting(true);
+		deleteBoardMutation.mutate({ boardId });
 	};
 
 	const isPublic = form.getFieldValue("visibility") === "public";
 
 	return (
-		<Sheet onOpenChange={onOpenChange} open={open}>
-			<SheetContent className="overflow-y-auto" side="right">
-				<SheetHeader>
-					<SheetTitle>Board Settings</SheetTitle>
-					<SheetDescription>
-						Manage your board settings and visibility.
-					</SheetDescription>
-				</SheetHeader>
+		<>
+			<Sheet onOpenChange={onOpenChange} open={open}>
+				<SheetContent className="overflow-y-auto" side="right">
+					<SheetHeader>
+						<SheetTitle>Board Settings</SheetTitle>
+						<SheetDescription>
+							Manage your board settings and visibility.
+						</SheetDescription>
+					</SheetHeader>
 
-				<form
-					className="space-y-6"
-					id="board-settings-form"
-					onSubmit={(e) => {
-						e.preventDefault();
-						form.handleSubmit();
-					}}
-				>
-					<form.Field
-						children={(field) => (
-							<Field>
-								<FieldLabel htmlFor={field.name}>Board Name</FieldLabel>
-								<Input
-									disabled={!isOwner}
-									id={field.name}
-									name={field.name}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									value={field.state.value}
-								/>
-								<FieldError errors={field.state.meta.errors} />
-							</Field>
-						)}
-						name="name"
-					/>
-
-					<form.Field
-						children={(field) => (
-							<Field>
-								<FieldLabel htmlFor={field.name}>Description</FieldLabel>
-								<Input
-									disabled={!isOwner}
-									id={field.name}
-									name={field.name}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									placeholder="Add a description..."
-									value={field.state.value}
-								/>
-							</Field>
-						)}
-						name="description"
-					/>
-
-					<form.Field
-						children={(field) => (
-							<Field>
-								<FieldLabel>Visibility</FieldLabel>
-								<div className="mt-2 flex items-center gap-4">
-									<label className="flex cursor-pointer items-center gap-2">
-										<input
-											checked={field.state.value === "private"}
-											className="accent-primary"
-											disabled={!isOwner}
-											name={field.name}
-											onChange={() => field.handleChange("private")}
-											type="radio"
-											value="private"
-										/>
-										<span className="text-sm">Private</span>
-									</label>
-									<label className="flex cursor-pointer items-center gap-2">
-										<input
-											checked={field.state.value === "public"}
-											className="accent-primary"
-											disabled={!isOwner}
-											name={field.name}
-											onChange={() => field.handleChange("public")}
-											type="radio"
-											value="public"
-										/>
-										<span className="text-sm">Public</span>
-									</label>
-								</div>
-								<FieldDescription>
-									{isPublic
-										? "Anyone with the link can view this board."
-										: "Only members can view this board."}
-								</FieldDescription>
-							</Field>
-						)}
-						name="visibility"
-					/>
-
-					{isOwner && (
-						<Button
-							className="w-full"
-							disabled={updateBoardMutation.isPending}
-							type="submit"
-						>
-							{updateBoardMutation.isPending ? (
-								<Loader2 className="h-4 w-4 animate-spin" />
-							) : (
-								"Save Changes"
+					<form
+						className="space-y-6"
+						id="board-settings-form"
+						onSubmit={(e) => {
+							e.preventDefault();
+							form.handleSubmit();
+						}}
+					>
+						<form.Field name="name">
+							{(field) => (
+								<Field>
+									<FieldLabel htmlFor={field.name}>Board Name</FieldLabel>
+									<Input
+										disabled={!isOwner}
+										id={field.name}
+										name={field.name}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										value={field.state.value}
+									/>
+									<FieldError errors={field.state.meta.errors} />
+								</Field>
 							)}
-						</Button>
-					)}
+						</form.Field>
 
-					<Separator className="my-4" />
+						<form.Field name="description">
+							{(field) => (
+								<Field>
+									<FieldLabel htmlFor={field.name}>Description</FieldLabel>
+									<Input
+										disabled={!isOwner}
+										id={field.name}
+										name={field.name}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Add a description..."
+										value={field.state.value}
+									/>
+								</Field>
+							)}
+						</form.Field>
 
-					<div>
-						<h3 className="mb-2 font-semibold text-destructive text-sm">
-							Danger Zone
-						</h3>
-						<p className="mb-3 text-muted-foreground text-xs">
-							Deleting a board is permanent and cannot be undone.
-						</p>
-						{isOwner ? (
+						<form.Field name="visibility">
+							{(field) => (
+								<Field>
+									<FieldLabel>Visibility</FieldLabel>
+									<div className="mt-2 flex items-center gap-4">
+										<label className="flex cursor-pointer items-center gap-2">
+											<input
+												checked={field.state.value === "private"}
+												className="accent-primary"
+												disabled={!isOwner}
+												name={field.name}
+												onChange={() => field.handleChange("private")}
+												type="radio"
+												value="private"
+											/>
+											<span className="text-sm">Private</span>
+										</label>
+										<label className="flex cursor-pointer items-center gap-2">
+											<input
+												checked={field.state.value === "public"}
+												className="accent-primary"
+												disabled={!isOwner}
+												name={field.name}
+												onChange={() => field.handleChange("public")}
+												type="radio"
+												value="public"
+											/>
+											<span className="text-sm">Public</span>
+										</label>
+									</div>
+									<FieldDescription>
+										{isPublic
+											? "Anyone with the link can view this board."
+											: "Only members can view this board."}
+									</FieldDescription>
+								</Field>
+							)}
+						</form.Field>
+
+						{isOwner && (
 							<Button
 								className="w-full"
-								disabled={deleteBoardMutation.isPending || isDeleting}
-								onClick={handleDelete}
-								type="button"
-								variant="destructive"
+								disabled={updateBoardMutation.isPending}
+								type="submit"
 							>
-								{isDeleting ? (
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								{updateBoardMutation.isPending ? (
+									<Loader2 className="h-4 w-4 animate-spin" />
 								) : (
-									<Trash2 className="mr-2 h-4 w-4" />
+									"Save Changes"
 								)}
-								Delete Board
 							</Button>
-						) : (
-							<p className="text-muted-foreground text-sm">
-								Only the owner can delete this board.
-							</p>
 						)}
-					</div>
-				</form>
-			</SheetContent>
-		</Sheet>
+
+						<Separator className="my-4" />
+
+						<div>
+							<h3 className="mb-2 font-semibold text-destructive text-sm">
+								Danger Zone
+							</h3>
+							<p className="mb-3 text-muted-foreground text-xs">
+								Deleting a board is permanent and cannot be undone.
+							</p>
+							{isOwner ? (
+								<Button
+									className="w-full"
+									disabled={deleteBoardMutation.isPending || isDeleting}
+									onClick={handleDelete}
+									type="button"
+									variant="destructive"
+								>
+									{isDeleting ? (
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									) : (
+										<Trash2 className="mr-2 h-4 w-4" />
+									)}
+									Delete Board
+								</Button>
+							) : (
+								<p className="text-muted-foreground text-sm">
+									Only the owner can delete this board.
+								</p>
+							)}
+						</div>
+					</form>
+				</SheetContent>
+			</Sheet>
+
+			<Dialog onOpenChange={setShowDeleteConfirm} open={showDeleteConfirm}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete Board</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete this board? This action cannot be
+							undone.
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							onClick={() => setShowDeleteConfirm(false)}
+							variant="outline"
+						>
+							Cancel
+						</Button>
+						<Button onClick={confirmDelete} variant="destructive">
+							Delete
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
 	);
 }
 

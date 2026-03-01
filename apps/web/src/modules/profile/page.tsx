@@ -3,6 +3,7 @@ import { notFound } from "@tanstack/react-router";
 import { Check, Edit2, Loader2, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { authClient } from "@/lib/auth-client";
@@ -92,17 +93,12 @@ function ProfilePage({ username }: ProfilePageProps) {
 		<div className="container mx-auto py-10">
 			<div className="mx-auto max-w-2xl">
 				<div className="flex flex-col items-center text-center">
-					{publicProfile.image ? (
-						<img
-							alt={publicProfile.name}
-							className="h-32 w-32 rounded-full object-cover"
-							src={publicProfile.image}
-						/>
-					) : (
-						<div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted text-4xl">
-							{publicProfile.name.charAt(0).toUpperCase()}
-						</div>
-					)}
+					<Avatar className="size-32">
+						<AvatarImage src={publicProfile.image ?? undefined} />
+						<AvatarFallback>
+							{publicProfile.name?.[0]?.toUpperCase() ?? "?"}
+						</AvatarFallback>
+					</Avatar>
 					<h1 className="mt-4 font-bold text-3xl">
 						{publicProfile.displayUsername || publicProfile.username}
 					</h1>

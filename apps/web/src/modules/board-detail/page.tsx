@@ -120,11 +120,11 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				cardsByColumn.data?.[overColumnId as string] || [];
 			const newPosition =
 				overColumnKanbanCards.length > 0
-					? Math.max(...overColumnKanbanCards.map((c) => c.position!)) + 1
+					? Math.max(...overColumnKanbanCards.map((c) => c.position ?? 0)) + 1
 					: 0;
 
 			moveKanbanCardMutation.mutate({
-				cardId: activeKanbanCard.id!,
+				cardId: activeKanbanCard.id ?? "",
 				columnId: overColumnId as string,
 				position: newPosition,
 			});

@@ -3,21 +3,14 @@
     "context7": {
       "type": "local",
       "command": "npx",
-      "args": [
-        "-y",
-        "@upstash/context7-mcp"
-      ],
+      "args": ["-y", "@upstash/context7-mcp"],
       "enabled": true,
       "environment": {}
     },
     "shadcn": {
       "type": "local",
       "command": "npx",
-      "args": [
-        "-y",
-        "shadcn@latest",
-        "mcp"
-      ],
+      "args": ["-y", "shadcn@latest", "mcp"],
       "enabled": true,
       "environment": {}
     },

@@ -66,7 +66,7 @@ function AddColumnDialog({
 		validators: {
 			onSubmit: formSchema,
 		},
-		onSubmit: async ({ value }) => {
+		onSubmit: ({ value }) => {
 			createColumnMutation.mutate({
 				boardId,
 				name: value.name,
@@ -90,8 +90,8 @@ function AddColumnDialog({
 							Add column to the current board.
 						</DialogDescription>
 					</DialogHeader>
-					<form.Field
-						children={(field) => {
+					<form.Field name="name">
+						{(field) => {
 							const isInvalid =
 								field.state.meta.isTouched && !field.state.meta.isValid;
 							return (
@@ -115,8 +115,7 @@ function AddColumnDialog({
 								</Field>
 							);
 						}}
-						name="name"
-					/>
+					</form.Field>
 					<DialogFooter>
 						<Button onClick={() => onDialogOpenClose(false)} variant="outline">
 							Cancel

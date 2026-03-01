@@ -20,24 +20,24 @@ export interface RouterAppContext {
 }
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
-  component: RootComponent,
-  head: () => ({
-    meta: [
-      {
-        title: "cloudflare-agent-kanban",
-      },
-      {
-        name: "description",
-        content: "cloudflare-agent-kanban is a web application",
-      },
-    ],
-    links: [
-      {
-        rel: "icon",
-        href: "/favicon.ico",
-      },
-    ],
-  }),
+	component: RootComponent,
+	head: () => ({
+		meta: [
+			{
+				title: "cloudflare-agent-kanban",
+			},
+			{
+				name: "description",
+				content: "cloudflare-agent-kanban is a web application",
+			},
+		],
+		links: [
+			{
+				rel: "icon",
+				href: "/favicon.ico",
+			},
+		],
+	}),
 });
 
 function RootComponent() {

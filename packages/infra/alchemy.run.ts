@@ -1,3 +1,4 @@
+// biome-ignore-all lint/style/noNonNullAssertion: Infra works
 import alchemy from "alchemy";
 import { D1Database, Vite, Worker } from "alchemy/cloudflare";
 import { config } from "dotenv";

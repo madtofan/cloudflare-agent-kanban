@@ -369,9 +369,11 @@ export const cardLinkRelations = relations(cardLink, ({ one }) => ({
 	sourceCard: one(card, {
 		fields: [cardLink.sourceCardId],
 		references: [card.id],
+		relationName: "sourceCard",
 	}),
 	targetCard: one(card, {
 		fields: [cardLink.targetCardId],
 		references: [card.id],
+		relationName: "targetCard",
 	}),
 }));

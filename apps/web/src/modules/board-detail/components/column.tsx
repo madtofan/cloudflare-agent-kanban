@@ -95,7 +95,7 @@ function ColumnComponent({
 			</div>
 			<div className="flex-1 overflow-y-auto p-2">
 				<SortableContext
-					items={cards.map((c) => c.id!)}
+					items={cards.map((c) => c.id ?? "")}
 					strategy={verticalListSortingStrategy}
 				>
 					{cards.map((card) => (
