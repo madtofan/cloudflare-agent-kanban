@@ -7,6 +7,7 @@
   ],
   "type": "module",
   "scripts": {
+    "clean": "pnpm --recursive exec pnpm dlx rimraf node_modules && pnpm dlx rimraf node_modules && pnpm install",
     "configure": "turbo -F @cloudflare-agent-kanban/infra configure",
     "login": "turbo -F @cloudflare-agent-kanban/infra login",
     "dev": "turbo dev",
@@ -33,6 +34,7 @@
     "@cloudflare-agent-kanban/config": "workspace:*",
     "@cloudflare/workers-types": "catalog:",
     "@types/node": "catalog:",
+    "rimraf": "^6.1.3",
     "turbo": "^2.6.3",
     "typescript": "catalog:",
     "ultracite": "7.2.3"

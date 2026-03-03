@@ -57,6 +57,7 @@ function AddCardDialog({
 			description: value.description,
 			acceptanceCriteria: value.acceptanceCriteria,
 			columnId,
+			assigneeId: value.assigneeId ?? undefined,
 		});
 	};
 

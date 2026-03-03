@@ -94,6 +94,7 @@ function EditCardDialog({
 			type: value.type,
 			description: value.description,
 			acceptanceCriteria: value.acceptanceCriteria,
+			assigneeId: value.assigneeId
 		});
 	};
 
