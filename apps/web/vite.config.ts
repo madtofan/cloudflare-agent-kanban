@@ -8,7 +8,9 @@ import { VitePWA } from "vite-plugin-pwa";
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
-		tanstackRouter({}),
+		tanstackRouter({
+			autoCodeSplitting: true,
+		}),
 		react(),
 		VitePWA({
 			registerType: "autoUpdate",

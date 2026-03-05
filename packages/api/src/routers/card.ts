@@ -868,11 +868,11 @@ export const cardRouter = {
 					...link,
 					targetCard: targetCard
 						? {
-							id: targetCard.id,
-							cardNumber: targetCard.cardNumber,
-							title: targetCard.title,
-							type: targetCard.type,
-						}
+								id: targetCard.id,
+								cardNumber: targetCard.cardNumber,
+								title: targetCard.title,
+								type: targetCard.type,
+							}
 						: null,
 				};
 			});
@@ -883,11 +883,11 @@ export const cardRouter = {
 					...link,
 					sourceCard: sourceCard
 						? {
-							id: sourceCard.id,
-							cardNumber: sourceCard.cardNumber,
-							title: sourceCard.title,
-							type: sourceCard.type,
-						}
+								id: sourceCard.id,
+								cardNumber: sourceCard.cardNumber,
+								title: sourceCard.title,
+								type: sourceCard.type,
+							}
 						: null,
 				};
 			});
@@ -971,20 +971,22 @@ export const cardRouter = {
 					.select()
 					.from(card)
 					.where(
-						sql`${card.boardId} = ${input.boardId} AND ${card.cardNumber} = ${queryNum}${input.excludeCardId
-							? sql` AND ${card.id} != ${input.excludeCardId}`
-							: sql``
-							}`
+						sql`${card.boardId} = ${input.boardId} AND ${card.cardNumber} = ${queryNum}${
+							input.excludeCardId
+								? sql` AND ${card.id} != ${input.excludeCardId}`
+								: sql``
+						}`
 					);
 			} else if (input.query.trim().length > 0) {
 				cards = await db
 					.select()
 					.from(card)
 					.where(
-						sql`${card.boardId} = ${input.boardId} AND LOWER(${card.title}) LIKE ${`%${input.query.toLowerCase()}%`}${input.excludeCardId
-							? sql` AND ${card.id} != ${input.excludeCardId}`
-							: sql``
-							}`
+						sql`${card.boardId} = ${input.boardId} AND LOWER(${card.title}) LIKE ${`%${input.query.toLowerCase()}%`}${
+							input.excludeCardId
+								? sql` AND ${card.id} != ${input.excludeCardId}`
+								: sql``
+						}`
 					);
 			}
 
