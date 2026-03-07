@@ -8,10 +8,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { CardForm, type cardFormSchema } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import type { KanbanCard } from "../types";
-import CardForm from "./card-form";
-import type { cardFormSchema } from "./constants";
 
 interface AddCardDialogProps {
 	boardId: string;

@@ -5,10 +5,10 @@ import { Link2, MessageSquare, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { cardTypes } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
 import type { KanbanCard } from "../types";
-import { cardTypes } from "./constants";
 import EditCardDialog from "./edit-card-dialog";
 
 function KanbanCardComponent({

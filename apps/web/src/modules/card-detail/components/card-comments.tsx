@@ -14,7 +14,7 @@ import {
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
-import { formatDate } from "./utils";
+import { formatDate } from "../utils";
 
 interface CardCommentsProps {
 	cardId?: string;

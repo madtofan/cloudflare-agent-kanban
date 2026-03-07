@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/react-select";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { orpc } from "@/utils/orpc";
-import { cardFormSchema, cardTypes } from "./constants";
+import { cardFormSchema, cardTypes } from "../constants";
 
 interface CardFormProps {
 	cardId?: string;

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { orpc } from "@/utils/orpc";
-import { formatDate, getActionLabel } from "./utils";
+import { formatDate, getActionLabel } from "../utils";
 
 interface CardLogProps {
 	cardId?: string;
