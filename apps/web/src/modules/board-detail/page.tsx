@@ -13,13 +13,14 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Loader2, Plus, Settings } from "lucide-react";
+import { Archive, ArrowLeft, Loader2, Plus, Settings } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 import AddColumnDialog from "./components/add-column-dialog";
+import { ArchivedCardsList } from "./components/archived-cards-list";
 import BoardSettingsSheet from "./components/board-settings-sheet";
 import ColumnComponent from "./components/column";
 import { BoardDetailProvider } from "./context";
@@ -39,6 +40,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	);
 	const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const [showArchived, setShowArchived] = useState(false);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -55,6 +57,9 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	);
 	const cardsByColumn = useQuery(
 		orpc.card.getByBoardId.queryOptions({ input: { boardId } })
+	);
+	const archivedCount = useQuery(
+		orpc.card.getArchivedCount.queryOptions({ input: { boardId } })
 	);
 
 	const userId = session?.user.id;
@@ -196,6 +201,18 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
+						<Button
+							onClick={() => setShowArchived(!showArchived)}
+							variant={showArchived ? "default" : "outline"}
+						>
+							<Archive className="mr-2 h-4 w-4" />
+							Archived
+							{archivedCount.data !== undefined && archivedCount.data > 0 && (
+								<span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-white text-xs">
+									{archivedCount.data}
+								</span>
+							)}
+						</Button>
 						{isAdminOrOwner && (
 							<Button
 								onClick={() => setIsSettingsOpen(true)}
@@ -218,33 +235,38 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				</div>
 
 				<div className="flex-1 overflow-x-auto p-6">
-					<DndContext
-						collisionDetection={closestCorners}
-						onDragEnd={handleDragEnd}
-						onDragOver={handleDragOver}
-						onDragStart={handleDragStart}
-						sensors={sensors}
-					>
-						<div className="flex h-full gap-4">
-							{columns.data?.map((column) => (
-								<ColumnComponent
-									canEdit={isAdminOrOwner}
-									cards={cardsByColumn.data?.[column.id] || []}
-									column={column}
-									key={column.id}
-									onDeleteColumn={() => handleDeleteColumn(column)}
-									projectId={projectId}
-								/>
-							))}
-						</div>
-						<DragOverlay>
-							{activeKanbanCard && (
-								<div className="cursor-grabbing rounded-md border bg-card p-3 shadow-lg">
-									<h4 className="font-medium">{activeKanbanCard.title}</h4>
-								</div>
-							)}
-						</DragOverlay>
-					</DndContext>
+					{showArchived ? (
+						<ArchivedCardsList boardId={boardId} />
+					) : (
+						<DndContext
+							collisionDetection={closestCorners}
+							onDragEnd={handleDragEnd}
+							onDragOver={handleDragOver}
+							onDragStart={handleDragStart}
+							sensors={sensors}
+						>
+							<div className="flex h-full gap-4">
+								{columns.data?.map((column) => (
+									<ColumnComponent
+										boardId={boardId}
+										canEdit={isAdminOrOwner}
+										cards={cardsByColumn.data?.[column.id] || []}
+										column={column}
+										key={column.id}
+										onDeleteColumn={() => handleDeleteColumn(column)}
+										projectId={projectId}
+									/>
+								))}
+							</div>
+							<DragOverlay>
+								{activeKanbanCard && (
+									<div className="cursor-grabbing rounded-md border bg-card p-3 shadow-lg">
+										<h4 className="font-medium">{activeKanbanCard.title}</h4>
+									</div>
+								)}
+							</DragOverlay>
+						</DndContext>
+					)}
 				</div>
 
 				<AddColumnDialog

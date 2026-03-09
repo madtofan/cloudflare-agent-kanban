@@ -56,7 +56,7 @@ export type CardHistory = InferSelectModel<typeof cardHistory>;
 async function logCardChange(
 	cardId: string,
 	userId: string,
-	action: "CREATE" | "UPDATE" | "DELETE" | "MOVE",
+	action: "CREATE" | "UPDATE" | "DELETE" | "MOVE" | "ARCHIVE" | "UNARCHIVE",
 	fieldName: string | null | undefined,
 	oldValue: string | null | undefined,
 	newValue: string | null | undefined
@@ -99,7 +99,7 @@ export const cardRouter = {
 			}
 
 			const cards = await db.query.card.findMany({
-				where: eq(card.columnId, input.columnId),
+				where: sql`${card.columnId} = ${input.columnId} AND ${card.archivedDate} IS NULL`,
 				orderBy: asc(card.position),
 			});
 
@@ -139,6 +139,7 @@ export const cardRouter = {
 						},
 						with: {
 							cards: {
+								where: sql`${card.archivedDate} IS NULL`,
 								columns: {
 									id: true,
 									cardNumber: true,
@@ -151,6 +152,7 @@ export const cardRouter = {
 									agentTriggerUrl: true,
 									createdAt: true,
 									updatedAt: true,
+									archivedDate: true,
 								},
 								with: {
 									assignee: {
@@ -195,6 +197,7 @@ export const cardRouter = {
 					assignee: card.assignee,
 					createdAt: card.createdAt,
 					updatedAt: card.updatedAt,
+					archivedDate: card.archivedDate,
 				}));
 				return acc;
 			}, {});
@@ -1127,5 +1130,247 @@ export const cardRouter = {
 				);
 
 			return { success: true };
+		}),
+
+	archive: protectedProcedure
+		.route({
+			method: "PUT",
+			path: "/api/card/{cardId}/archive",
+			summary: "",
+			tags: ["Card"],
+		})
+		.input(cardIdSchema)
+		.handler(async ({ context, input }) => {
+			const userId = context.session.user.id;
+			const cardData = await db.query.card.findFirst({
+				where: eq(card.id, input.cardId),
+			});
+
+			if (!cardData) {
+				throw new Error("Card not found");
+			}
+
+			const columnData = await db.query.column.findFirst({
+				where: eq(column.id, cardData.columnId),
+			});
+			if (!columnData) {
+				throw new Error("Column not found");
+			}
+
+			await requireEditAccess(columnData.boardId, userId);
+
+			const updatedCard = await db
+				.update(card)
+				.set({ archivedDate: new Date(), updatedAt: new Date() })
+				.where(eq(card.id, input.cardId))
+				.returning();
+
+			await logCardChange(
+				input.cardId,
+				userId,
+				"ARCHIVE",
+				null,
+				null,
+				JSON.stringify({ title: cardData.title })
+			);
+
+			return updatedCard[0];
+		}),
+
+	archiveByColumnId: protectedProcedure
+		.route({
+			method: "PUT",
+			path: "/api/column/{columnId}/archive-cards",
+			summary: "",
+			tags: ["Card"],
+		})
+		.input(columnIdSchema)
+		.handler(async ({ context, input }) => {
+			const userId = context.session.user.id;
+			const columnData = await db.query.column.findFirst({
+				where: eq(column.id, input.columnId),
+			});
+
+			if (!columnData) {
+				throw new Error("Column not found");
+			}
+
+			await requireEditAccess(columnData.boardId, userId);
+
+			const cardsToArchive = await db.query.card.findMany({
+				where: sql`${card.columnId} = ${input.columnId} AND ${card.archivedDate} IS NULL`,
+			});
+
+			if (cardsToArchive.length === 0) {
+				return { success: true, archivedCount: 0 };
+			}
+
+			const now = new Date();
+			await db
+				.update(card)
+				.set({ archivedDate: now, updatedAt: now })
+				.where(
+					sql`${card.columnId} = ${input.columnId} AND ${card.archivedDate} IS NULL`
+				);
+
+			for (const cardData of cardsToArchive) {
+				await logCardChange(
+					cardData.id,
+					userId,
+					"ARCHIVE",
+					null,
+					null,
+					JSON.stringify({ title: cardData.title, columnName: columnData.name })
+				);
+			}
+
+			return { success: true, archivedCount: cardsToArchive.length };
+		}),
+
+	getArchivedByBoardId: protectedProcedure
+		.route({
+			method: "GET",
+			path: "/api/board/{boardId}/card/archived",
+			summary: "",
+			tags: ["Card"],
+		})
+		.input(boardIdSchema)
+		.handler(async ({ context, input }) => {
+			const userId = context.session.user.id;
+			const access = await getBoardAccess(input.boardId, userId);
+
+			if (access === "none") {
+				throw new Error("Board not found");
+			}
+
+			const archivedCards = await db
+				.select()
+				.from(card)
+				.where(
+					sql`${card.boardId} = ${input.boardId} AND ${card.archivedDate} IS NOT NULL`
+				);
+
+			const columnIds = [...new Set(archivedCards.map((c) => c.columnId))];
+			const columns = await db
+				.select()
+				.from(column)
+				.where(inArray(column.id, columnIds));
+
+			const columnMap = new Map(columns.map((c) => [c.id, c.name]));
+
+			return archivedCards.map((c) => ({
+				...c,
+				originalColumnName: columnMap.get(c.columnId) ?? "Unknown",
+			}));
+		}),
+
+	unarchive: protectedProcedure
+		.route({
+			method: "PUT",
+			path: "/api/card/unarchive",
+			summary: "",
+			tags: ["Card"],
+		})
+		.input(z.object({ cardIds: z.array(z.string()) }))
+		.handler(async ({ context, input }) => {
+			const userId = context.session.user.id;
+
+			if (input.cardIds.length === 0) {
+				return { success: true, unarchivedCount: 0 };
+			}
+
+			const cardsToUnarchive = await db
+				.select()
+				.from(card)
+				.where(inArray(card.id, input.cardIds));
+
+			if (cardsToUnarchive.length === 0) {
+				throw new Error("No cards found to unarchive");
+			}
+
+			const boardIds = [...new Set(cardsToUnarchive.map((c) => c.boardId))];
+
+			for (const boardId of boardIds) {
+				await requireEditAccess(boardId, userId);
+			}
+
+			const columnIds = [...new Set(cardsToUnarchive.map((c) => c.columnId))];
+			const columns = await db
+				.select()
+				.from(column)
+				.where(inArray(column.id, columnIds));
+
+			const columnMap = new Map(columns.map((c) => [c.id, c]));
+
+			const firstColumnMap = new Map<string, typeof column.$inferSelect>();
+			for (const boardId of boardIds) {
+				const firstColumn = await db.query.column.findFirst({
+					where: eq(column.boardId, boardId),
+					orderBy: asc(column.position),
+				});
+				if (firstColumn) {
+					firstColumnMap.set(boardId, firstColumn);
+				}
+			}
+
+			const now = new Date();
+			for (const cardData of cardsToUnarchive) {
+				const targetColumn = columnMap.get(cardData.columnId);
+				const targetColumnId = targetColumn
+					? cardData.columnId
+					: firstColumnMap.get(cardData.boardId)?.id;
+
+				if (!targetColumnId) {
+					throw new Error("No column available to unarchive card");
+				}
+
+				const isDifferentColumn = targetColumnId !== cardData.columnId;
+
+				await db
+					.update(card)
+					.set({
+						archivedDate: null,
+						columnId: targetColumnId,
+						updatedAt: now,
+					})
+					.where(eq(card.id, cardData.id));
+
+				await logCardChange(
+					cardData.id,
+					userId,
+					"UNARCHIVE",
+					isDifferentColumn ? "columnId" : null,
+					cardData.columnId,
+					targetColumnId
+				);
+			}
+
+			return { success: true, unarchivedCount: cardsToUnarchive.length };
+		}),
+
+	getArchivedCount: protectedProcedure
+		.route({
+			method: "GET",
+			path: "/api/board/{boardId}/card/archived/count",
+			summary: "",
+			tags: ["Card"],
+		})
+		.input(boardIdSchema)
+		.handler(async ({ context, input }) => {
+			const userId = context.session.user.id;
+			const access = await getBoardAccess(input.boardId, userId);
+
+			if (access === "none") {
+				throw new Error("Board not found");
+			}
+
+			const result = await db
+				.select({ count: card.id })
+				.from(card)
+				.where(
+					sql`${card.boardId} = ${input.boardId} AND ${card.archivedDate} IS NOT NULL`
+				);
+
+			return result.length;
 		}),
 };

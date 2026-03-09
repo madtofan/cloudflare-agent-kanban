@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Trash2, Zap } from "lucide-react";
+import { Archive, Trash2, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type z from "zod";
@@ -46,6 +46,24 @@ function CardDetailPage({
 				onDeleteCard?.();
 				onDialogOpenClose(false);
 				toast.success("Card deleted");
+			},
+			onError: (error) => toast.error(error.message),
+		})
+	);
+
+	const archiveKanbanCardMutation = useMutation(
+		orpc.card.archive.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.card.getArchivedByBoardId.queryKey({
+						input: { boardId },
+					}),
+				});
+				onDialogOpenClose(false);
+				toast.success("Card archived");
 			},
 			onError: (error) => toast.error(error.message),
 		})
@@ -100,6 +118,12 @@ function CardDetailPage({
 		}
 	};
 
+	const handleArchiveCard = () => {
+		if (card.id && confirm("Are you sure you want to archive this card?")) {
+			archiveKanbanCardMutation.mutate({ cardId: card.id });
+		}
+	};
+
 	const isSubmitting = editKanbanCardMutation.isPending || isTriggeringCard;
 
 	return (
@@ -108,9 +132,7 @@ function CardDetailPage({
 				<div className="mb-4 flex flex-row justify-between">
 					<div>
 						<div>Edit Card</div>
-						<div id="edit-card-description">
-							Edit the card details below.
-						</div>
+						<div id="edit-card-description">Edit the card details below.</div>
 					</div>
 					<div className="flex flex-col gap-4 pr-6">
 						{card?.agentTriggerUrl && canEdit && (
@@ -122,6 +144,12 @@ function CardDetailPage({
 							>
 								<Zap className="mr-2 h-4 w-4" />
 								{isTriggeringCard ? "Triggering..." : "Trigger Agent"}
+							</Button>
+						)}
+						{canEdit && (
+							<Button onClick={handleArchiveCard} variant="outline">
+								<Archive className="mr-2 h-4 w-4" />
+								Archive
 							</Button>
 						)}
 						{canEdit && (

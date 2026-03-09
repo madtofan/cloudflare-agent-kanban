@@ -4,8 +4,10 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Archive, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -13,12 +15,14 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { orpc } from "@/utils/orpc";
 import type { Column, KanbanCard } from "../types";
 import AddCardDialog from "./add-card-dialog";
 import EditColumnDialog from "./edit-column-dialog";
 import KanbanCardComponent from "./kanban-card";
 
 interface ColumnComponentProps {
+	boardId: string;
 	canEdit?: boolean;
 	cards: KanbanCard[];
 	column: Column;
@@ -27,14 +31,39 @@ interface ColumnComponentProps {
 }
 
 function ColumnComponent({
+	boardId,
 	column,
 	cards,
 	projectId,
 	onDeleteColumn,
 	canEdit = true,
 }: ColumnComponentProps) {
+	const queryClient = useQueryClient();
 	const [openCreateCardDialog, setOpenCreateCardDialog] = useState(false);
 	const [isEditColumnOpen, setIsEditColumnOpen] = useState(false);
+
+	const archiveAllCardsMutation = useMutation(
+		orpc.card.archiveByColumnId.mutationOptions({
+			onSuccess: (data) => {
+				queryClient.invalidateQueries({
+					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.card.getArchivedByBoardId.queryKey({
+						input: { boardId },
+					}),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.card.getArchivedCount.queryKey({
+						input: { boardId },
+					}),
+				});
+				toast.success(`${data.archivedCount} cards archived`);
+			},
+			onError: (error) => toast.error(error.message),
+		})
+	);
+
 	const {
 		attributes,
 		listeners,
@@ -80,6 +109,23 @@ function ColumnComponent({
 							<DropdownMenuContent align="end">
 								<DropdownMenuItem onClick={() => setIsEditColumnOpen(true)}>
 									Edit
+								</DropdownMenuItem>
+								<DropdownMenuItem
+									onClick={() => {
+										if (
+											cards.length > 0 &&
+											confirm(
+												`Are you sure you want to archive all ${cards.length} cards in this column?`
+											)
+										) {
+											archiveAllCardsMutation.mutate({
+												columnId: column.id,
+											});
+										}
+									}}
+								>
+									<Archive className="mr-2 h-4 w-4" />
+									Archive all cards
 								</DropdownMenuItem>
 								<DropdownMenuItem
 									className="text-red-500"

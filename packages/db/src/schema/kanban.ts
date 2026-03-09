@@ -171,6 +171,7 @@ export const card = sqliteTable(
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
 			.$onUpdate(() => /* @__PURE__ */ new Date())
 			.notNull(),
+		archivedDate: integer("archived_date", { mode: "timestamp_ms" }),
 	},
 	(table) => [
 		index("card_columnId_idx").on(table.columnId),
