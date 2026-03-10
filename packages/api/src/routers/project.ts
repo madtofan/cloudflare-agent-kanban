@@ -50,17 +50,12 @@ export const projectRouter = {
 					),
 			});
 
-			const publicProjects = await db.query.project.findMany({
-				where: (project, { eq }) => eq(project.visibility, "public"),
-			});
-
 			const ownedProjects = await db.query.project.findMany({
 				where: (project, { eq }) => eq(project.ownerId, userId),
 			});
 
 			const allProjects = [
 				...memberProjects,
-				...publicProjects,
 				...ownedProjects,
 			];
 			const uniqueProjects = allProjects.filter(

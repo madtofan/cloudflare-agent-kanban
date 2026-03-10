@@ -13,7 +13,10 @@
     "dev": "export LOCAL_DB_PATH=$(find ../../.alchemy -name \"*.sqlite\" | head -n 1) && drizzle-kit studio",
     "db:push": "drizzle-kit studio && drizzle-kit push",
     "db:push:local": "export LOCAL_DB_PATH=$(find ../../.alchemy -name \"*.sqlite\" | head -n 1) && drizzle-kit studio && drizzle-kit push",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:seed": "node --import tsx ./seed.ts",
+    "db:seed:local": "export LOCAL_DB_PATH=$(find ../../.alchemy -name \"*.sqlite\" | head -n 1) && node --import tsx ./seed.ts",
+    "db:seed:prod": "NODE_ENV=production node --import tsx ./seed.ts"
   },
   "dependencies": {
     "@cloudflare-agent-kanban/env": "workspace:*",
@@ -26,6 +29,7 @@
   "devDependencies": {
     "@cloudflare-agent-kanban/config": "workspace:*",
     "drizzle-kit": "^0.31.8",
+    "tsx": "^4.19.0",
     "typescript": "catalog:"
   }
 }
