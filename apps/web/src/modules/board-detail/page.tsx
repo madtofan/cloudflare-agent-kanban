@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 import AddColumnDialog from "./components/add-column-dialog";
-import { ArchivedCardsList } from "./components/archived-cards-list";
 import BoardSettingsSheet from "./components/board-settings-sheet";
 import ColumnComponent from "./components/column";
 import { BoardDetailProvider } from "./context";
@@ -40,7 +39,6 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	);
 	const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-	const [showArchived, setShowArchived] = useState(false);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -202,8 +200,8 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					</div>
 					<div className="flex items-center gap-2">
 						<Button
-							onClick={() => setShowArchived(!showArchived)}
-							variant={showArchived ? "default" : "outline"}
+							onClick={() => navigate({ to: "/projects/$projectId/boards/$boardId/archived", params: { projectId, boardId } })}
+							variant="outline"
 						>
 							<Archive className="mr-2 h-4 w-4" />
 							Archived
@@ -215,15 +213,6 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 						</Button>
 						{isAdminOrOwner && (
 							<Button
-								onClick={() => setIsSettingsOpen(true)}
-								size="icon"
-								variant="ghost"
-							>
-								<Settings className="h-5 w-5" />
-							</Button>
-						)}
-						{isAdminOrOwner && (
-							<Button
 								onClick={() => setIsAddColumnOpen(true)}
 								variant="outline"
 							>
@@ -231,42 +220,47 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 								Add Column
 							</Button>
 						)}
+						{isAdminOrOwner && (
+							<Button
+								onClick={() => setIsSettingsOpen(true)}
+								size="icon"
+								variant="ghost"
+							>
+								<Settings className="h-5 w-5" />
+							</Button>
+						)}
 					</div>
 				</div>
 
 				<div className="flex-1 overflow-x-auto p-6">
-					{showArchived ? (
-						<ArchivedCardsList boardId={boardId} />
-					) : (
-						<DndContext
-							collisionDetection={closestCorners}
-							onDragEnd={handleDragEnd}
-							onDragOver={handleDragOver}
-							onDragStart={handleDragStart}
-							sensors={sensors}
-						>
-							<div className="flex h-full gap-4">
-								{columns.data?.map((column) => (
-									<ColumnComponent
-										boardId={boardId}
-										canEdit={isAdminOrOwner}
-										cards={cardsByColumn.data?.[column.id] || []}
-										column={column}
-										key={column.id}
-										onDeleteColumn={() => handleDeleteColumn(column)}
-										projectId={projectId}
-									/>
-								))}
-							</div>
-							<DragOverlay>
-								{activeKanbanCard && (
-									<div className="cursor-grabbing rounded-md border bg-card p-3 shadow-lg">
-										<h4 className="font-medium">{activeKanbanCard.title}</h4>
-									</div>
-								)}
-							</DragOverlay>
-						</DndContext>
-					)}
+					<DndContext
+						collisionDetection={closestCorners}
+						onDragEnd={handleDragEnd}
+						onDragOver={handleDragOver}
+						onDragStart={handleDragStart}
+						sensors={sensors}
+					>
+						<div className="flex h-full gap-4">
+							{columns.data?.map((column) => (
+								<ColumnComponent
+									boardId={boardId}
+									canEdit={isAdminOrOwner}
+									cards={cardsByColumn.data?.[column.id] || []}
+									column={column}
+									key={column.id}
+									onDeleteColumn={() => handleDeleteColumn(column)}
+									projectId={projectId}
+								/>
+							))}
+						</div>
+						<DragOverlay>
+							{activeKanbanCard && (
+								<div className="cursor-grabbing rounded-md border bg-card p-3 shadow-lg">
+									<h4 className="font-medium">{activeKanbanCard.title}</h4>
+								</div>
+							)}
+						</DragOverlay>
+					</DndContext>
 				</div>
 
 				<AddColumnDialog
