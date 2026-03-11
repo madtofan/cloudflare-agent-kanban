@@ -1,22 +1,46 @@
 import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-dotenv.config({
-	path: "../../apps/server/.env",
+const result = dotenv.config({
+	path:
+		process.env.NODE_ENV === "production"
+			? "../../apps/server/.env.prod"
+			: "../../apps/server/.env",
 });
 
-export default defineConfig({
+if (result.error) {
+	console.warn("Failed to load .env file:", result.error.message);
+}
+
+const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+const token = process.env.CLOUDFLARE_API_TOKEN;
+const localDbPath = process.env.LOCAL_DB_PATH;
+
+const config = {
 	schema: "./src/schema",
 	out: "./src/migrations",
-	// DOCS: https://orm.drizzle.team/docs/guides/d1-http-with-drizzle-kit
-	dialect: "sqlite",
-	...(process.env.LOCAL_DB_PATH
+	dialect: "sqlite" as const,
+	...(localDbPath
 		? {
 				dbCredentials: {
-					url: process.env.LOCAL_DB_PATH,
+					url: localDbPath,
 				},
 			}
 		: {
-				driver: "d1-http",
+				driver: "d1-http" as const,
+				dbCredentials: {
+					accountId: accountId ?? "",
+					databaseId: databaseId ?? "",
+					token: token ?? "",
+				},
 			}),
-});
+};
+
+if (!(localDbPath || (accountId && databaseId && token))) {
+	throw new Error(
+		"Missing required environment variables: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, CLOUDFLARE_API_TOKEN"
+	);
+}
+
+export default defineConfig(config);

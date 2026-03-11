@@ -11,41 +11,95 @@ if (result.error) {
 	console.warn("Failed to load .env file:", result.error.message);
 }
 
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
+const token = process.env.CLOUDFLARE_API_TOKEN;
+const localDbPath = process.env.LOCAL_DB_PATH;
 
-// biome-ignore lint/performance/noNamespaceImport: We really want to import all of the schema
-import * as schema from "./src/schema";
-
-let dbPath: string;
-
-if (process.env.LOCAL_DB_PATH) {
-	dbPath = process.env.LOCAL_DB_PATH;
-} else if (process.env.NODE_ENV === "production") {
+if (!(localDbPath || (accountId && databaseId && token))) {
 	throw new Error(
-		"Production seeding requires DB remote configuration. Use db:seed:prod command."
+		"Missing required environment variables. Use LOCAL_DB_PATH for local or CLOUDFLARE_* for production."
 	);
-} else {
-	throw new Error("LOCAL_DB_PATH not set. Use pnpm run db:seed:local");
 }
 
-console.log("📂 Using database:", dbPath);
+const D1_API_URL =
+	localDbPath === undefined
+		? `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}`
+		: "";
 
-const client = createClient({
-	url: `file:${dbPath}`,
-});
+interface D1Result {
+	results?: unknown[];
+	success: boolean;
+	meta: unknown[];
+}
 
-const db = drizzle(client, { schema });
+interface D1Response {
+	errors?: unknown[];
+	result?: D1Result[];
+	success: boolean;
+}
 
-import { user, userProfile } from "@cloudflare-agent-kanban/db/schema/auth";
-import {
-	board,
-	card,
-	column,
-	project,
-	projectMember,
-} from "@cloudflare-agent-kanban/db/schema/kanban";
-import { eq } from "drizzle-orm";
+async function d1Execute(sql: string, params: unknown[] = []) {
+	if (localDbPath !== undefined) {
+		throw new Error(
+			"Local DB seeding not implemented. Use db:seed:local with LOCAL_DB_PATH."
+		);
+	}
+
+	const response = await fetch(`${D1_API_URL}/query`, {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			sql,
+			params,
+		}),
+	});
+
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`D1 API error: ${response.status} ${error}`);
+	}
+
+	const data = (await response.json()) as D1Response;
+	if (!data.success) {
+		throw new Error(`D1 query failed: ${JSON.stringify(data.errors)}`);
+	}
+	return data;
+}
+
+async function d1Query(sql: string, params: unknown[] = []) {
+	if (localDbPath !== undefined) {
+		throw new Error(
+			"Local DB seeding not implemented. Use db:seed:local with LOCAL_DB_PATH."
+		);
+	}
+
+	const response = await fetch(`${D1_API_URL}/query`, {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			sql,
+			params,
+		}),
+	});
+
+	if (!response.ok) {
+		const error = await response.text();
+		throw new Error(`D1 API error: ${response.status} ${error}`);
+	}
+
+	const data = (await response.json()) as D1Response;
+	if (!data.success) {
+		throw new Error(`D1 query failed: ${JSON.stringify(data.errors)}`);
+	}
+	return data.result ?? [];
+}
 
 const DEMO_USER_ID = "demo-user";
 const DEMO_PROJECT_1_ID = "demo-project-1";
@@ -55,70 +109,89 @@ const DEMO_BOARD_2_ID = "demo-board-2";
 
 async function seed() {
 	console.log("🌱 Starting demo data seed...");
+	console.log("📂 Using database: D1 Remote");
 
-	const existingUser = await db.query.user.findFirst({
-		where: eq(user.id, DEMO_USER_ID),
-	});
+	const existingUsers = (await d1Query("SELECT id FROM user WHERE id = ?", [
+		DEMO_USER_ID,
+	])).find(Boolean);
 
-	if (existingUser) {
+	if (existingUsers?.results?.length ?? 0 > 0) {
 		console.log("Demo user already exists, skipping seed.");
 		return;
 	}
 
 	console.log("Creating demo user...");
-	await db.insert(user).values({
-		id: DEMO_USER_ID,
-		name: "Demo User",
-		email: "demo@example.com",
-		emailVerified: true,
-		username: "demo",
-		displayUsername: "demo",
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+	await d1Execute(
+		`INSERT INTO "user" (id, name, email, email_verified, username, display_username, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		[
+			DEMO_USER_ID,
+			"Demo User",
+			"demo@example.com",
+			1,
+			"demo",
+			"demo",
+			new Date().toISOString(),
+			new Date().toISOString(),
+		]
+	);
 
 	console.log("Creating demo user profile...");
-	await db.insert(userProfile).values({
-		id: "demo-profile",
-		userId: DEMO_USER_ID,
-		aboutMe:
+	await d1Execute(
+		`INSERT INTO "user_profile" (id, user_id, about_me, showcased_project_ids, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?)`,
+		[
+			"demo-profile",
+			DEMO_USER_ID,
 			"<p>I'm a full-stack developer passionate about building tools that help others showcase their work. When I'm not coding, you can find me contributing to open-source projects or writing technical blog posts.</p><p>I created this platform to give developers a free way to organize their projects while building a beautiful portfolio.</p>",
-		showcasedProjectIds: JSON.stringify([DEMO_PROJECT_1_ID, DEMO_PROJECT_2_ID]),
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+			JSON.stringify([DEMO_PROJECT_1_ID, DEMO_PROJECT_2_ID]),
+			new Date().toISOString(),
+			new Date().toISOString(),
+		]
+	);
 
 	console.log("Creating demo project 1: E-Commerce Platform...");
-	await db.insert(project).values({
-		id: DEMO_PROJECT_1_ID,
-		name: "E-Commerce Platform",
-		description:
+	await d1Execute(
+		`INSERT INTO "project" (id, name, description, visibility, owner_id, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		[
+			DEMO_PROJECT_1_ID,
+			"E-Commerce Platform",
 			"A full-featured e-commerce solution built with React, Node.js, and PostgreSQL. Features include user authentication, shopping cart, payment processing, and an admin dashboard.",
-		visibility: "public",
-		ownerId: DEMO_USER_ID,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+			"public",
+			DEMO_USER_ID,
+			new Date().toISOString(),
+			new Date().toISOString(),
+		]
+	);
 
-	await db.insert(projectMember).values({
-		id: "demo-project-1-member",
-		projectId: DEMO_PROJECT_1_ID,
-		userId: DEMO_USER_ID,
-		role: "admin",
-		createdAt: new Date(),
-	});
+	await d1Execute(
+		`INSERT INTO "project_member" (id, project_id, user_id, role, created_at)
+		 VALUES (?, ?, ?, ?, ?)`,
+		[
+			"demo-project-1-member",
+			DEMO_PROJECT_1_ID,
+			DEMO_USER_ID,
+			"admin",
+			new Date().toISOString(),
+		]
+	);
 
 	console.log("Creating demo board 1: Main Board...");
-	await db.insert(board).values({
-		id: DEMO_BOARD_1_ID,
-		name: "Main Board",
-		description: "Main development board for the e-commerce platform",
-		visibility: "public",
-		ownerId: DEMO_USER_ID,
-		projectId: DEMO_PROJECT_1_ID,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+	await d1Execute(
+		`INSERT INTO "board" (id, name, description, visibility, owner_id, project_id, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		[
+			DEMO_BOARD_1_ID,
+			"Main Board",
+			"Main development board for the e-commerce platform",
+			"public",
+			DEMO_USER_ID,
+			DEMO_PROJECT_1_ID,
+			new Date().toISOString(),
+			new Date().toISOString(),
+		]
+	);
 
 	console.log("Creating columns for board 1...");
 	const columns1 = [
@@ -128,14 +201,18 @@ async function seed() {
 	];
 
 	for (const col of columns1) {
-		await db.insert(column).values({
-			id: col.id,
-			boardId: DEMO_BOARD_1_ID,
-			name: col.name,
-			position: col.position,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		await d1Execute(
+			`INSERT INTO "column" (id, board_id, name, position, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?)`,
+			[
+				col.id,
+				DEMO_BOARD_1_ID,
+				col.name,
+				col.position,
+				new Date().toISOString(),
+				new Date().toISOString(),
+			]
+		);
 	}
 
 	console.log("Creating cards for board 1...");
@@ -186,54 +263,72 @@ async function seed() {
 
 	for (let i = 0; i < cards1.length; i++) {
 		const c = cards1[i];
-		await db.insert(card).values({
-			id: `demo-card-1-${i + 1}`,
-			boardId: DEMO_BOARD_1_ID,
-			cardNumber: i + 1,
-			columnId: c.colId,
-			title: c.title,
-			type: c.type as "task" | "epic" | "feature",
-			description: null,
-			acceptanceCriteria: null,
-			position: c.pos,
-			assigneeId: null,
-			agentTriggerUrl: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		if (c === undefined) {
+			continue;
+		}
+		await d1Execute(
+			`INSERT INTO "card" (id, board_id, card_number, column_id, title, type, description, acceptance_criteria, position, assignee_id, agent_trigger_url, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			[
+				`demo-card-1-${i + 1}`,
+				DEMO_BOARD_1_ID,
+				i + 1,
+				c.colId,
+				c.title,
+				c.type,
+				null,
+				null,
+				c.pos,
+				null,
+				null,
+				new Date().toISOString(),
+				new Date().toISOString(),
+			]
+		);
 	}
 
 	console.log("Creating demo project 2: Task Management API...");
-	await db.insert(project).values({
-		id: DEMO_PROJECT_2_ID,
-		name: "Task Management API",
-		description:
+	await d1Execute(
+		`INSERT INTO "project" (id, name, description, visibility, owner_id, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		[
+			DEMO_PROJECT_2_ID,
+			"Task Management API",
 			"A RESTful API for task management with authentication, team collaboration, and real-time updates using WebSockets.",
-		visibility: "public",
-		ownerId: DEMO_USER_ID,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+			"public",
+			DEMO_USER_ID,
+			new Date().toISOString(),
+			new Date().toISOString(),
+		]
+	);
 
-	await db.insert(projectMember).values({
-		id: "demo-project-2-member",
-		projectId: DEMO_PROJECT_2_ID,
-		userId: DEMO_USER_ID,
-		role: "admin",
-		createdAt: new Date(),
-	});
+	await d1Execute(
+		`INSERT INTO "project_member" (id, project_id, user_id, role, created_at)
+		 VALUES (?, ?, ?, ?, ?)`,
+		[
+			"demo-project-2-member",
+			DEMO_PROJECT_2_ID,
+			DEMO_USER_ID,
+			"admin",
+			new Date().toISOString(),
+		]
+	);
 
 	console.log("Creating demo board 2: Development...");
-	await db.insert(board).values({
-		id: DEMO_BOARD_2_ID,
-		name: "Development",
-		description: "Development board for the Task Management API",
-		visibility: "public",
-		ownerId: DEMO_USER_ID,
-		projectId: DEMO_PROJECT_2_ID,
-		createdAt: new Date(),
-		updatedAt: new Date(),
-	});
+	await d1Execute(
+		`INSERT INTO "board" (id, name, description, visibility, owner_id, project_id, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		[
+			DEMO_BOARD_2_ID,
+			"Development",
+			"Development board for the Task Management API",
+			"public",
+			DEMO_USER_ID,
+			DEMO_PROJECT_2_ID,
+			new Date().toISOString(),
+			new Date().toISOString(),
+		]
+	);
 
 	console.log("Creating columns for board 2...");
 	const columns2 = [
@@ -243,14 +338,18 @@ async function seed() {
 	];
 
 	for (const col of columns2) {
-		await db.insert(column).values({
-			id: col.id,
-			boardId: DEMO_BOARD_2_ID,
-			name: col.name,
-			position: col.position,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		await d1Execute(
+			`INSERT INTO "column" (id, board_id, name, position, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?)`,
+			[
+				col.id,
+				DEMO_BOARD_2_ID,
+				col.name,
+				col.position,
+				new Date().toISOString(),
+				new Date().toISOString(),
+			]
+		);
 	}
 
 	console.log("Creating cards for board 2...");
@@ -296,21 +395,28 @@ async function seed() {
 
 	for (let i = 0; i < cards2.length; i++) {
 		const c = cards2[i];
-		await db.insert(card).values({
-			id: `demo-card-2-${i + 1}`,
-			boardId: DEMO_BOARD_2_ID,
-			cardNumber: i + 1,
-			columnId: c.colId,
-			title: c.title,
-			type: c.type as "task" | "epic" | "feature",
-			description: null,
-			acceptanceCriteria: null,
-			position: c.pos,
-			assigneeId: null,
-			agentTriggerUrl: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		if (c === undefined) {
+			continue;
+		}
+		await d1Execute(
+			`INSERT INTO "card" (id, board_id, card_number, column_id, title, type, description, acceptance_criteria, position, assignee_id, agent_trigger_url, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			[
+				`demo-card-2-${i + 1}`,
+				DEMO_BOARD_2_ID,
+				i + 1,
+				c.colId,
+				c.title,
+				c.type,
+				null,
+				null,
+				c.pos,
+				null,
+				null,
+				new Date().toISOString(),
+				new Date().toISOString(),
+			]
+		);
 	}
 
 	console.log("✅ Demo data seeded successfully!");
