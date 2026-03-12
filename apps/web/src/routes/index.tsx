@@ -6,7 +6,5 @@ export const Route = createFileRoute("/")({
 });
 
 function HomeComponent() {
-	return (
-		<LandingPage />
-	);
+	return <LandingPage />;
 }

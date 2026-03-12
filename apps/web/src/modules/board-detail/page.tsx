@@ -200,7 +200,12 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					</div>
 					<div className="flex items-center gap-2">
 						<Button
-							onClick={() => navigate({ to: "/projects/$projectId/boards/$boardId/archived", params: { projectId, boardId } })}
+							onClick={() =>
+								navigate({
+									to: "/projects/$projectId/boards/$boardId/archived",
+									params: { projectId, boardId },
+								})
+							}
 							variant="outline"
 						>
 							<Archive className="mr-2 h-4 w-4" />

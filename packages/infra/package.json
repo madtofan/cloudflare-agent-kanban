@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "configure": "alchemy configure",
+    "alchemy:configure": "alchemy configure",
     "dev": "alchemy dev",
     "deploy": "NODE_ENV='production' alchemy deploy",
     "destroy": "alchemy destroy",
-    "login": "alchemy login"
+    "alchemy:login": "alchemy login --provider cloudflare"
   },
   "dependencies": {
     "dotenv": "catalog:",

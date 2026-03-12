@@ -1,14 +1,14 @@
-import { BoardArchivesPage } from '@/modules/board-archives';
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
+import { BoardArchivesPage } from "@/modules/board-archives";
 
 export const Route = createFileRoute(
-  '/projects/$projectId/boards/$boardId/archived',
+	"/projects/$projectId/boards/$boardId/archived"
 )({
-  component: RouteComponent,
-})
+	component: RouteComponent,
+});
 
 function RouteComponent() {
-  const { boardId, projectId } = Route.useParams();
+	const { boardId, projectId } = Route.useParams();
 
-  return <BoardArchivesPage boardId={boardId} projectId={projectId} />;
+	return <BoardArchivesPage boardId={boardId} projectId={projectId} />;
 }

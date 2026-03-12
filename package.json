@@ -8,8 +8,8 @@
   "type": "module",
   "scripts": {
     "clean": "pnpm --recursive exec pnpm dlx rimraf node_modules && pnpm dlx rimraf node_modules && pnpm install",
-    "configure": "turbo -F @cloudflare-agent-kanban/infra configure",
-    "login": "turbo -F @cloudflare-agent-kanban/infra login",
+    "alchemy:configure": "turbo -F @cloudflare-agent-kanban/infra alchemy:configure",
+    "alchemy:login": "turbo -F @cloudflare-agent-kanban/infra alchemy:login",
     "dev": "turbo dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
@@ -35,7 +35,7 @@
     "@cloudflare/workers-types": "catalog:",
     "@types/node": "catalog:",
     "rimraf": "^6.1.3",
-    "turbo": "^2.6.3",
+    "turbo": "^2.8.16",
     "typescript": "catalog:",
     "ultracite": "7.2.3"
   },

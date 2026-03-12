@@ -13,7 +13,7 @@ if (result.error) {
 
 const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
-const token = process.env.CLOUDFLARE_API_TOKEN;
+const token = process.env.SEED_API_TOKEN;
 const localDbPath = process.env.LOCAL_DB_PATH;
 
 if (!(localDbPath || (accountId && databaseId && token))) {
@@ -28,9 +28,9 @@ const D1_API_URL =
 		: "";
 
 interface D1Result {
+	meta: unknown[];
 	results?: unknown[];
 	success: boolean;
-	meta: unknown[];
 }
 
 interface D1Response {
@@ -111,11 +111,11 @@ async function seed() {
 	console.log("🌱 Starting demo data seed...");
 	console.log("📂 Using database: D1 Remote");
 
-	const existingUsers = (await d1Query("SELECT id FROM user WHERE id = ?", [
-		DEMO_USER_ID,
-	])).find(Boolean);
+	const existingUsers = (
+		await d1Query("SELECT id FROM user WHERE id = ?", [DEMO_USER_ID])
+	).find(Boolean);
 
-	if (existingUsers?.results?.length ?? 0 > 0) {
+	if (existingUsers?.results && existingUsers.results.length > 0) {
 		console.log("Demo user already exists, skipping seed.");
 		return;
 	}

@@ -14,7 +14,7 @@ if (result.error) {
 
 const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
 const databaseId = process.env.CLOUDFLARE_D1_DATABASE_ID;
-const token = process.env.CLOUDFLARE_API_TOKEN;
+const token = process.env.SEED_API_TOKEN;
 const localDbPath = process.env.LOCAL_DB_PATH;
 
 const config = {
@@ -39,7 +39,7 @@ const config = {
 
 if (!(localDbPath || (accountId && databaseId && token))) {
 	throw new Error(
-		"Missing required environment variables: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, CLOUDFLARE_API_TOKEN"
+		"Missing required environment variables: CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_D1_DATABASE_ID, SEED_API_TOKEN"
 	);
 }
 

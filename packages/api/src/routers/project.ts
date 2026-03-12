@@ -54,10 +54,7 @@ export const projectRouter = {
 				where: (project, { eq }) => eq(project.ownerId, userId),
 			});
 
-			const allProjects = [
-				...memberProjects,
-				...ownedProjects,
-			];
+			const allProjects = [...memberProjects, ...ownedProjects];
 			const uniqueProjects = allProjects.filter(
 				(project, index, self) =>
 					index === self.findIndex((p) => p.id === project.id)

@@ -28,6 +28,13 @@
     },
     "destroy": {
       "cache": false
+    },
+    "alchemy:configure": {
+      "cache": false
+    },
+    "alchemy:login": {
+      "cache": false,
+      "outputLogs": "full"
     }
   }
 }
