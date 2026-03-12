@@ -143,7 +143,7 @@ async function seed() {
 		[
 			"demo-profile",
 			DEMO_USER_ID,
-			"<p>I'm a full-stack developer passionate about building tools that help others showcase their work. When I'm not coding, you can find me contributing to open-source projects or writing technical blog posts.</p><p>I created this platform to give developers a free way to organize their projects while building a beautiful portfolio.</p>",
+			"I'm a full-stack developer passionate about building tools that help others showcase their work. When I'm not coding, you can find me contributing to open-source projects or writing technical blog posts.\n\nI created this platform to give developers a free way to organize their projects while building a beautiful portfolio.",
 			JSON.stringify([DEMO_PROJECT_1_ID, DEMO_PROJECT_2_ID]),
 			new Date().toISOString(),
 			new Date().toISOString(),

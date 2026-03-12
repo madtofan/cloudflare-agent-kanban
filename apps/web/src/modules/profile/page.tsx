@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
@@ -128,12 +129,9 @@ function ProfilePage({ publicProfile }: ProfilePageProps) {
 		}
 		if (hasAboutMe) {
 			return (
-				<div
+				<MarkdownRenderer
 					className="prose prose-sm dark:prose-invert max-w-none"
-					// eslint-disable-next-line react/no-danger
-					dangerouslySetInnerHTML={{
-						__html: publicProfile.aboutMe ?? "",
-					}}
+					content={publicProfile.aboutMe ?? ""}
 				/>
 			);
 		}

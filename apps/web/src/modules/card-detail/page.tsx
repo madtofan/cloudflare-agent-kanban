@@ -3,6 +3,7 @@ import { Archive, Trash2, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type z from "zod";
+import ConfirmationDialog from "@/components/confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
@@ -108,18 +109,15 @@ function CardDetailPage({
 	};
 
 	const handleDeleteCard = () => {
-		if (
-			card.id &&
-			confirm(
-				"Are you sure you want to delete this card? This action cannot be undone."
-			)
-		) {
-			deleteKanbanCardMutation.mutate({ cardId: card.id });
+		if (!card.id) {
+			return;
 		}
+
+		deleteKanbanCardMutation.mutate({ cardId: card.id });
 	};
 
 	const handleArchiveCard = () => {
-		if (card.id && confirm("Are you sure you want to archive this card?")) {
+		if (card.id) {
 			archiveKanbanCardMutation.mutate({ cardId: card.id });
 		}
 	};
@@ -147,16 +145,32 @@ function CardDetailPage({
 							</Button>
 						)}
 						{canEdit && (
-							<Button onClick={handleArchiveCard} variant="outline">
-								<Archive className="mr-2 h-4 w-4" />
-								Archive
-							</Button>
+							<ConfirmationDialog
+								description={"Are you sure you want to archive this card?"}
+								onSubmit={handleArchiveCard}
+								title={"Archive Card"}
+								triggerButton={
+									<Button variant="outline">
+										<Archive className="mr-2 h-4 w-4" />
+										Archive
+									</Button>
+								}
+							/>
 						)}
 						{canEdit && (
-							<Button onClick={handleDeleteCard} variant="destructive">
-								<Trash2 className="mr-2 h-4 w-4" />
-								Delete
-							</Button>
+							<ConfirmationDialog
+								description={
+									"Are you sure you want to delete this card? This action cannot be undone."
+								}
+								onSubmit={handleDeleteCard}
+								title={"Confirm Deletion"}
+								triggerButton={
+									<Button variant="destructive">
+										<Trash2 className="mr-2 h-4 w-4" />
+										Delete
+									</Button>
+								}
+							/>
 						)}
 					</div>
 				</div>

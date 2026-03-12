@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Archive, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import ConfirmationDialog from "@/components/confirmation-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -41,6 +42,8 @@ function ColumnComponent({
 	const queryClient = useQueryClient();
 	const [openCreateCardDialog, setOpenCreateCardDialog] = useState(false);
 	const [isEditColumnOpen, setIsEditColumnOpen] = useState(false);
+	const [openDeleteColumnDialog, setOpenDeleteColumnDialog] = useState(false);
+	const [openArchiveAllDialog, setOpenArchiveAllDialog] = useState(false);
 
 	const archiveAllCardsMutation = useMutation(
 		orpc.card.archiveByColumnId.mutationOptions({
@@ -63,6 +66,14 @@ function ColumnComponent({
 			onError: (error) => toast.error(error.message),
 		})
 	);
+
+	const handleArchiveAllCards = () => {
+		if (cards.length > 0) {
+			archiveAllCardsMutation.mutate({
+				columnId: column.id,
+			});
+		}
+	};
 
 	const {
 		attributes,
@@ -110,26 +121,13 @@ function ColumnComponent({
 								<DropdownMenuItem onClick={() => setIsEditColumnOpen(true)}>
 									Edit
 								</DropdownMenuItem>
-								<DropdownMenuItem
-									onClick={() => {
-										if (
-											cards.length > 0 &&
-											confirm(
-												`Are you sure you want to archive all ${cards.length} cards in this column?`
-											)
-										) {
-											archiveAllCardsMutation.mutate({
-												columnId: column.id,
-											});
-										}
-									}}
-								>
+								<DropdownMenuItem onClick={() => setOpenArchiveAllDialog(true)}>
 									<Archive className="mr-2 h-4 w-4" />
 									Archive all cards
 								</DropdownMenuItem>
 								<DropdownMenuItem
 									className="text-red-500"
-									onClick={onDeleteColumn}
+									onClick={() => setOpenDeleteColumnDialog(true)}
 								>
 									<Trash2 className="mr-2 h-4 w-4" />
 									Delete
@@ -173,6 +171,25 @@ function ColumnComponent({
 					open={isEditColumnOpen}
 				/>
 			</div>
+
+			<ConfirmationDialog
+				description="Are you sure you want to delete this column and all its cards?"
+				onDialogClose={() => setOpenDeleteColumnDialog(false)}
+				onSubmit={onDeleteColumn}
+				open={openDeleteColumnDialog}
+				title="Delete Column"
+			/>
+			<ConfirmationDialog
+				description={
+					cards.length > 0
+						? `Are you sure you want to archive all ${cards.length} cards in this column?`
+						: "There is no card available in column for archival"
+				}
+				onDialogClose={() => setOpenArchiveAllDialog(false)}
+				onSubmit={cards.length > 0 ? handleArchiveAllCards : undefined}
+				open={openArchiveAllDialog}
+				title="Archive All Cards"
+			/>
 		</div>
 	);
 }

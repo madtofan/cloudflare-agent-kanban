@@ -139,11 +139,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	};
 
 	const handleDeleteColumn = (column: Column) => {
-		if (
-			confirm("Are you sure you want to delete this column and all its cards?")
-		) {
-			deleteColumnMutation.mutate({ boardId, columnId: column.id });
-		}
+		deleteColumnMutation.mutate({ boardId, columnId: column.id });
 	};
 
 	if (board.isLoading || columns.isLoading) {

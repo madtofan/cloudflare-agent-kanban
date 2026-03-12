@@ -28,9 +28,9 @@ import {
 	Strikethrough,
 	Underline as UnderlineIcon,
 	Undo,
-	X,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Markdown } from "tiptap-markdown";
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -76,6 +76,7 @@ function ToolbarButton({
 			)}
 			disabled={disabled}
 			onClick={onClick}
+			onMouseDown={(e) => e.preventDefault()}
 			title={title}
 			type="button"
 		>
@@ -196,44 +197,6 @@ function HighlightColorPicker({
 	);
 }
 
-function LinkInput({
-	onSubmit,
-	onCancel,
-	initialUrl = "",
-}: {
-	onSubmit: (url: string) => void;
-	onCancel: () => void;
-	initialUrl?: string;
-}) {
-	const [url, setUrl] = useState(initialUrl);
-
-	return (
-		<div className="flex items-center gap-1 rounded border bg-background p-1">
-			<input
-				className="min-w-[150px] flex-1 px-2 py-1 text-xs outline-none"
-				onChange={(e) => setUrl(e.target.value)}
-				placeholder="https://..."
-				type="url"
-				value={url}
-			/>
-			<button
-				className="rounded p-1 hover:bg-muted"
-				onClick={() => onSubmit(url)}
-				type="button"
-			>
-				<CheckSquare className="h-4 w-4" />
-			</button>
-			<button
-				className="rounded p-1 hover:bg-muted"
-				onClick={onCancel}
-				type="button"
-			>
-				<X className="h-4 w-4" />
-			</button>
-		</div>
-	);
-}
-
 export function RichTextEditor({
 	value,
 	onChange,
@@ -241,8 +204,6 @@ export function RichTextEditor({
 	className,
 	id,
 }: RichTextEditorProps) {
-	const [showLinkInput, setShowLinkInput] = useState(false);
-	const [linkUrl, setLinkUrl] = useState("");
 	const [isFocused, setIsFocused] = useState(false);
 
 	const extensions = useMemo(
@@ -262,6 +223,7 @@ export function RichTextEditor({
 				link: false,
 				underline: false,
 			}),
+			Markdown,
 			Placeholder.configure({
 				placeholder,
 			}),
@@ -290,7 +252,10 @@ export function RichTextEditor({
 		extensions,
 		content: value || "",
 		onUpdate: ({ editor }) => {
-			onChange(editor.getHTML());
+			const markdownEditor = editor as unknown as {
+				storage: { markdown: { getMarkdown: () => string } };
+			};
+			onChange(markdownEditor.storage.markdown.getMarkdown());
 		},
 		onFocus: () => {
 			setIsFocused(true);
@@ -306,23 +271,18 @@ export function RichTextEditor({
 	});
 
 	useEffect(() => {
-		if (editor && value !== editor.getHTML()) {
-			editor.commands.setContent(value || "");
+		if (editor) {
+			const markdownEditor = editor as unknown as {
+				storage: { markdown: { getMarkdown: () => string } };
+			};
+			const currentMarkdown = markdownEditor.storage.markdown.getMarkdown();
+			if (value !== currentMarkdown) {
+				editor.commands.setContent(value || "", {
+					contentType: "markdown",
+				} as Parameters<typeof editor.commands.setContent>[1]);
+			}
 		}
 	}, [value, editor]);
-
-	const _setLink = useCallback(() => {
-		if (linkUrl) {
-			editor
-				?.chain()
-				.focus()
-				.extendMarkRange("link")
-				.setLink({ href: linkUrl })
-				.run();
-			setShowLinkInput(false);
-			setLinkUrl("");
-		}
-	}, [editor, linkUrl]);
 
 	const addHighlight = useCallback(
 		(color: string) => {
@@ -346,7 +306,6 @@ export function RichTextEditor({
 		<div
 			className={cn(
 				"relative flex max-h-full flex-col rounded-md border bg-background transition-all duration-200",
-				isFocused ? "ring-2 ring-ring/30" : "",
 				className
 			)}
 		>
@@ -454,42 +413,28 @@ export function RichTextEditor({
 
 					<div className="mx-1 h-6 w-px bg-border" />
 
-					<div className="relative">
-						<ToolbarButton
-							isActive={editor.isActive("link")}
-							onClick={() => {
-								const previousUrl = editor.getAttributes("link").href;
-								setLinkUrl(previousUrl || "");
-								setShowLinkInput(!showLinkInput);
-							}}
-							title="Add Link"
-						>
-							<LinkIcon className="h-4 w-4" />
-						</ToolbarButton>
-						{showLinkInput && (
-							<div className="absolute top-full left-0 z-50 mt-1">
-								<LinkInput
-									initialUrl={linkUrl}
-									onCancel={() => {
-										setShowLinkInput(false);
-										setLinkUrl("");
-									}}
-									onSubmit={(url) => {
-										if (url) {
-											editor
-												.chain()
-												.focus()
-												.extendMarkRange("link")
-												.setLink({ href: url })
-												.run();
-										}
-										setShowLinkInput(false);
-										setLinkUrl("");
-									}}
-								/>
-							</div>
-						)}
-					</div>
+					<ToolbarButton
+						isActive={editor.isActive("link")}
+						onClick={() => {
+							const url = editor.getAttributes("link").href;
+							if (url) {
+								editor.chain().focus().unsetLink().run();
+							} else {
+								const url = window.prompt("Enter URL:");
+								if (url) {
+									editor
+										.chain()
+										.focus()
+										.extendMarkRange("link")
+										.setLink({ href: url })
+										.run();
+								}
+							}
+						}}
+						title="Add Link"
+					>
+						<LinkIcon className="h-4 w-4" />
+					</ToolbarButton>
 
 					<div className="mx-1 h-6 w-px bg-border" />
 
@@ -561,7 +506,15 @@ export function RichTextEditor({
 							if (url) {
 								editor.chain().focus().unsetLink().run();
 							} else {
-								setShowLinkInput(true);
+								const url = window.prompt("Enter URL:");
+								if (url) {
+									editor
+										.chain()
+										.focus()
+										.extendMarkRange("link")
+										.setLink({ href: url })
+										.run();
+								}
 							}
 						}}
 					>

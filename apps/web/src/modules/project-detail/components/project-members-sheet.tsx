@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
+import ConfirmationDialog from "@/components/confirmation-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -116,9 +117,7 @@ function ProjectMembersSheet({
 	});
 
 	const handleRemoveMember = (memberId: string) => {
-		if (confirm("Are you sure you want to remove this member?")) {
-			removeMemberMutation.mutate({ projectId, memberId });
-		}
+		removeMemberMutation.mutate({ projectId, memberId });
 	};
 
 	const handleRoleChange = (memberId: string, newRole: "admin" | "member") => {
@@ -308,14 +307,20 @@ function MemberItem({
 									<option value="member">Member</option>
 									<option value="admin">Admin</option>
 								</select>
-								<Button
-									className="h-8 w-8 text-destructive"
-									onClick={onRemove}
-									size="icon"
-									variant="ghost"
-								>
-									<Trash2 className="h-4 w-4" />
-								</Button>
+								<ConfirmationDialog
+									description={"Are you sure you want to remove this member?"}
+									onSubmit={onRemove}
+									title="Confirm deletion"
+									triggerButton={
+										<Button
+											className="h-8 w-8 text-destructive"
+											size="icon"
+											variant="ghost"
+										>
+											<Trash2 className="h-4 w-4" />
+										</Button>
+									}
+								/>
 							</>
 						)}
 						{!canManageMembers && (

@@ -5,6 +5,7 @@ import { Link2, MessageSquare, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { cardTypes } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
@@ -102,16 +103,14 @@ function KanbanCardComponent({
 				</div>
 				<h4 className="font-medium">{card.title}</h4>
 				{card.description && (
-					<div
-						className="rich-text-preview mt-1 line-clamp-2 text-muted-foreground text-sm"
-						dangerouslySetInnerHTML={{ __html: card.description }}
+					<MarkdownRenderer
+						className="mt-1 line-clamp-2 text-muted-foreground text-sm"
+						content={card.description}
 					/>
 				)}
 				{card.acceptanceCriteria && (
-					<div className="rich-text-preview mt-1 line-clamp-2 border-primary border-l-2 pl-2 text-muted-foreground text-xs italic">
-						<div
-							dangerouslySetInnerHTML={{ __html: card.acceptanceCriteria }}
-						/>
+					<div className="mt-1 line-clamp-2 border-primary border-l-2 pl-2 text-muted-foreground text-xs italic">
+						<MarkdownRenderer content={card.acceptanceCriteria} />
 					</div>
 				)}
 				{(commentCount ?? 0) > 0 && (

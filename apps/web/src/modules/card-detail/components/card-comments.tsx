@@ -11,6 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
@@ -153,10 +154,9 @@ function CardComments({ cardId }: CardCommentsProps) {
 										</Button>
 									)}
 								</div>
-								{/* eslint-disable-next-line react/no-dangerously-set-inner-html */}
-								<div
-									className="rich-text-preview mt-2 text-sm"
-									dangerouslySetInnerHTML={{ __html: comment.content }}
+								<MarkdownRenderer
+									className="mt-2 text-sm"
+									content={comment.content}
 								/>
 							</div>
 						))}
