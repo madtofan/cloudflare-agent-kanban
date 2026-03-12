@@ -47,6 +47,8 @@ export const server = await Worker("server", {
 		BETTER_AUTH_URL: alchemy.env.BETTER_AUTH_URL!,
 		R2_BUCKET: r2Bucket,
 		R2_PUBLIC_URL: alchemy.env.VITE_R2_PUBLIC_URL!,
+		RESEND_API_KEY: alchemy.secret.env.RESEND_API_KEY!,
+		CONTACT_EMAIL_TO: alchemy.env.CONTACT_EMAIL_TO!,
 	},
 	dev: {
 		port: 3000,

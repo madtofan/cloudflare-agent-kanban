@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { orpc } from "@/utils/orpc";
 
 function ContactSection() {
 	const [formData, setFormData] = useState({
@@ -18,10 +20,25 @@ function ContactSection() {
 		message: "",
 	});
 
+	const submitContact = useMutation(
+		orpc.contact.submit.mutationOptions({
+			onSuccess: () => {
+				toast.success("Thanks for reaching out! We'll get back to you soon.");
+				setFormData({ name: "", email: "", message: "" });
+			},
+			onError: () => {
+				toast.error("Failed to send message. Please try again.");
+			},
+		})
+	);
+
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		toast.success("Thanks for reaching out! We'll get back to you soon.");
-		setFormData({ name: "", email: "", message: "" });
+		submitContact.mutate({
+			name: formData.name,
+			email: formData.email,
+			message: formData.message,
+		});
 	};
 
 	return (
@@ -73,8 +90,12 @@ function ContactSection() {
 								value={formData.message}
 							/>
 						</div>
-						<Button className="w-full" type="submit">
-							Send Message
+						<Button
+							className="w-full"
+							disabled={submitContact.isPending}
+							type="submit"
+						>
+							{submitContact.isPending ? "Sending..." : "Send Message"}
 						</Button>
 					</form>
 				</CardContent>

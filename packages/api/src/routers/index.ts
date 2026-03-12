@@ -8,6 +8,7 @@ import { publicProcedure } from "../index";
 import { boardRouter } from "./board";
 import { cardRouter } from "./card";
 import { columnRouter } from "./column";
+import { contactRouter } from "./contact";
 import { notificationRouter } from "./notification";
 import { profileRouter } from "./profile";
 import { projectRouter } from "./project";
@@ -19,6 +20,7 @@ export const appRouter = {
 	board: boardRouter,
 	card: cardRouter,
 	column: columnRouter,
+	contact: contactRouter,
 	notification: notificationRouter,
 	profile: profileRouter,
 	project: projectRouter,

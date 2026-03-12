@@ -21,6 +21,7 @@
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "nanoid": "^5.1.6",
+    "resend": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
