@@ -37,6 +37,8 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const [activeKanbanCard, setActiveKanbanCard] = useState<KanbanCard | null>(
 		null
 	);
+	const [overColumnId, setOverColumnId] = useState<string | null>(null);
+	const [overCardId, setOverCardId] = useState<string | null>(null);
 	const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -98,6 +100,8 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const handleDragOver = (event: DragOverEvent) => {
 		const { active, over } = event;
 		if (!over) {
+			setOverColumnId(null);
+			setOverCardId(null);
 			return;
 		}
 
@@ -115,27 +119,85 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 			return;
 		}
 
-		const overColumnId =
+		const detectedOverColumnId =
 			overType === "column" ? over.id : over.data.current?.card?.columnId;
+		const detectedOverCardId = overType === "card" ? over.id : null;
 
-		if (overColumnId && activeKanbanCard.columnId !== overColumnId) {
-			const overColumnKanbanCards =
-				cardsByColumn.data?.[overColumnId as string] || [];
-			const newPosition =
-				overColumnKanbanCards.length > 0
-					? Math.max(...overColumnKanbanCards.map((c) => c.position ?? 0)) + 1
-					: 0;
-
-			moveKanbanCardMutation.mutate({
-				cardId: activeKanbanCard.id ?? "",
-				columnId: overColumnId as string,
-				position: newPosition,
-			});
+		if (detectedOverColumnId) {
+			setOverColumnId(detectedOverColumnId as string);
+			setOverCardId(detectedOverCardId as string | null);
 		}
 	};
 
-	const handleDragEnd = (_event: DragEndEvent) => {
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active } = event;
+
+		const activeType = active.data.current?.type;
+		if (activeType !== "card") {
+			clearDragState();
+			return;
+		}
+
+		const activeKanbanCard = active.data.current?.card as
+			| KanbanCard
+			| undefined;
+		if (!activeKanbanCard) {
+			clearDragState();
+			return;
+		}
+
+		if (overColumnId) {
+			const targetColumnCards = cardsByColumn.data?.[overColumnId] || [];
+			const newPosition = calculateNewPosition(targetColumnCards, overCardId);
+			const hasChanged = hasCardChanged(
+				activeKanbanCard,
+				overColumnId,
+				targetColumnCards,
+				newPosition
+			);
+
+			if (hasChanged) {
+				moveKanbanCardMutation.mutate({
+					cardId: activeKanbanCard.id ?? "",
+					columnId: overColumnId,
+					position: newPosition,
+				});
+			}
+		}
+
+		clearDragState();
+	};
+
+	const clearDragState = () => {
 		setActiveKanbanCard(null);
+		setOverColumnId(null);
+		setOverCardId(null);
+	};
+
+	const calculateNewPosition = (
+		targetCards: KanbanCard[],
+		cardId: string | null
+	): number => {
+		if (!cardId) {
+			return targetCards.length > 0
+				? Math.max(...targetCards.map((c) => c.position ?? 0)) + 1
+				: 0;
+		}
+
+		const overCardIndex = targetCards.findIndex((c) => c.id === cardId);
+		return overCardIndex >= 0 ? overCardIndex : targetCards.length;
+	};
+
+	const hasCardChanged = (
+		card: KanbanCard,
+		targetColumnId: string,
+		targetCards: KanbanCard[],
+		newPosition: number
+	): boolean => {
+		const hasColumnChanged = card.columnId !== targetColumnId;
+		const hasPositionChanged =
+			targetCards.find((c) => c.id === card.id)?.position !== newPosition;
+		return hasColumnChanged || hasPositionChanged;
 	};
 
 	const handleDeleteColumn = (column: Column) => {
@@ -248,8 +310,10 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 									canEdit={isAdminOrOwner}
 									cards={cardsByColumn.data?.[column.id] || []}
 									column={column}
+									isOverColumn={overColumnId === column.id}
 									key={column.id}
 									onDeleteColumn={() => handleDeleteColumn(column)}
+									overCardId={overColumnId === column.id ? overCardId : null}
 									projectId={projectId}
 								/>
 							))}

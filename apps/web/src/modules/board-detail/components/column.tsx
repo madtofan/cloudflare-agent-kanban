@@ -27,7 +27,9 @@ interface ColumnComponentProps {
 	canEdit?: boolean;
 	cards: KanbanCard[];
 	column: Column;
+	isOverColumn?: boolean;
 	onDeleteColumn: () => void;
+	overCardId?: string | null;
 	projectId: string;
 }
 
@@ -38,6 +40,8 @@ function ColumnComponent({
 	projectId,
 	onDeleteColumn,
 	canEdit = true,
+	isOverColumn = false,
+	overCardId = null,
 }: ColumnComponentProps) {
 	const queryClient = useQueryClient();
 	const [openCreateCardDialog, setOpenCreateCardDialog] = useState(false);
@@ -142,9 +146,33 @@ function ColumnComponent({
 					items={cards.map((c) => c.id ?? "")}
 					strategy={verticalListSortingStrategy}
 				>
-					{cards.map((card) => (
-						<KanbanCardComponent canEdit={canEdit} card={card} key={card.id} />
-					))}
+					{cards.length === 0 && isOverColumn ? (
+						<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
+							Drop here
+						</div>
+					) : (
+						cards.map((card, index) => (
+							<>
+								<KanbanCardComponent
+									canEdit={canEdit}
+									card={card}
+									key={card.id}
+								/>
+								{isOverColumn &&
+									overCardId === card.id &&
+									index === cards.length - 1 && (
+										<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
+											Drop here
+										</div>
+									)}
+							</>
+						))
+					)}
+					{isOverColumn &&
+						cards.length > 0 &&
+						!cards.some((c) => c.id === overCardId) && (
+							<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-2" />
+						)}
 				</SortableContext>
 			</div>
 			<div className="border-t p-2">
