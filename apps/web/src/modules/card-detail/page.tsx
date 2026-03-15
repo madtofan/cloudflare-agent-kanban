@@ -177,6 +177,7 @@ function CardDetailPage({
 			</div>
 			<Tabs
 				className="h-full gap-0 overflow-hidden"
+				// TODO - make tabs can be initialized from route query params
 				defaultValue="edit"
 				key={`tab_${forceRerender}`}
 			>

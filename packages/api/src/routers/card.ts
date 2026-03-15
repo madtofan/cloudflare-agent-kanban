@@ -349,6 +349,7 @@ export const cardRouter = {
 			return commentsWithUser;
 		}),
 
+	// TODO - make the comment count return with get cards
 	getCommentCount: protectedProcedure
 		.route({
 			method: "GET",
@@ -525,7 +526,7 @@ export const cardRouter = {
 		})
 		.input(
 			columnIdSchema.extend({
-				title: z.string().min(1),
+				title: z.string().min(5),
 				type: z.enum(["epic", "feature", "user_story", "bug", "task"]),
 				description: z.string().optional(),
 				acceptanceCriteria: z.string().optional(),
@@ -901,6 +902,7 @@ export const cardRouter = {
 			};
 		}),
 
+	// TODO - make the link count return with get cards
 	getLinkCount: protectedProcedure
 		.route({
 			method: "GET",

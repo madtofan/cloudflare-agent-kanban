@@ -9,6 +9,7 @@ import { boardRouter } from "./board";
 import { cardRouter } from "./card";
 import { columnRouter } from "./column";
 import { contactRouter } from "./contact";
+import { documentationRouter } from "./documentation";
 import { notificationRouter } from "./notification";
 import { profileRouter } from "./profile";
 import { projectRouter } from "./project";
@@ -21,6 +22,7 @@ export const appRouter = {
 	card: cardRouter,
 	column: columnRouter,
 	contact: contactRouter,
+	documentation: documentationRouter,
 	notification: notificationRouter,
 	profile: profileRouter,
 	project: projectRouter,

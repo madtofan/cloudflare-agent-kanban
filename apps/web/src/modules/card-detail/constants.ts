@@ -9,10 +9,7 @@ export const cardTypes = [
 ] as const;
 
 export const cardFormSchema = z.object({
-	title: z
-		.string()
-		.min(5, "Card title must be at least 5 characters.")
-		.max(32, "Card title must be at most 32 characters."),
+	title: z.string().min(5, "Card title must be at least 5 characters."),
 	type: z.enum(["epic", "feature", "user_story", "bug", "task"]),
 	description: z.string(),
 	acceptanceCriteria: z.string(),

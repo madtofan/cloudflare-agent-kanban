@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
 	ArrowLeft,
+	FileText,
 	Globe,
 	LayoutGrid,
 	Loader2,
@@ -29,20 +30,24 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
+import { DocumentationPage } from "@/modules/documentation";
 import { orpc } from "@/utils/orpc";
 import ProjectMembersSheet from "./components/project-members-sheet";
 
 interface ProjectDetailPageProps {
 	projectId: string;
+	tab: string;
 }
 
-function ProjectDetailPage({ projectId }: ProjectDetailPageProps) {
+function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 	const navigate = useNavigate();
 	const [newBoardName, setNewBoardName] = useState("");
 	const [isCreating, setIsCreating] = useState(false);
 	const [isMembersOpen, setIsMembersOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const [activeTab, setActiveTab] = useState(tab);
 
 	const { data: session } = authClient.useSession();
 
@@ -87,6 +92,13 @@ function ProjectDetailPage({ projectId }: ProjectDetailPageProps) {
 		if (newBoardName.trim()) {
 			createMutation.mutate({ name: newBoardName, projectId });
 		}
+	};
+
+	const handleChangeTab = (newTab: string) => {
+		const newUrl = new URL(window.location.href);
+		newUrl.searchParams.set("tab", newTab);
+		window.history.pushState({}, "", newUrl.toString());
+		setActiveTab(newTab);
 	};
 
 	const userId = session?.user.id;
@@ -139,98 +151,127 @@ function ProjectDetailPage({ projectId }: ProjectDetailPageProps) {
 							</Button>
 						</>
 					)}
-					<Button onClick={() => setIsCreating(!isCreating)}>
-						<Plus className="mr-2 h-4 w-4" />
-						New Board
-					</Button>
+					{activeTab === "boards" && (
+						<Button onClick={() => setIsCreating(!isCreating)}>
+							<Plus className="mr-2 h-4 w-4" />
+							New Board
+						</Button>
+					)}
 				</div>
 			</div>
 
-			{isCreating && (
-				<Card className="mb-6">
-					<CardHeader>
-						<CardTitle>Create New Board</CardTitle>
-						<CardDescription>Give your board a name</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<form
-							className="flex items-center space-x-2"
-							onSubmit={handleCreateBoard}
-						>
-							<Input
-								autoFocus
-								disabled={createMutation.isPending}
-								onChange={(e) => setNewBoardName(e.target.value)}
-								placeholder="Board name..."
-								value={newBoardName}
-							/>
-							<Button
-								disabled={createMutation.isPending || !newBoardName.trim()}
-								type="submit"
-							>
-								{createMutation.isPending ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
-								) : (
-									"Create"
-								)}
-							</Button>
-							<Button
-								onClick={() => setIsCreating(false)}
-								type="button"
-								variant="ghost"
-							>
-								Cancel
-							</Button>
-						</form>
-					</CardContent>
-				</Card>
-			)}
+			<Tabs
+				className="w-full"
+				onValueChange={handleChangeTab}
+				value={activeTab}
+			>
+				<TabsList className="mb-4">
+					<TabsTrigger className="gap-2" value="boards">
+						<LayoutGrid className="h-4 w-4" />
+						Boards
+					</TabsTrigger>
+					<TabsTrigger className="gap-2" value="documentation">
+						<FileText className="h-4 w-4" />
+						Documentation
+					</TabsTrigger>
+				</TabsList>
 
-			{boards.isLoading ? (
-				<div className="flex justify-center py-12">
-					<Loader2 className="h-8 w-8 animate-spin" />
-				</div>
-			) : boards.data?.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<LayoutGrid className="mb-4 h-12 w-12 text-muted-foreground" />
-					<h3 className="font-semibold text-lg">No boards in this project</h3>
-					<p className="text-muted-foreground">
-						Create your first board to get started
-					</p>
-				</div>
-			) : (
-				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					{boards.data?.map((board) => (
-						<Card
-							className="cursor-pointer transition-shadow hover:shadow-md"
-							key={board.id}
-							onClick={() =>
-								navigate({
-									to: "/projects/$projectId/boards/$boardId",
-									params: { boardId: board.id, projectId },
-								})
-							}
-						>
+				<TabsContent value="boards">
+					{isCreating && (
+						<Card className="mb-6">
 							<CardHeader>
-								<CardTitle className="truncate">{board.name}</CardTitle>
-								{board.description && (
-									<CardDescription className="line-clamp-2">
-										{board.description}
-									</CardDescription>
-								)}
+								<CardTitle>Create New Board</CardTitle>
+								<CardDescription>Give your board a name</CardDescription>
 							</CardHeader>
 							<CardContent>
-								<p className="text-muted-foreground text-xs">
-									Created{" "}
-									{board.createdAt
-										? new Date(board.createdAt).toLocaleDateString()
-										: "recently"}
-								</p>
+								<form
+									className="flex items-center space-x-2"
+									onSubmit={handleCreateBoard}
+								>
+									<Input
+										autoFocus
+										disabled={createMutation.isPending}
+										onChange={(e) => setNewBoardName(e.target.value)}
+										placeholder="Board name..."
+										value={newBoardName}
+									/>
+									<Button
+										disabled={createMutation.isPending || !newBoardName.trim()}
+										type="submit"
+									>
+										{createMutation.isPending ? (
+											<Loader2 className="h-4 w-4 animate-spin" />
+										) : (
+											"Create"
+										)}
+									</Button>
+									<Button
+										onClick={() => setIsCreating(false)}
+										type="button"
+										variant="ghost"
+									>
+										Cancel
+									</Button>
+								</form>
 							</CardContent>
 						</Card>
-					))}
-				</div>
-			)}
+					)}
+
+					{boards.isLoading ? (
+						<div className="flex justify-center py-12">
+							<Loader2 className="h-8 w-8 animate-spin" />
+						</div>
+					) : boards.data?.length === 0 ? (
+						<div className="flex flex-col items-center justify-center py-12 text-center">
+							<LayoutGrid className="mb-4 h-12 w-12 text-muted-foreground" />
+							<h3 className="font-semibold text-lg">
+								No boards in this project
+							</h3>
+							<p className="text-muted-foreground">
+								Create your first board to get started
+							</p>
+						</div>
+					) : (
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+							{boards.data?.map((board) => (
+								<Card
+									className="cursor-pointer transition-shadow hover:shadow-md"
+									key={board.id}
+									onClick={() =>
+										navigate({
+											to: "/projects/$projectId/boards/$boardId",
+											params: { boardId: board.id, projectId },
+										})
+									}
+								>
+									<CardHeader>
+										<CardTitle className="truncate">{board.name}</CardTitle>
+										{board.description && (
+											<CardDescription className="line-clamp-2">
+												{board.description}
+											</CardDescription>
+										)}
+									</CardHeader>
+									<CardContent>
+										<p className="text-muted-foreground text-xs">
+											Created{" "}
+											{board.createdAt
+												? new Date(board.createdAt).toLocaleDateString()
+												: "recently"}
+										</p>
+									</CardContent>
+								</Card>
+							))}
+						</div>
+					)}
+				</TabsContent>
+
+				<TabsContent value="documentation">
+					<div className="h-[calc(100vh-200px)]">
+						<DocumentationPage projectId={projectId} />
+					</div>
+				</TabsContent>
+			</Tabs>
 
 			<ProjectMembersSheet
 				currentUserId={userId}
