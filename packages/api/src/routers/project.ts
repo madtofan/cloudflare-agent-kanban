@@ -87,7 +87,18 @@ export const projectRouter = {
 				throw new Error("Project not found");
 			}
 
-			return projectData;
+			const role = (await db.query.projectMember.findFirst({
+				where: and(
+					eq(projectMember.projectId, input.projectId),
+					eq(projectMember.userId, userId)
+				),
+			}))?.role;
+
+			return {
+				...projectData,
+				userRole:
+					(projectData.ownerId === userId ? "owner" : role) ?? null,
+			};
 		}),
 
 	getBoards: protectedProcedure

@@ -3,7 +3,6 @@ import { useNavigate } from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	FileText,
-	Globe,
 	LayoutGrid,
 	Loader2,
 	Plus,
@@ -21,20 +20,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { DocumentationPage } from "@/modules/documentation";
 import { orpc } from "@/utils/orpc";
 import ProjectMembersSheet from "./components/project-members-sheet";
+import ProjectSettingsSheet from "./components/project-settings-sheet";
 
 interface ProjectDetailPageProps {
 	projectId: string;
@@ -68,18 +60,6 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 					to: "/projects/$projectId/boards/$boardId",
 					params: { boardId: data.id, projectId },
 				});
-			},
-			onError: (error) => {
-				toast.error(error.message);
-			},
-		})
-	);
-
-	const updateProjectMutation = useMutation(
-		orpc.project.update.mutationOptions({
-			onSuccess: () => {
-				toast.success("Project updated");
-				project.refetch();
 			},
 			onError: (error) => {
 				toast.error(error.message);
@@ -139,7 +119,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 					</div>
 				</div>
 				<div className="flex gap-2">
-					{isOwner && (
+					{(isOwner || project.data?.userRole === "admin") && (
 						<>
 							<Button onClick={() => setIsSettingsOpen(true)} variant="outline">
 								<Settings className="mr-2 h-4 w-4" />
@@ -281,72 +261,18 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 				projectId={projectId}
 			/>
 
-			<Dialog onOpenChange={setIsSettingsOpen} open={isSettingsOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Project Settings</DialogTitle>
-						<DialogDescription>
-							Manage your project settings and visibility
-						</DialogDescription>
-					</DialogHeader>
-					<div className="space-y-4 py-4">
-						<div className="space-y-2">
-							<Label>Project Name</Label>
-							<Input
-								className="bg-muted"
-								disabled
-								value={project.data?.name || ""}
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label>Visibility</Label>
-							<div className="flex gap-2">
-								<Button
-									disabled={updateProjectMutation.isPending}
-									onClick={() => {
-										updateProjectMutation.mutate({
-											projectId,
-											visibility: "private",
-										});
-									}}
-									size="sm"
-									variant={
-										project.data?.visibility === "private"
-											? "default"
-											: "outline"
-									}
-								>
-									<Globe className="mr-2 h-4 w-4" />
-									Private
-								</Button>
-								<Button
-									disabled={updateProjectMutation.isPending}
-									onClick={() => {
-										updateProjectMutation.mutate({
-											projectId,
-											visibility: "public",
-										});
-									}}
-									size="sm"
-									variant={
-										project.data?.visibility === "public"
-											? "default"
-											: "outline"
-									}
-								>
-									<Globe className="mr-2 h-4 w-4" />
-									Public
-								</Button>
-							</div>
-							<p className="text-muted-foreground text-sm">
-								{project.data?.visibility === "public"
-									? "Anyone can view this project"
-									: "Only members can view this project"}
-							</p>
-						</div>
-					</div>
-				</DialogContent>
-			</Dialog>
+			<ProjectSettingsSheet
+				initialData={{
+					name: project.data?.name ?? "",
+					visibility: project.data?.visibility ?? "private",
+					ownerId: project.data?.ownerId ?? "",
+					userRole: project.data?.userRole,
+				}}
+				onDeleteSuccess={() => navigate({ to: "/projects" })}
+				onOpenChange={setIsSettingsOpen}
+				open={isSettingsOpen}
+				projectId={projectId}
+			/>
 		</div>
 	);
 }
