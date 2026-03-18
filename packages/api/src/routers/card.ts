@@ -536,7 +536,7 @@ export const cardRouter = {
 
 			const maxCardNumber = await db.query.card.findFirst({
 				where: eq(card.boardId, columnData.boardId),
-				orderBy: asc(card.cardNumber),
+				orderBy: desc(card.cardNumber),
 				columns: { cardNumber: true },
 			});
 

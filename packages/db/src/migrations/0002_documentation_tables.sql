@@ -1,7 +1,3 @@
--- Migration: Add documentation tables
--- Created: 2026-03-13
-
--- Create documentation_folder table
 CREATE TABLE IF NOT EXISTS `documentation_folder` (
 	`id` text PRIMARY KEY NOT NULL,
 	`project_id` text NOT NULL REFERENCES `project`(`id`) ON DELETE CASCADE,
@@ -14,8 +10,7 @@ CREATE TABLE IF NOT EXISTS `documentation_folder` (
 
 CREATE INDEX IF NOT EXISTS `documentation_folder_projectId_idx` ON `documentation_folder`(`project_id`);
 CREATE INDEX IF NOT EXISTS `documentation_folder_parentFolderId_idx` ON `documentation_folder`(`parent_folder_id`);
-
--- Create documentation_page table
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `documentation_page` (
 	`id` text PRIMARY KEY NOT NULL,
 	`project_id` text NOT NULL REFERENCES `project`(`id`) ON DELETE CASCADE,

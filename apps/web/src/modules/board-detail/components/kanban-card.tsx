@@ -1,10 +1,9 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useMutation } from "@tanstack/react-query";
 import { Link2, MessageSquare, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useDraggable } from "@/hooks/use-draggable";
 import { cardTypes } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
@@ -12,8 +11,8 @@ import type { KanbanCard } from "../types";
 import EditCardDialog from "./edit-card-dialog";
 
 interface KanbanCardComponentProps {
-	card: KanbanCard;
 	canEdit?: boolean;
+	card: KanbanCard;
 }
 
 function KanbanCardComponent({
@@ -23,22 +22,10 @@ function KanbanCardComponent({
 	const { boardId, projectId } = useBoardDetailContext();
 	const [isEditCardOpen, setIsEditCardOpen] = useState(false);
 
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({
+	const { ref, isDragging } = useDraggable<HTMLButtonElement>({
 		id: card.id ?? "",
-		data: { type: "card", card },
+		data: { type: "card", cardId: card.id, columnId: card.columnId },
 	});
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-	};
 
 	const triggerAgentMutation = useMutation(
 		orpc.card.triggerAgent.mutationOptions({
@@ -62,12 +49,19 @@ function KanbanCardComponent({
 	return (
 		<>
 			<button
-				ref={setNodeRef}
-				style={style}
-				{...attributes}
-				{...listeners}
+				aria-label={`Card: ${card.title}`}
+				aria-roledescription="draggable card"
 				className={`mb-2 w-full cursor-grab rounded-md border bg-card p-3 text-left shadow-sm ${isDragging ? "opacity-50" : ""}`}
+				data-card-cardnumber={card.cardNumber}
+				data-card-column-id={card.columnId}
+				data-card-id={card.id}
+				data-card-position={card.position}
+				data-card-title={card.title}
+				data-card-type="card"
+				data-card-type-field={card.type}
 				onClick={handleOnCardClick}
+				ref={ref}
+				type="button"
 			>
 				<div className="mb-2 flex items-center gap-2">
 					{card.cardNumber && (

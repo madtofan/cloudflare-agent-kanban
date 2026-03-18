@@ -1,22 +1,10 @@
-import {
-	closestCorners,
-	DndContext,
-	type DragEndEvent,
-	type DragOverEvent,
-	DragOverlay,
-	type DragStartEvent,
-	KeyboardSensor,
-	PointerSensor,
-	useSensor,
-	useSensors,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Archive, ArrowLeft, Loader2, Plus, Settings } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { useDragMonitor } from "@/hooks/use-drag-monitor";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 import AddColumnDialog from "./components/add-column-dialog";
@@ -34,20 +22,8 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { data: session } = authClient.useSession();
-	const [activeKanbanCard, setActiveKanbanCard] = useState<KanbanCard | null>(
-		null
-	);
-	const [overColumnId, setOverColumnId] = useState<string | null>(null);
-	const [overCardId, setOverCardId] = useState<string | null>(null);
 	const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-	const sensors = useSensors(
-		useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-		useSensor(KeyboardSensor, {
-			coordinateGetter: sortableKeyboardCoordinates,
-		})
-	);
 
 	const board = useQuery(
 		orpc.board.getById.queryOptions({ input: { boardId } })
@@ -89,68 +65,25 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 		})
 	);
 
-	const handleDragStart = (event: DragStartEvent) => {
-		const { active } = event;
-		const type = active.data.current?.type;
-		if (type === "card" && active.data.current?.card) {
-			setActiveKanbanCard(active.data.current.card as KanbanCard);
-		}
-	};
+	const { dragState } = useDragMonitor({
+		onDragEnd: ({ cardId, overColumnId, closestEdge }) => {
+			if (!overColumnId) {
+				return;
+			}
 
-	const handleDragOver = (event: DragOverEvent) => {
-		const { active, over } = event;
-		if (!over) {
-			setOverColumnId(null);
-			setOverCardId(null);
-			return;
-		}
+			const sourceCard = findCardById(cardsByColumn.data, cardId);
+			if (!sourceCard) {
+				return;
+			}
 
-		const activeType = active.data.current?.type;
-		const overType = over.data.current?.type;
-
-		if (activeType !== "card") {
-			return;
-		}
-
-		const activeKanbanCard = active.data.current?.card as
-			| KanbanCard
-			| undefined;
-		if (!activeKanbanCard) {
-			return;
-		}
-
-		const detectedOverColumnId =
-			overType === "column" ? over.id : over.data.current?.card?.columnId;
-		const detectedOverCardId = overType === "card" ? over.id : null;
-
-		if (detectedOverColumnId) {
-			setOverColumnId(detectedOverColumnId as string);
-			setOverCardId(detectedOverCardId as string | null);
-		}
-	};
-
-	const handleDragEnd = (event: DragEndEvent) => {
-		const { active } = event;
-
-		const activeType = active.data.current?.type;
-		if (activeType !== "card") {
-			clearDragState();
-			return;
-		}
-
-		const activeKanbanCard = active.data.current?.card as
-			| KanbanCard
-			| undefined;
-		if (!activeKanbanCard) {
-			clearDragState();
-			return;
-		}
-
-		if (overColumnId) {
 			const targetColumnCards = cardsByColumn.data?.[overColumnId] || [];
-			const newPosition = calculateNewPosition(targetColumnCards, overCardId);
+			const newPosition = calculateNewPosition(
+				targetColumnCards,
+				null,
+				closestEdge
+			);
 			const hasChanged = hasCardChanged(
-				activeKanbanCard,
+				sourceCard,
 				overColumnId,
 				targetColumnCards,
 				newPosition
@@ -158,25 +91,34 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 
 			if (hasChanged) {
 				moveKanbanCardMutation.mutate({
-					cardId: activeKanbanCard.id ?? "",
+					cardId: sourceCard.id ?? "",
 					columnId: overColumnId,
 					position: newPosition,
 				});
 			}
+		},
+	});
+
+	const findCardById = (
+		cardsByColumn: Record<string, KanbanCard[]> | undefined,
+		cardId: string
+	): KanbanCard | undefined => {
+		if (!cardsByColumn) {
+			return undefined;
 		}
-
-		clearDragState();
-	};
-
-	const clearDragState = () => {
-		setActiveKanbanCard(null);
-		setOverColumnId(null);
-		setOverCardId(null);
+		for (const columnCards of Object.values(cardsByColumn)) {
+			const card = columnCards.find((c) => c.id === cardId);
+			if (card) {
+				return card;
+			}
+		}
+		return undefined;
 	};
 
 	const calculateNewPosition = (
 		targetCards: KanbanCard[],
-		cardId: string | null
+		cardId: string | null,
+		closestEdge: string | null
 	): number => {
 		if (!cardId) {
 			return targetCards.length > 0
@@ -185,6 +127,16 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 		}
 
 		const overCardIndex = targetCards.findIndex((c) => c.id === cardId);
+
+		if (overCardIndex >= 0) {
+			if (closestEdge === "top") {
+				return overCardIndex;
+			}
+			if (closestEdge === "bottom") {
+				return overCardIndex + 1;
+			}
+		}
+
 		return overCardIndex >= 0 ? overCardIndex : targetCards.length;
 	};
 
@@ -296,36 +248,25 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				</div>
 
 				<div className="flex-1 overflow-x-auto p-6">
-					<DndContext
-						collisionDetection={closestCorners}
-						onDragEnd={handleDragEnd}
-						onDragOver={handleDragOver}
-						onDragStart={handleDragStart}
-						sensors={sensors}
-					>
-						<div className="flex h-full gap-4">
-							{columns.data?.map((column) => (
-								<ColumnComponent
-									boardId={boardId}
-									canEdit={isAdminOrOwner}
-									cards={cardsByColumn.data?.[column.id] || []}
-									column={column}
-									isOverColumn={overColumnId === column.id}
-									key={column.id}
-									onDeleteColumn={() => handleDeleteColumn(column)}
-									overCardId={overColumnId === column.id ? overCardId : null}
-									projectId={projectId}
-								/>
-							))}
-						</div>
-						<DragOverlay>
-							{activeKanbanCard && (
-								<div className="cursor-grabbing rounded-md border bg-card p-3 shadow-lg">
-									<h4 className="font-medium">{activeKanbanCard.title}</h4>
-								</div>
-							)}
-						</DragOverlay>
-					</DndContext>
+					<div className="flex h-full gap-4">
+						{columns.data?.map((column) => (
+							<ColumnComponent
+								boardId={boardId}
+								canEdit={isAdminOrOwner}
+								cards={cardsByColumn.data?.[column.id] || []}
+								column={column}
+								isOverColumn={dragState.overColumnId === column.id}
+								key={column.id}
+								onDeleteColumn={() => handleDeleteColumn(column)}
+								overCardId={
+									dragState.overColumnId === column.id
+										? dragState.overCardId
+										: null
+								}
+								projectId={projectId}
+							/>
+						))}
+					</div>
 				</div>
 
 				<AddColumnDialog

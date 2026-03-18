@@ -1,9 +1,3 @@
-import {
-	SortableContext,
-	useSortable,
-	verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Archive, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -22,6 +16,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { useDroppable } from "@/hooks/use-droppable";
 import { orpc } from "@/utils/orpc";
 import type { Column, KanbanCard } from "../types";
 import AddCardDialog from "./add-card-dialog";
@@ -55,6 +50,12 @@ function ColumnComponent({
 	const [openDeleteColumnDialog, setOpenDeleteColumnDialog] = useState(false);
 	const [openArchiveAllDialog, setOpenArchiveAllDialog] = useState(false);
 
+	const { ref: columnRef } = useDroppable<HTMLDivElement>({
+		id: column.id,
+		data: { type: "column", columnId: column.id },
+		allowedEdges: ["top", "bottom", "left", "right"],
+	});
+
 	const archiveAllCardsMutation = useMutation(
 		orpc.card.archiveByColumnId.mutationOptions({
 			onSuccess: (data) => {
@@ -85,34 +86,12 @@ function ColumnComponent({
 		}
 	};
 
-	const {
-		attributes,
-		listeners,
-		setNodeRef,
-		transform,
-		transition,
-		isDragging,
-	} = useSortable({
-		id: column.id,
-		data: { type: "column", column },
-	});
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-	};
-
 	return (
 		<div
-			className={`flex h-full w-72 flex-col rounded-lg border bg-muted/30 ${isDragging ? "opacity-50" : ""}`}
-			ref={setNodeRef}
-			style={style}
+			className={`flex h-full w-72 flex-col rounded-lg border bg-muted/30 ${isOverColumn ? "border-blue-500" : ""}`}
+			ref={columnRef}
 		>
-			<div
-				{...attributes}
-				{...listeners}
-				className="flex items-center justify-between rounded-t-lg border-b bg-muted/50 p-3"
-			>
+			<div className="flex items-center justify-between rounded-t-lg border-b bg-muted/50 p-3">
 				<div className="flex items-center gap-2">
 					<h3 className="font-semibold">{column.name}</h3>
 					{column.description && (
@@ -166,38 +145,17 @@ function ColumnComponent({
 				</div>
 			</div>
 			<div className="flex-1 overflow-y-auto p-2">
-				<SortableContext
-					items={cards.map((c) => c.id ?? "")}
-					strategy={verticalListSortingStrategy}
-				>
-					{cards.length === 0 && isOverColumn ? (
+				{
+					cards.map((card) => (
+						<KanbanCardComponent canEdit={canEdit} card={card} key={card.id} />
+					))
+				}
+				{isOverColumn &&
+					!cards.some((c) => c.id === overCardId) && (
 						<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
-							Drop here
+							Move card to this column
 						</div>
-					) : (
-						cards.map((card, index) => (
-							<>
-								<KanbanCardComponent
-									canEdit={canEdit}
-									card={card}
-									key={card.id}
-								/>
-								{isOverColumn &&
-									overCardId === card.id &&
-									index === cards.length - 1 && (
-										<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
-											Drop here
-										</div>
-									)}
-							</>
-						))
 					)}
-					{isOverColumn &&
-						cards.length > 0 &&
-						!cards.some((c) => c.id === overCardId) && (
-							<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-2" />
-						)}
-				</SortableContext>
 			</div>
 			<div className="border-t p-2">
 				{canEdit && (
