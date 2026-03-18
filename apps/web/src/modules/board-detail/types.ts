@@ -5,6 +5,7 @@ export type KanbanCard = CardsOnColumns[keyof CardsOnColumns][0];
 
 export interface Column {
 	boardId: string;
+	description?: string | null;
 	id: string;
 	name: string;
 	position: number;

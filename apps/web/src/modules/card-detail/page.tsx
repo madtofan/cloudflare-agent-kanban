@@ -211,7 +211,7 @@ function CardDetailPage({
 					className="max-h-max flex-1 overflow-auto border-t pt-4"
 					value="comments"
 				>
-					<CardComments cardId={card.id} />
+					<CardComments boardId={boardId} cardId={card.id} />
 				</TabsContent>
 				<TabsContent
 					className="max-h-max flex-1 overflow-auto border-t pt-4"

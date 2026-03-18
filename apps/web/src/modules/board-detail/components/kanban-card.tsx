@@ -1,40 +1,27 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { Link2, MessageSquare, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { cardTypes } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
 import type { KanbanCard } from "../types";
 import EditCardDialog from "./edit-card-dialog";
 
+interface KanbanCardComponentProps {
+	card: KanbanCard;
+	canEdit?: boolean;
+}
+
 function KanbanCardComponent({
 	card,
 	canEdit = true,
-}: {
-	card: KanbanCard;
-	canEdit?: boolean;
-}) {
+}: KanbanCardComponentProps) {
 	const { boardId, projectId } = useBoardDetailContext();
 	const [isEditCardOpen, setIsEditCardOpen] = useState(false);
-
-	const { data: commentCount } = useQuery(
-		orpc.card.getCommentCount.queryOptions({
-			input: { cardId: card.id ?? "" },
-			enabled: !!card.id,
-		})
-	);
-
-	const { data: linkCount } = useQuery(
-		orpc.card.getLinkCount.queryOptions({
-			input: { cardId: card.id ?? "" },
-			enabled: !!card.id,
-		})
-	);
 
 	const {
 		attributes,
@@ -102,29 +89,20 @@ function KanbanCardComponent({
 					)}
 				</div>
 				<h4 className="font-medium">{card.title}</h4>
-				{card.description && (
-					<MarkdownRenderer
-						className="mt-1 line-clamp-2 text-muted-foreground text-sm"
-						content={card.description}
-					/>
-				)}
-				{card.acceptanceCriteria && (
-					<div className="mt-1 line-clamp-2 border-primary border-l-2 pl-2 text-muted-foreground text-xs italic">
-						<MarkdownRenderer content={card.acceptanceCriteria} />
-					</div>
-				)}
-				{(commentCount ?? 0) > 0 && (
-					<div className="mt-2 flex items-center gap-1 text-muted-foreground text-xs">
-						<MessageSquare className="h-3 w-3" />
-						<span>{commentCount}</span>
-					</div>
-				)}
-				{(linkCount ?? 0) > 0 && (
-					<div className="mt-2 flex items-center gap-1 text-muted-foreground text-xs">
-						<Link2 className="h-3 w-3" />
-						<span>{linkCount}</span>
-					</div>
-				)}
+				<div className="flex gap-4">
+					{(card.cardCommentCount ?? 0) > 0 && (
+						<div className="mt-2 flex items-center gap-1 text-muted-foreground text-xs">
+							<MessageSquare className="h-3 w-3" />
+							<span>{card.cardCommentCount}</span>
+						</div>
+					)}
+					{(card.cardLinkCount ?? 0) > 0 && (
+						<div className="mt-2 flex items-center gap-1 text-muted-foreground text-xs">
+							<Link2 className="h-3 w-3" />
+							<span>{card.cardLinkCount}</span>
+						</div>
+					)}
+				</div>
 				{card.agentTriggerUrl && canEdit && (
 					<>
 						<div className="mt-2 flex items-center text-amber-500 text-xs">

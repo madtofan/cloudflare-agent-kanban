@@ -5,7 +5,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Archive, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { Archive, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import ConfirmationDialog from "@/components/confirmation-dialog";
@@ -16,6 +16,12 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { orpc } from "@/utils/orpc";
 import type { Column, KanbanCard } from "../types";
 import AddCardDialog from "./add-card-dialog";
@@ -107,7 +113,25 @@ function ColumnComponent({
 				{...listeners}
 				className="flex items-center justify-between rounded-t-lg border-b bg-muted/50 p-3"
 			>
-				<h3 className="font-semibold">{column.name}</h3>
+				<div className="flex items-center gap-2">
+					<h3 className="font-semibold">{column.name}</h3>
+					{column.description && (
+						<Popover>
+							<PopoverTrigger
+								render={
+									<Button className="h-5 w-5 p-0" size="icon" variant="ghost">
+										<Info className="h-3.5 w-3.5 text-muted-foreground" />
+									</Button>
+								}
+							/>
+							<PopoverContent align="start" className="max-w-64">
+								<div className="prose prose-sm dark:prose-invert">
+									<MarkdownRenderer content={column.description} />
+								</div>
+							</PopoverContent>
+						</Popover>
+					)}
+				</div>
 				<div className="flex items-center gap-1">
 					<span className="mr-2 text-muted-foreground text-sm">
 						{cards.length}

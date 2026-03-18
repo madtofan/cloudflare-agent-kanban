@@ -87,17 +87,18 @@ export const projectRouter = {
 				throw new Error("Project not found");
 			}
 
-			const role = (await db.query.projectMember.findFirst({
-				where: and(
-					eq(projectMember.projectId, input.projectId),
-					eq(projectMember.userId, userId)
-				),
-			}))?.role;
+			const role = (
+				await db.query.projectMember.findFirst({
+					where: and(
+						eq(projectMember.projectId, input.projectId),
+						eq(projectMember.userId, userId)
+					),
+				})
+			)?.role;
 
 			return {
 				...projectData,
-				userRole:
-					(projectData.ownerId === userId ? "owner" : role) ?? null,
+				userRole: (projectData.ownerId === userId ? "owner" : role) ?? null,
 			};
 		}),
 

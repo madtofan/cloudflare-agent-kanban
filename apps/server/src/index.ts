@@ -32,7 +32,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 		new OpenAPIReferencePlugin({
 			schemaConverters: [new ZodToJsonSchemaConverter()],
 		}),
-		new BatchHandlerPlugin(),
+		...(process.env.NODE_ENV === 'production' ? [new BatchHandlerPlugin()] : []),
 	],
 	interceptors: [
 		onError((error) => {
@@ -42,7 +42,9 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
-	plugins: [new BatchHandlerPlugin()],
+	plugins: [
+		...(process.env.NODE_ENV === 'production' ? [new BatchHandlerPlugin()] : []),
+	],
 	interceptors: [
 		onError((error) => {
 			console.error(error);

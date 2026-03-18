@@ -30,7 +30,7 @@ export const link = new RPCLink({
 		});
 	},
 	plugins: [
-		new BatchLinkPlugin({
+		...(process.env.NODE_ENV === 'production' ? [new BatchLinkPlugin({
 			mode: typeof window === "undefined" ? "buffered" : "streaming",
 			groups: [
 				{
@@ -38,7 +38,7 @@ export const link = new RPCLink({
 					context: {}, // Context used for the rest of the request lifecycle
 				},
 			],
-		}),
+		})] : []),
 	],
 });
 

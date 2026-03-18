@@ -22,6 +22,7 @@ import {
 	type InferSelectModel,
 	inArray,
 	sql,
+	isNull,
 } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import z from "zod";
@@ -139,28 +140,34 @@ export const cardRouter = {
 						},
 						with: {
 							cards: {
-								where: sql`${card.archivedDate} IS NULL`,
+								where: isNull(card.archivedDate),
 								columns: {
 									id: true,
 									cardNumber: true,
 									columnId: true,
 									title: true,
 									type: true,
-									description: true,
-									acceptanceCriteria: true,
+									description: false,
+									acceptanceCriteria: false,
 									position: true,
-									agentTriggerUrl: true,
-									createdAt: true,
-									updatedAt: true,
-									archivedDate: true,
+									agentTriggerUrl: false,
+									createdAt: false,
+									updatedAt: false,
+									archivedDate: false,
 								},
 								with: {
 									assignee: {
 										columns: {
-											id: true,
-											name: true,
+											image: true,
 										},
 									},
+								},
+								extras: {
+									cardCommentCount:
+										sql<number>`(select count(*) from "card_comment" where "card_comment"."card_id" = "board_columns_cards"."id")`.as(
+											"card_comment_count"
+										),
+									cardLinkCount: sql<number>`(select count(*) from "card_link" where "card_link"."source_card_id" = "board_columns_cards"."id")`.as("card_link_count"),
 								},
 							},
 						},
@@ -173,7 +180,16 @@ export const cardRouter = {
 
 			if (isMember) {
 				return cards?.columns.reduce<
-					Record<string, Partial<Card & { assignee: Partial<User> | null }>[]>
+					Record<
+						string,
+						Partial<
+							Card & {
+								assignee: Partial<User> | null;
+								cardCommentCount: number;
+								cardLinkCount: number;
+							}
+						>[]
+					>
 				>((acc, column) => {
 					acc[column.id] = column.cards;
 					return acc;
@@ -181,7 +197,16 @@ export const cardRouter = {
 			}
 
 			return cards?.columns.reduce<
-				Record<string, Partial<Card & { assignee: Partial<User> | null }>[]>
+				Record<
+					string,
+					Partial<
+						Card & {
+							assignee: Partial<User> | null;
+							cardCommentCount: number;
+							cardLinkCount: number;
+						}
+					>[]
+				>
 			>((acc, column) => {
 				acc[column.id] = column.cards.map<
 					Partial<Card & { assignee: Partial<User> | null }>
@@ -191,13 +216,10 @@ export const cardRouter = {
 					columnId: card.columnId,
 					title: card.title,
 					type: card.type,
-					description: card.description,
-					acceptanceCriteria: card.acceptanceCriteria,
 					position: card.position,
 					assignee: card.assignee,
-					createdAt: card.createdAt,
-					updatedAt: card.updatedAt,
-					archivedDate: card.archivedDate,
+					cardCommentCount: card.cardCommentCount,
+					cardLinkCount: card.cardLinkCount,
 				}));
 				return acc;
 			}, {});
@@ -347,45 +369,6 @@ export const cardRouter = {
 			);
 
 			return commentsWithUser;
-		}),
-
-	// TODO - make the comment count return with get cards
-	getCommentCount: protectedProcedure
-		.route({
-			method: "GET",
-			path: "/api/card/{cardId}/comment/count",
-			summary: "",
-			tags: ["Card"],
-		})
-		.input(cardIdSchema)
-		.handler(async ({ context, input }) => {
-			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
-
-			if (!cardData) {
-				return 0;
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				return 0;
-			}
-			const access = await getBoardAccess(columnData.boardId, userId);
-
-			if (access === "none") {
-				return 0;
-			}
-
-			const result = await db
-				.select({ count: cardComment.id })
-				.from(cardComment)
-				.where(eq(cardComment.cardId, input.cardId));
-
-			return result.length;
 		}),
 
 	createComment: protectedProcedure
@@ -872,11 +855,11 @@ export const cardRouter = {
 					...link,
 					targetCard: targetCard
 						? {
-								id: targetCard.id,
-								cardNumber: targetCard.cardNumber,
-								title: targetCard.title,
-								type: targetCard.type,
-							}
+							id: targetCard.id,
+							cardNumber: targetCard.cardNumber,
+							title: targetCard.title,
+							type: targetCard.type,
+						}
 						: null,
 				};
 			});
@@ -887,11 +870,11 @@ export const cardRouter = {
 					...link,
 					sourceCard: sourceCard
 						? {
-								id: sourceCard.id,
-								cardNumber: sourceCard.cardNumber,
-								title: sourceCard.title,
-								type: sourceCard.type,
-							}
+							id: sourceCard.id,
+							cardNumber: sourceCard.cardNumber,
+							title: sourceCard.title,
+							type: sourceCard.type,
+						}
 						: null,
 				};
 			});
@@ -900,50 +883,6 @@ export const cardRouter = {
 				outgoing: outgoingWithDetails,
 				incoming: incomingWithDetails,
 			};
-		}),
-
-	// TODO - make the link count return with get cards
-	getLinkCount: protectedProcedure
-		.route({
-			method: "GET",
-			path: "/api/card/{cardId}/link/count",
-			summary: "",
-			tags: ["Card"],
-		})
-		.input(cardIdSchema)
-		.handler(async ({ context, input }) => {
-			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
-
-			if (!cardData) {
-				return 0;
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				return 0;
-			}
-
-			const access = await getBoardAccess(columnData.boardId, userId);
-			if (access === "none") {
-				return 0;
-			}
-
-			const outgoingCount = await db
-				.select({ count: cardLink.id })
-				.from(cardLink)
-				.where(eq(cardLink.sourceCardId, input.cardId));
-
-			const incomingCount = await db
-				.select({ count: cardLink.id })
-				.from(cardLink)
-				.where(eq(cardLink.targetCardId, input.cardId));
-
-			return outgoingCount.length + incomingCount.length;
 		}),
 
 	searchCards: protectedProcedure
@@ -976,22 +915,20 @@ export const cardRouter = {
 					.select()
 					.from(card)
 					.where(
-						sql`${card.boardId} = ${input.boardId} AND ${card.cardNumber} = ${queryNum}${
-							input.excludeCardId
-								? sql` AND ${card.id} != ${input.excludeCardId}`
-								: sql``
-						}`
+						sql`${card.boardId} = ${input.boardId} AND ${card.cardNumber} = ${queryNum}${input.excludeCardId
+							? sql` AND ${card.id} != ${input.excludeCardId}`
+							: sql``
+							}`
 					);
 			} else if (input.query.trim().length > 0) {
 				cards = await db
 					.select()
 					.from(card)
 					.where(
-						sql`${card.boardId} = ${input.boardId} AND LOWER(${card.title}) LIKE ${`%${input.query.toLowerCase()}%`}${
-							input.excludeCardId
-								? sql` AND ${card.id} != ${input.excludeCardId}`
-								: sql``
-						}`
+						sql`${card.boardId} = ${input.boardId} AND LOWER(${card.title}) LIKE ${`%${input.query.toLowerCase()}%`}${input.excludeCardId
+							? sql` AND ${card.id} != ${input.excludeCardId}`
+							: sql``
+							}`
 					);
 			}
 

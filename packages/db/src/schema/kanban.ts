@@ -119,6 +119,7 @@ export const column = sqliteTable(
 			.notNull()
 			.references(() => board.id, { onDelete: "cascade" }),
 		name: text("name").notNull(),
+		description: text("description"),
 		position: integer("position").notNull().default(0),
 		createdAt: integer("created_at", { mode: "timestamp_ms" })
 			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)

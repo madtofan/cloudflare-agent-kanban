@@ -76,6 +76,7 @@ export const columnRouter = {
 			boardIdSchema.extend({
 				columnId: z.string(),
 				name: z.string().min(1).optional(),
+				description: z.string().optional(),
 				position: z.number().optional(),
 			})
 		)
@@ -95,6 +96,7 @@ export const columnRouter = {
 				.update(column)
 				.set({
 					name: input.name,
+					description: input.description,
 					position: input.position,
 					updatedAt: new Date(),
 				})

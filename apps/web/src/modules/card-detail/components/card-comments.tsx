@@ -18,10 +18,11 @@ import { useBoardDetailContext } from "../context";
 import { formatDate } from "../utils";
 
 interface CardCommentsProps {
+	boardId: string;
 	cardId?: string;
 }
 
-function CardComments({ cardId }: CardCommentsProps) {
+function CardComments({ boardId, cardId }: CardCommentsProps) {
 	const queryClient = useQueryClient();
 	const { currentUser, boardOwnerId, boardMemberRole } =
 		useBoardDetailContext();
@@ -44,9 +45,9 @@ function CardComments({ cardId }: CardCommentsProps) {
 					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getCommentCount.queryKey({
+					queryKey: orpc.card.getByBoardId.queryKey({
 						input: {
-							cardId: cardId ?? "",
+							boardId
 						},
 					}),
 				});
@@ -66,9 +67,9 @@ function CardComments({ cardId }: CardCommentsProps) {
 					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getCommentCount.queryKey({
+					queryKey: orpc.card.getByBoardId.queryKey({
 						input: {
-							cardId: cardId ?? "",
+							boardId
 						},
 					}),
 				});

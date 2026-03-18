@@ -19,6 +19,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { orpc } from "@/utils/orpc";
 import type { Column } from "../types";
 
@@ -27,6 +28,7 @@ const formSchema = z.object({
 		.string()
 		.min(1, "Column name must be at least 1 characters.")
 		.max(32, "Column name must be at most 32 characters."),
+	description: z.string(),
 });
 
 interface EditColumnDialogProps {
@@ -70,6 +72,7 @@ function EditColumnDialog({
 	const form = useForm({
 		defaultValues: {
 			name: column.name,
+			description: column.description ?? "",
 		},
 		validators: {
 			onSubmit: formSchema,
@@ -79,6 +82,7 @@ function EditColumnDialog({
 				boardId: column.boardId,
 				columnId: column.id,
 				name: value.name,
+				description: value.description || undefined,
 			});
 		},
 	});
@@ -121,6 +125,24 @@ function EditColumnDialog({
 										Provide an updated name for the column.
 									</FieldDescription>
 									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+								</Field>
+							);
+						}}
+					</form.Field>
+					<form.Field name="description">
+						{(field) => {
+							return (
+								<Field>
+									<FieldLabel>Column Information</FieldLabel>
+									<RichTextEditor
+										onChange={field.handleChange}
+										placeholder="Define the criteria for completing tasks in this column..."
+										value={field.state.value}
+									/>
+									<FieldDescription>
+										Define the criteria for completing tasks in this column
+										(Definition of Done).
+									</FieldDescription>
 								</Field>
 							);
 						}}
