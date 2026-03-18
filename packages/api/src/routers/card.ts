@@ -888,7 +888,7 @@ export const cardRouter = {
 	searchCards: protectedProcedure
 		.route({
 			method: "GET",
-			path: "/api/board/{boardId}/card/{cardId}/comment/count",
+			path: "/api/card/search",
 			summary: "",
 			tags: ["Card"],
 		})
