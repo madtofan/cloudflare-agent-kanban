@@ -145,17 +145,14 @@ function ColumnComponent({
 				</div>
 			</div>
 			<div className="flex-1 overflow-y-auto p-2">
-				{
-					cards.map((card) => (
-						<KanbanCardComponent canEdit={canEdit} card={card} key={card.id} />
-					))
-				}
-				{isOverColumn &&
-					!cards.some((c) => c.id === overCardId) && (
-						<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
-							Move card to this column
-						</div>
-					)}
+				{cards.map((card) => (
+					<KanbanCardComponent canEdit={canEdit} card={card} key={card.id} />
+				))}
+				{isOverColumn && !cards.some((c) => c.id === overCardId) && (
+					<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
+						Move card to this column
+					</div>
+				)}
 			</div>
 			<div className="border-t p-2">
 				{canEdit && (

@@ -47,7 +47,7 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getByBoardId.queryKey({
 						input: {
-							boardId
+							boardId,
 						},
 					}),
 				});
@@ -69,7 +69,7 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getByBoardId.queryKey({
 						input: {
-							boardId
+							boardId,
 						},
 					}),
 				});

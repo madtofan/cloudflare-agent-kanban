@@ -42,9 +42,7 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 });
 
 export const rpcHandler = new RPCHandler(appRouter, {
-	plugins: [
-		new BatchHandlerPlugin(),
-	],
+	plugins: [new BatchHandlerPlugin()],
 	interceptors: [
 		onError((error) => {
 			console.error(error);
