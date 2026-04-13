@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { BoardArchivesPage } from "@/modules/board-archives";
 
 export const Route = createFileRoute(
-	"/projects/$projectId/boards/$boardId/archived"
+	"/app/projects/$projectId/boards/$boardId/archived"
 )({
 	component: RouteComponent,
 });

@@ -7,11 +7,10 @@ import {
 	Outlet,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { orpc } from "@/utils/orpc";
-
 import "../index.css";
 
 export interface RouterAppContext {
@@ -24,17 +23,56 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
 	head: () => ({
 		meta: [
 			{
-				title: "cloudflare-agent-kanban",
+				title: "Bina IT - Project Management",
 			},
 			{
 				name: "description",
-				content: "cloudflare-agent-kanban is a web application",
+				content:
+					"Bina IT is a project management and kanban application for tracking tasks, projects, and team collaboration.",
+			},
+			{
+				name: "viewport",
+				content: "width=device-width, initial-scale=1",
+			},
+			{
+				name: "robots",
+				content: "index, follow",
+			},
+			{
+				property: "og:title",
+				content: "Bina IT - Project Management",
+			},
+			{
+				property: "og:description",
+				content:
+					"Bina IT is a project management and kanban application for tracking tasks, projects, and team collaboration.",
+			},
+			{
+				property: "og:type",
+				content: "website",
+			},
+			{
+				name: "twitter:card",
+				content: "summary_large_image",
+			},
+			{
+				name: "twitter:title",
+				content: "Bina IT - Project Management",
+			},
+			{
+				name: "twitter:description",
+				content:
+					"Bina IT is a project management and kanban application for tracking tasks, projects, and team collaboration.",
 			},
 		],
 		links: [
 			{
 				rel: "icon",
 				href: "/favicon.ico",
+			},
+			{
+				rel: "canonical",
+				href: "https://kanban.madtofan.win",
 			},
 		],
 	}),
@@ -44,19 +82,18 @@ function RootComponent() {
 	return (
 		<>
 			<HeadContent />
-			<ThemeProvider
-				attribute="class"
-				defaultTheme="light"
-				disableTransitionOnChange
-				storageKey="vite-ui-theme"
-			>
-				<div className="grid h-svh grid-rows-[auto_1fr]">
-					<Header />
+			<TooltipProvider>
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="light"
+					disableTransitionOnChange
+					storageKey="vite-ui-theme"
+				>
 					<Outlet />
-				</div>
-				<Toaster richColors />
-			</ThemeProvider>
-			<TanStackRouterDevtools position="bottom-left" />
+					<Toaster richColors />
+				</ThemeProvider>
+			</TooltipProvider>
+			<TanStackRouterDevtools position="bottom-right" />
 			<ReactQueryDevtools buttonPosition="bottom-right" position="bottom" />
 		</>
 	);

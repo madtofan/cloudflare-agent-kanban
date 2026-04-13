@@ -34,7 +34,7 @@ function ProjectListPage() {
 				setNewProjectVisibility("private");
 				setIsCreating(false);
 				navigate({
-					to: "/projects/$projectId",
+					to: "/app/projects/$projectId",
 					params: { projectId: data.id },
 				});
 			},
@@ -160,7 +160,7 @@ function ProjectListPage() {
 							key={project.id}
 							onClick={() =>
 								navigate({
-									to: "/projects/$projectId",
+									to: "/app/projects/$projectId",
 									params: { projectId: project.id },
 								})
 							}

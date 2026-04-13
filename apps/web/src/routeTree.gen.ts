@@ -12,13 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
+import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as ProfileUsernameRouteImport } from './routes/profile/$username'
-import { Route as ProjectsProjectIdIndexRouteImport } from './routes/projects/$projectId/index'
-import { Route as ProjectsProjectIdBoardsBoardIdIndexRouteImport } from './routes/projects/$projectId/boards/$boardId/index'
-import { Route as ProjectsProjectIdBoardsBoardIdArchivedRouteImport } from './routes/projects/$projectId/boards/$boardId/archived'
-import { Route as ProjectsProjectIdBoardsBoardIdCardIdRouteImport } from './routes/projects/$projectId/boards/$boardId/$cardId'
+import { Route as AppProjectsIndexRouteImport } from './routes/app/projects/index'
+import { Route as AppProjectsProjectIdIndexRouteImport } from './routes/app/projects/$projectId/index'
+import { Route as AppProjectsProjectIdBoardsBoardIdIndexRouteImport } from './routes/app/projects/$projectId/boards/$boardId/index'
+import { Route as AppProjectsProjectIdBoardsBoardIdArchivedRouteImport } from './routes/app/projects/$projectId/boards/$boardId/archived'
+import { Route as AppProjectsProjectIdBoardsBoardIdCardIdRouteImport } from './routes/app/projects/$projectId/boards/$boardId/$cardId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -35,56 +37,69 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
-  id: '/projects/',
-  path: '/projects/',
-  getParentRoute: () => rootRouteImport,
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const ProfileUsernameRoute = ProfileUsernameRouteImport.update({
   id: '/profile/$username',
   path: '/profile/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProjectsProjectIdIndexRoute = ProjectsProjectIdIndexRouteImport.update({
-  id: '/projects/$projectId/',
-  path: '/projects/$projectId/',
-  getParentRoute: () => rootRouteImport,
+const AppProjectsIndexRoute = AppProjectsIndexRouteImport.update({
+  id: '/projects/',
+  path: '/projects/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
-const ProjectsProjectIdBoardsBoardIdIndexRoute =
-  ProjectsProjectIdBoardsBoardIdIndexRouteImport.update({
+const AppProjectsProjectIdIndexRoute =
+  AppProjectsProjectIdIndexRouteImport.update({
+    id: '/projects/$projectId/',
+    path: '/projects/$projectId/',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppProjectsProjectIdBoardsBoardIdIndexRoute =
+  AppProjectsProjectIdBoardsBoardIdIndexRouteImport.update({
     id: '/projects/$projectId/boards/$boardId/',
     path: '/projects/$projectId/boards/$boardId/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRouteRoute,
   } as any)
-const ProjectsProjectIdBoardsBoardIdArchivedRoute =
-  ProjectsProjectIdBoardsBoardIdArchivedRouteImport.update({
+const AppProjectsProjectIdBoardsBoardIdArchivedRoute =
+  AppProjectsProjectIdBoardsBoardIdArchivedRouteImport.update({
     id: '/projects/$projectId/boards/$boardId/archived',
     path: '/projects/$projectId/boards/$boardId/archived',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRouteRoute,
   } as any)
-const ProjectsProjectIdBoardsBoardIdCardIdRoute =
-  ProjectsProjectIdBoardsBoardIdCardIdRouteImport.update({
+const AppProjectsProjectIdBoardsBoardIdCardIdRoute =
+  AppProjectsProjectIdBoardsBoardIdCardIdRouteImport.update({
     id: '/projects/$projectId/boards/$boardId/$cardId',
     path: '/projects/$projectId/boards/$boardId/$cardId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
   '/profile/$username': typeof ProfileUsernameRoute
-  '/projects/': typeof ProjectsIndexRoute
-  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
-  '/projects/$projectId/boards/$boardId/$cardId': typeof ProjectsProjectIdBoardsBoardIdCardIdRoute
-  '/projects/$projectId/boards/$boardId/archived': typeof ProjectsProjectIdBoardsBoardIdArchivedRoute
-  '/projects/$projectId/boards/$boardId/': typeof ProjectsProjectIdBoardsBoardIdIndexRoute
+  '/app/': typeof AppIndexRoute
+  '/app/projects/': typeof AppProjectsIndexRoute
+  '/app/projects/$projectId/': typeof AppProjectsProjectIdIndexRoute
+  '/app/projects/$projectId/boards/$boardId/$cardId': typeof AppProjectsProjectIdBoardsBoardIdCardIdRoute
+  '/app/projects/$projectId/boards/$boardId/archived': typeof AppProjectsProjectIdBoardsBoardIdArchivedRoute
+  '/app/projects/$projectId/boards/$boardId/': typeof AppProjectsProjectIdBoardsBoardIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -92,38 +107,43 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
   '/profile/$username': typeof ProfileUsernameRoute
-  '/projects': typeof ProjectsIndexRoute
-  '/projects/$projectId': typeof ProjectsProjectIdIndexRoute
-  '/projects/$projectId/boards/$boardId/$cardId': typeof ProjectsProjectIdBoardsBoardIdCardIdRoute
-  '/projects/$projectId/boards/$boardId/archived': typeof ProjectsProjectIdBoardsBoardIdArchivedRoute
-  '/projects/$projectId/boards/$boardId': typeof ProjectsProjectIdBoardsBoardIdIndexRoute
+  '/app': typeof AppIndexRoute
+  '/app/projects': typeof AppProjectsIndexRoute
+  '/app/projects/$projectId': typeof AppProjectsProjectIdIndexRoute
+  '/app/projects/$projectId/boards/$boardId/$cardId': typeof AppProjectsProjectIdBoardsBoardIdCardIdRoute
+  '/app/projects/$projectId/boards/$boardId/archived': typeof AppProjectsProjectIdBoardsBoardIdArchivedRoute
+  '/app/projects/$projectId/boards/$boardId': typeof AppProjectsProjectIdBoardsBoardIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
   '/profile/$username': typeof ProfileUsernameRoute
-  '/projects/': typeof ProjectsIndexRoute
-  '/projects/$projectId/': typeof ProjectsProjectIdIndexRoute
-  '/projects/$projectId/boards/$boardId/$cardId': typeof ProjectsProjectIdBoardsBoardIdCardIdRoute
-  '/projects/$projectId/boards/$boardId/archived': typeof ProjectsProjectIdBoardsBoardIdArchivedRoute
-  '/projects/$projectId/boards/$boardId/': typeof ProjectsProjectIdBoardsBoardIdIndexRoute
+  '/app/': typeof AppIndexRoute
+  '/app/projects/': typeof AppProjectsIndexRoute
+  '/app/projects/$projectId/': typeof AppProjectsProjectIdIndexRoute
+  '/app/projects/$projectId/boards/$boardId/$cardId': typeof AppProjectsProjectIdBoardsBoardIdCardIdRoute
+  '/app/projects/$projectId/boards/$boardId/archived': typeof AppProjectsProjectIdBoardsBoardIdArchivedRoute
+  '/app/projects/$projectId/boards/$boardId/': typeof AppProjectsProjectIdBoardsBoardIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/app'
     | '/dashboard'
     | '/demo'
     | '/login'
     | '/profile/$username'
-    | '/projects/'
-    | '/projects/$projectId/'
-    | '/projects/$projectId/boards/$boardId/$cardId'
-    | '/projects/$projectId/boards/$boardId/archived'
-    | '/projects/$projectId/boards/$boardId/'
+    | '/app/'
+    | '/app/projects/'
+    | '/app/projects/$projectId/'
+    | '/app/projects/$projectId/boards/$boardId/$cardId'
+    | '/app/projects/$projectId/boards/$boardId/archived'
+    | '/app/projects/$projectId/boards/$boardId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -131,36 +151,35 @@ export interface FileRouteTypes {
     | '/demo'
     | '/login'
     | '/profile/$username'
-    | '/projects'
-    | '/projects/$projectId'
-    | '/projects/$projectId/boards/$boardId/$cardId'
-    | '/projects/$projectId/boards/$boardId/archived'
-    | '/projects/$projectId/boards/$boardId'
+    | '/app'
+    | '/app/projects'
+    | '/app/projects/$projectId'
+    | '/app/projects/$projectId/boards/$boardId/$cardId'
+    | '/app/projects/$projectId/boards/$boardId/archived'
+    | '/app/projects/$projectId/boards/$boardId'
   id:
     | '__root__'
     | '/'
+    | '/app'
     | '/dashboard'
     | '/demo'
     | '/login'
     | '/profile/$username'
-    | '/projects/'
-    | '/projects/$projectId/'
-    | '/projects/$projectId/boards/$boardId/$cardId'
-    | '/projects/$projectId/boards/$boardId/archived'
-    | '/projects/$projectId/boards/$boardId/'
+    | '/app/'
+    | '/app/projects/'
+    | '/app/projects/$projectId/'
+    | '/app/projects/$projectId/boards/$boardId/$cardId'
+    | '/app/projects/$projectId/boards/$boardId/archived'
+    | '/app/projects/$projectId/boards/$boardId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   LoginRoute: typeof LoginRoute
   ProfileUsernameRoute: typeof ProfileUsernameRoute
-  ProjectsIndexRoute: typeof ProjectsIndexRoute
-  ProjectsProjectIdIndexRoute: typeof ProjectsProjectIdIndexRoute
-  ProjectsProjectIdBoardsBoardIdCardIdRoute: typeof ProjectsProjectIdBoardsBoardIdCardIdRoute
-  ProjectsProjectIdBoardsBoardIdArchivedRoute: typeof ProjectsProjectIdBoardsBoardIdArchivedRoute
-  ProjectsProjectIdBoardsBoardIdIndexRoute: typeof ProjectsProjectIdBoardsBoardIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -186,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -193,12 +219,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/': {
-      id: '/projects/'
-      path: '/projects'
-      fullPath: '/projects/'
-      preLoaderRoute: typeof ProjectsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/profile/$username': {
       id: '/profile/$username'
@@ -207,51 +233,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/projects/$projectId/': {
-      id: '/projects/$projectId/'
+    '/app/projects/': {
+      id: '/app/projects/'
+      path: '/projects'
+      fullPath: '/app/projects/'
+      preLoaderRoute: typeof AppProjectsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/projects/$projectId/': {
+      id: '/app/projects/$projectId/'
       path: '/projects/$projectId'
-      fullPath: '/projects/$projectId/'
-      preLoaderRoute: typeof ProjectsProjectIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/app/projects/$projectId/'
+      preLoaderRoute: typeof AppProjectsProjectIdIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/projects/$projectId/boards/$boardId/': {
-      id: '/projects/$projectId/boards/$boardId/'
+    '/app/projects/$projectId/boards/$boardId/': {
+      id: '/app/projects/$projectId/boards/$boardId/'
       path: '/projects/$projectId/boards/$boardId'
-      fullPath: '/projects/$projectId/boards/$boardId/'
-      preLoaderRoute: typeof ProjectsProjectIdBoardsBoardIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/app/projects/$projectId/boards/$boardId/'
+      preLoaderRoute: typeof AppProjectsProjectIdBoardsBoardIdIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/projects/$projectId/boards/$boardId/archived': {
-      id: '/projects/$projectId/boards/$boardId/archived'
+    '/app/projects/$projectId/boards/$boardId/archived': {
+      id: '/app/projects/$projectId/boards/$boardId/archived'
       path: '/projects/$projectId/boards/$boardId/archived'
-      fullPath: '/projects/$projectId/boards/$boardId/archived'
-      preLoaderRoute: typeof ProjectsProjectIdBoardsBoardIdArchivedRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/app/projects/$projectId/boards/$boardId/archived'
+      preLoaderRoute: typeof AppProjectsProjectIdBoardsBoardIdArchivedRouteImport
+      parentRoute: typeof AppRouteRoute
     }
-    '/projects/$projectId/boards/$boardId/$cardId': {
-      id: '/projects/$projectId/boards/$boardId/$cardId'
+    '/app/projects/$projectId/boards/$boardId/$cardId': {
+      id: '/app/projects/$projectId/boards/$boardId/$cardId'
       path: '/projects/$projectId/boards/$boardId/$cardId'
-      fullPath: '/projects/$projectId/boards/$boardId/$cardId'
-      preLoaderRoute: typeof ProjectsProjectIdBoardsBoardIdCardIdRouteImport
-      parentRoute: typeof rootRouteImport
+      fullPath: '/app/projects/$projectId/boards/$boardId/$cardId'
+      preLoaderRoute: typeof AppProjectsProjectIdBoardsBoardIdCardIdRouteImport
+      parentRoute: typeof AppRouteRoute
     }
   }
 }
 
+interface AppRouteRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+  AppProjectsIndexRoute: typeof AppProjectsIndexRoute
+  AppProjectsProjectIdIndexRoute: typeof AppProjectsProjectIdIndexRoute
+  AppProjectsProjectIdBoardsBoardIdCardIdRoute: typeof AppProjectsProjectIdBoardsBoardIdCardIdRoute
+  AppProjectsProjectIdBoardsBoardIdArchivedRoute: typeof AppProjectsProjectIdBoardsBoardIdArchivedRoute
+  AppProjectsProjectIdBoardsBoardIdIndexRoute: typeof AppProjectsProjectIdBoardsBoardIdIndexRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+  AppProjectsIndexRoute: AppProjectsIndexRoute,
+  AppProjectsProjectIdIndexRoute: AppProjectsProjectIdIndexRoute,
+  AppProjectsProjectIdBoardsBoardIdCardIdRoute:
+    AppProjectsProjectIdBoardsBoardIdCardIdRoute,
+  AppProjectsProjectIdBoardsBoardIdArchivedRoute:
+    AppProjectsProjectIdBoardsBoardIdArchivedRoute,
+  AppProjectsProjectIdBoardsBoardIdIndexRoute:
+    AppProjectsProjectIdBoardsBoardIdIndexRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   LoginRoute: LoginRoute,
   ProfileUsernameRoute: ProfileUsernameRoute,
-  ProjectsIndexRoute: ProjectsIndexRoute,
-  ProjectsProjectIdIndexRoute: ProjectsProjectIdIndexRoute,
-  ProjectsProjectIdBoardsBoardIdCardIdRoute:
-    ProjectsProjectIdBoardsBoardIdCardIdRoute,
-  ProjectsProjectIdBoardsBoardIdArchivedRoute:
-    ProjectsProjectIdBoardsBoardIdArchivedRoute,
-  ProjectsProjectIdBoardsBoardIdIndexRoute:
-    ProjectsProjectIdBoardsBoardIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

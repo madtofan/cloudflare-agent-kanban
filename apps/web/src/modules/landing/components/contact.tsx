@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { orpc } from "@/utils/orpc";
 
 function ContactSection() {
@@ -53,7 +54,7 @@ function ContactSection() {
 				<CardContent>
 					<form className="space-y-4" onSubmit={handleSubmit}>
 						<div className="space-y-2">
-							<Label htmlFor="name">Name</Label>
+							<Label htmlFor="name">NAME</Label>
 							<Input
 								id="name"
 								onChange={(e) =>
@@ -65,7 +66,7 @@ function ContactSection() {
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="email">Email</Label>
+							<Label htmlFor="email">EMAIL</Label>
 							<Input
 								id="email"
 								onChange={(e) =>
@@ -79,8 +80,7 @@ function ContactSection() {
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="message">Message</Label>
-							<textarea
-								className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+							<Textarea
 								id="message"
 								onChange={(e) =>
 									setFormData({ ...formData, message: e.target.value })

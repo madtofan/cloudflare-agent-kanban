@@ -54,7 +54,7 @@ export function useDraggable<T extends HTMLElement = HTMLButtonElement>({
 		});
 
 		return cleanup;
-	}, [id, data, onDragStart, onDrop, ref.current]);
+	}, [id, data, onDragStart, onDrop]);
 
 	return {
 		ref,

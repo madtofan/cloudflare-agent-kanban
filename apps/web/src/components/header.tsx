@@ -1,33 +1,20 @@
-import { Link } from "@tanstack/react-router";
+import { mergeClassNames } from "@base-ui/react";
+import type { ReactNode } from "react";
 
-import { ModeToggle } from "./mode-toggle";
-import UserMenu from "./user-menu";
+interface HeaderProps {
+	children: ReactNode;
+	className?: string;
+}
 
-export default function Header() {
-	const links = [
-		{ to: "/", label: "Home" },
-		{ to: "/dashboard", label: "Dashboard" },
-		{ to: "/projects", label: "Projects" },
-	] as const;
-
+export default function Header({ children, className }: HeaderProps) {
 	return (
-		<div>
-			<div className="flex flex-row items-center justify-between px-2 py-1">
-				<nav className="flex gap-4 text-lg">
-					{links.map(({ to, label }) => {
-						return (
-							<Link key={to} to={to}>
-								{label}
-							</Link>
-						);
-					})}
-				</nav>
-				<div className="flex items-center gap-2">
-					<ModeToggle />
-					<UserMenu />
-				</div>
-			</div>
-			<hr />
-		</div>
+		<header
+			className={mergeClassNames(
+				"sticky top-0 z-1 flex h-16 shrink-0 items-center gap-2 border-b bg-card/90 px-4 backdrop-blur-sm",
+				className
+			)}
+		>
+			{children}
+		</header>
 	);
 }

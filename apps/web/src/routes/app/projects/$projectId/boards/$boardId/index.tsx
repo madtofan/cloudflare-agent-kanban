@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BoardDetailPage } from "@/modules/board-detail";
 
-export const Route = createFileRoute("/projects/$projectId/boards/$boardId/")({
+export const Route = createFileRoute(
+	"/app/projects/$projectId/boards/$boardId/"
+)({
 	component: BoardDetailRoute,
 });
 

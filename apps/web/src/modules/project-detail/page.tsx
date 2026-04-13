@@ -57,7 +57,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 				setNewBoardName("");
 				setIsCreating(false);
 				navigate({
-					to: "/projects/$projectId/boards/$boardId",
+					to: "/app/projects/$projectId/boards/$boardId",
 					params: { boardId: data.id, projectId },
 				});
 			},
@@ -105,7 +105,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 			<div className="mb-8 flex items-center justify-between">
 				<div className="flex items-center gap-4">
 					<Button
-						onClick={() => navigate({ to: "/projects" })}
+						onClick={() => navigate({ to: "/app/projects" })}
 						size="icon"
 						variant="ghost"
 					>
@@ -219,7 +219,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 									key={board.id}
 									onClick={() =>
 										navigate({
-											to: "/projects/$projectId/boards/$boardId",
+											to: "/app/projects/$projectId/boards/$boardId",
 											params: { boardId: board.id, projectId },
 										})
 									}
@@ -268,7 +268,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 					ownerId: project.data?.ownerId ?? "",
 					userRole: project.data?.userRole,
 				}}
-				onDeleteSuccess={() => navigate({ to: "/projects" })}
+				onDeleteSuccess={() => navigate({ to: "/app/projects" })}
 				onOpenChange={setIsSettingsOpen}
 				open={isSettingsOpen}
 				projectId={projectId}

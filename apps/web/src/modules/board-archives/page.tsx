@@ -23,7 +23,7 @@ function BoardArchivesPage({ boardId, projectId }: ArchivedCardsListProps) {
 					<Button
 						onClick={() =>
 							navigate({
-								to: "/projects/$projectId/boards/$boardId",
+								to: "/app/projects/$projectId/boards/$boardId",
 								params: { projectId, boardId },
 							})
 						}

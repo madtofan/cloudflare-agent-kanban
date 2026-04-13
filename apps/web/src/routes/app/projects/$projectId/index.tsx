@@ -9,7 +9,7 @@ const projectIdSearchSchema = z.object({
 	),
 });
 
-export const Route = createFileRoute("/projects/$projectId/")({
+export const Route = createFileRoute("/app/projects/$projectId/")({
 	component: ProjectDetailRoute,
 	validateSearch: zodValidator(projectIdSearchSchema),
 });

@@ -155,10 +155,11 @@ function CardForm({
 								<div className="flex flex-wrap gap-2 p-2">
 									{cardTypes.map((type) => (
 										<button
-											className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${field.state.value === type.value
+											className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${
+												field.state.value === type.value
 													? "ring-2 ring-offset-2 ring-offset-background"
 													: "opacity-70 ring-0 hover:opacity-100"
-												}`}
+											}`}
 											key={`${type.value}${field.state.value}`}
 											onClick={() => field.handleChange(type.value)}
 											style={

@@ -1,7 +1,7 @@
 import type { OrpcOutput } from "@cloudflare-agent-kanban/api/routers/index";
 import { env } from "@cloudflare-agent-kanban/env/web";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { notFound } from "@tanstack/react-router";
+import { Link, notFound } from "@tanstack/react-router";
 import { Camera, Check, Edit2, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,9 @@ import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
+import Header from "@/components/header";
+import { ModeToggle } from "@/components/mode-toggle";
+import UserMenu from "@/components/user-menu";
 
 interface ProfilePageProps {
 	publicProfile: OrpcOutput["profile"]["getByUsername"];
@@ -27,6 +30,12 @@ function getFullImageUrl(image: string | null | undefined): string | undefined {
 		? `${env.VITE_R2_PUBLIC_URL}/${image}`
 		: undefined;
 }
+
+const LINKS = [
+	{ to: "/", label: "Home" },
+	{ to: "/app", label: "Dashboard" },
+	{ to: "/app/projects", label: "Projects" },
+] as const;
 
 function resizeImage(
 	file: File,
@@ -342,75 +351,92 @@ function ProfilePage({ publicProfile }: ProfilePageProps) {
 	}
 
 	return (
-		<div className="container mx-auto py-10">
-			<div className="mx-auto max-w-2xl">
-				<div className="flex flex-col items-center text-center">
-					<div className="relative">
-						<Avatar className="size-32">
-							<AvatarImage src={getFullImageUrl(publicProfile.image)} />
-							<AvatarFallback>
-								{publicProfile.name?.[0]?.toUpperCase() ?? "?"}
-							</AvatarFallback>
-						</Avatar>
-						{isOwnProfile && (
-							<>
-								<input
-									accept="image/jpeg,image/png,image/webp"
-									className="hidden"
-									onChange={handleFileSelect}
-									ref={fileInputRef}
-									type="file"
-								/>
-								<Button
-									className="absolute right-0 bottom-0 size-8 rounded-full p-0"
-									disabled={uploadImageMutation.isPending}
-									onClick={() => fileInputRef.current?.click()}
-									size="sm"
-								>
-									{uploadImageMutation.isPending ? (
-										<Loader2 className="h-4 w-4 animate-spin" />
-									) : (
-										<Camera className="h-4 w-4" />
-									)}
+		<>
+			<Header className="justify-between">
+				<nav className="flex gap-4 text-lg">
+					{LINKS.map(({ to, label }) => {
+						return (
+							<Link key={to} to={to}>
+								{label}
+							</Link>
+						);
+					})}
+				</nav>
+				<div className="flex items-center gap-2">
+					<ModeToggle />
+					<UserMenu />
+				</div>
+			</Header>
+			<div className="container mx-auto py-10">
+				<div className="mx-auto max-w-2xl">
+					<div className="flex flex-col items-center text-center">
+						<div className="relative">
+							<Avatar className="size-32">
+								<AvatarImage src={getFullImageUrl(publicProfile.image)} />
+								<AvatarFallback>
+									{publicProfile.name?.[0]?.toUpperCase() ?? "?"}
+								</AvatarFallback>
+							</Avatar>
+							{isOwnProfile && (
+								<>
+									<input
+										accept="image/jpeg,image/png,image/webp"
+										className="hidden"
+										onChange={handleFileSelect}
+										ref={fileInputRef}
+										type="file"
+									/>
+									<Button
+										className="absolute right-0 bottom-0 size-8 rounded-full p-0"
+										disabled={uploadImageMutation.isPending}
+										onClick={() => fileInputRef.current?.click()}
+										size="sm"
+									>
+										{uploadImageMutation.isPending ? (
+											<Loader2 className="h-4 w-4 animate-spin" />
+										) : (
+											<Camera className="h-4 w-4" />
+										)}
+									</Button>
+								</>
+							)}
+						</div>
+						<h1 className="mt-4 font-bold text-3xl">
+							{publicProfile.displayUsername || publicProfile.username}
+						</h1>
+						<p className="text-muted-foreground">{publicProfile.name}</p>
+					</div>
+
+					<div className="mt-8">
+						<div className="mb-2 flex items-center justify-between">
+							<h2 className="font-semibold text-lg">About Me</h2>
+							{isOwnProfile && !isEditingAboutMe && (
+								<Button onClick={startEditingAboutMe} size="sm" variant="ghost">
+									<Edit2 className="mr-2 h-4 w-4" />
+									Edit
 								</Button>
-							</>
-						)}
-					</div>
-					<h1 className="mt-4 font-bold text-3xl">
-						{publicProfile.displayUsername || publicProfile.username}
-					</h1>
-					<p className="text-muted-foreground">{publicProfile.name}</p>
-				</div>
+							)}
+						</div>
 
-				<div className="mt-8">
-					<div className="mb-2 flex items-center justify-between">
-						<h2 className="font-semibold text-lg">About Me</h2>
-						{isOwnProfile && !isEditingAboutMe && (
-							<Button onClick={startEditingAboutMe} size="sm" variant="ghost">
-								<Edit2 className="mr-2 h-4 w-4" />
-								Edit
-							</Button>
-						)}
+						{renderAboutMe()}
 					</div>
 
-					{renderAboutMe()}
-				</div>
+					<div className="mt-8">
+						<div className="mb-4 flex items-center justify-between">
+							<h2 className="font-semibold text-lg">Showcased Projects</h2>
+							{isOwnProfile && !isEditingProjects && (
+								<Button onClick={startEditingProjects} size="sm" variant="ghost">
+									<Edit2 className="mr-2 h-4 w-4" />
+									Edit
+								</Button>
+							)}
+						</div>
 
-				<div className="mt-8">
-					<div className="mb-4 flex items-center justify-between">
-						<h2 className="font-semibold text-lg">Showcased Projects</h2>
-						{isOwnProfile && !isEditingProjects && (
-							<Button onClick={startEditingProjects} size="sm" variant="ghost">
-								<Edit2 className="mr-2 h-4 w-4" />
-								Edit
-							</Button>
-						)}
+						{renderShowcasedProjects()}
 					</div>
-
-					{renderShowcasedProjects()}
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }
 

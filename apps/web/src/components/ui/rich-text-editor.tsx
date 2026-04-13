@@ -50,8 +50,8 @@ import {
 	RichTextUnderline,
 	TextUnderline,
 } from "reactjs-tiptap-editor/textunderline";
+import { themeActions } from "reactjs-tiptap-editor/theme";
 import { Markdown } from "tiptap-markdown";
-import { themeActions } from 'reactjs-tiptap-editor/theme';
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -72,12 +72,12 @@ export function RichTextEditor({
 	const { resolvedTheme } = useTheme();
 
 	useEffect(() => {
-		if (resolvedTheme === 'light') {
-			themeActions.setTheme('light');
+		if (resolvedTheme === "light") {
+			themeActions.setTheme("light");
 			return;
 		}
-		if (resolvedTheme === 'dark') {
-			themeActions.setTheme('dark');
+		if (resolvedTheme === "dark") {
+			themeActions.setTheme("dark");
 			return;
 		}
 	}, [resolvedTheme]);
@@ -159,7 +159,8 @@ export function RichTextEditor({
 					)}
 				>
 					{isFocused && (
-						<div className="flex flex-wrap items-center gap-0.5 border-b bg-muted/30 p-1"
+						<div
+							className="flex flex-wrap items-center gap-0.5 border-b bg-muted/30 p-1"
 							onMouseDown={(e) => {
 								if (isFocused) {
 									e.preventDefault();
@@ -216,7 +217,6 @@ export function RichTextEditor({
 							/>
 						</div>
 					</div>
-
 				</div>
 			</RichTextProvider>
 		</div>

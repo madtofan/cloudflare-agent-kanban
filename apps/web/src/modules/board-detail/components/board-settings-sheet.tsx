@@ -89,7 +89,7 @@ function BoardSettingsSheet({
 				});
 				toast.success("Board deleted");
 				onDeleteSuccess?.();
-				navigate({ to: "/projects" });
+				navigate({ to: "/app/projects" });
 			},
 			onError: (error) => toast.error(error.message),
 		})
