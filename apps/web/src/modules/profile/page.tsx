@@ -5,15 +5,15 @@ import { Link, notFound } from "@tanstack/react-router";
 import { Camera, Check, Edit2, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
+import Header from "@/components/header";
+import { ModeToggle } from "@/components/mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import UserMenu from "@/components/user-menu";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
-import Header from "@/components/header";
-import { ModeToggle } from "@/components/mode-toggle";
-import UserMenu from "@/components/user-menu";
 
 interface ProfilePageProps {
 	publicProfile: OrpcOutput["profile"]["getByUsername"];
@@ -425,7 +425,11 @@ function ProfilePage({ publicProfile }: ProfilePageProps) {
 						<div className="mb-4 flex items-center justify-between">
 							<h2 className="font-semibold text-lg">Showcased Projects</h2>
 							{isOwnProfile && !isEditingProjects && (
-								<Button onClick={startEditingProjects} size="sm" variant="ghost">
+								<Button
+									onClick={startEditingProjects}
+									size="sm"
+									variant="ghost"
+								>
 									<Edit2 className="mr-2 h-4 w-4" />
 									Edit
 								</Button>

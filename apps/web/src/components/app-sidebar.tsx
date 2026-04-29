@@ -1,4 +1,11 @@
-import { BriefcaseBusiness, ChevronDown, Home, HomeIcon, LayoutDashboard, Plus, SidebarIcon, User2 } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import {
+	BriefcaseBusiness,
+	HomeIcon,
+	LayoutDashboard,
+	SidebarIcon,
+	User2,
+} from "lucide-react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -11,14 +18,6 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { ModeToggle } from "./mode-toggle";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { useNavigate } from "@tanstack/react-router";
 
 function AppSidebar() {
 	const { toggleSidebar } = useSidebar();
@@ -35,7 +34,6 @@ function AppSidebar() {
 			<SidebarContent>
 				<SidebarGroup />
 				<SidebarMenuItem>
-
 					<SidebarMenuButton onClick={() => navigate({ to: "/" })}>
 						<HomeIcon />
 						<span>Home</span>

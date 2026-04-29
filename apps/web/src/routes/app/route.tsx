@@ -33,7 +33,7 @@ function RouteComponent() {
 						</BreadcrumbList>
 					</Breadcrumb>
 				</Header>
-				<main className="min-h-0 overflow-auto bg-background/50 bg-grid grow">
+				<main className="min-h-0 grow overflow-auto bg-background/50 bg-grid">
 					<Outlet />
 				</main>
 			</SidebarInset>

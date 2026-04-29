@@ -192,7 +192,10 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					<div className="flex items-center gap-4">
 						<Button
 							onClick={() =>
-								navigate({ to: "/app/projects/$projectId", params: { projectId } })
+								navigate({
+									to: "/app/projects/$projectId",
+									params: { projectId },
+								})
 							}
 							size="icon"
 							variant="ghost"

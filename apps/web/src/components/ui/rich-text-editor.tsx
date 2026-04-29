@@ -1,224 +1,198 @@
-import "reactjs-tiptap-editor/style.css";
-
-import Document from "@tiptap/extension-document";
-import { HardBreak } from "@tiptap/extension-hard-break";
-import { ListItem } from "@tiptap/extension-list";
-import Paragraph from "@tiptap/extension-paragraph";
-import { Text as TiptapText } from "@tiptap/extension-text";
-import { TextStyle } from "@tiptap/extension-text-style";
 import {
-	Dropcursor,
-	Gapcursor,
-	Placeholder,
-	TrailingNode,
-} from "@tiptap/extensions";
-import { EditorContent, useEditor } from "@tiptap/react";
-import { useTheme } from "next-themes";
-import { useEffect, useMemo, useState } from "react";
-import { RichTextProvider } from "reactjs-tiptap-editor";
-import {
-	Blockquote,
-	RichTextBlockquote,
-} from "reactjs-tiptap-editor/blockquote";
-import { Bold, RichTextBold } from "reactjs-tiptap-editor/bold";
-import {
-	RichTextBubbleLink,
-	RichTextBubbleText,
-} from "reactjs-tiptap-editor/bubble";
-import {
-	BulletList,
-	RichTextBulletList,
-} from "reactjs-tiptap-editor/bulletlist";
-import { CodeBlock, RichTextCodeBlock } from "reactjs-tiptap-editor/codeblock";
-import { Color, RichTextColor } from "reactjs-tiptap-editor/color";
-import { Heading, RichTextHeading } from "reactjs-tiptap-editor/heading";
-import { Highlight, RichTextHighlight } from "reactjs-tiptap-editor/highlight";
-import {
-	History,
-	RichTextRedo,
-	RichTextUndo,
-} from "reactjs-tiptap-editor/history";
-import { Italic, RichTextItalic } from "reactjs-tiptap-editor/italic";
-import { Link, RichTextLink } from "reactjs-tiptap-editor/link";
-import {
-	OrderedList,
-	RichTextOrderedList,
-} from "reactjs-tiptap-editor/orderedlist";
-import { RichTextStrike, Strike } from "reactjs-tiptap-editor/strike";
-import { RichTextTaskList, TaskList } from "reactjs-tiptap-editor/tasklist";
-import {
-	RichTextUnderline,
-	TextUnderline,
-} from "reactjs-tiptap-editor/textunderline";
-import { themeActions } from "reactjs-tiptap-editor/theme";
-import { Markdown } from "tiptap-markdown";
+	BoldItalicUnderlineToggles,
+	CodeToggle,
+	CreateLink,
+	codeBlockPlugin,
+	headingsPlugin,
+	InsertCodeBlock,
+	InsertThematicBreak,
+	ListsToggle,
+	linkDialogPlugin,
+	linkPlugin,
+	listsPlugin,
+	MDXEditor,
+	quotePlugin,
+	Separator,
+	toolbarPlugin,
+	UndoRedo,
+	ConditionalContents,
+	markdownShortcutPlugin,
+	tablePlugin,
+	imagePlugin,
+	codeMirrorPlugin,
+	diffSourcePlugin,
+	ChangeCodeMirrorLanguage,
+	InsertImage,
+	InsertTable,
+} from "@mdxeditor/editor";
+import { basicDark } from "cm6-theme-basic-dark";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
+
 
 interface RichTextEditorProps {
 	className?: string;
-	id?: string;
+	onBlur?: () => void;
 	onChange: (value: string) => void;
+	onFocus?: () => void;
 	placeholder?: string;
 	value: string;
 }
 
 export function RichTextEditor({
-	value,
-	onChange,
-	placeholder = "",
 	className,
+	onBlur,
+	onChange,
+	onFocus,
+	placeholder,
+	value,
 }: RichTextEditorProps) {
-	const [isFocused, setIsFocused] = useState(false);
 	const { resolvedTheme } = useTheme();
+	const themeExtension = resolvedTheme === "dark" ? [basicDark] : [];
+	const [isFocused, setIsFocused] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	const handleFocusIn = useCallback(() => {
+		setIsFocused(true);
+		onFocus?.();
+	}, [onFocus]);
+
+	const handleFocusOut = useCallback(() => {
+		setIsFocused(false);
+		onBlur?.();
+	}, [onBlur]);
 
 	useEffect(() => {
-		if (resolvedTheme === "light") {
-			themeActions.setTheme("light");
+		const container = containerRef.current;
+		if (!container) {
 			return;
 		}
-		if (resolvedTheme === "dark") {
-			themeActions.setTheme("dark");
-			return;
-		}
-	}, [resolvedTheme]);
 
-	const extensions = useMemo(
-		() => [
-			Document,
-			TiptapText,
-			Paragraph,
-			Dropcursor,
-			Gapcursor,
-			HardBreak,
-			TrailingNode,
-			ListItem,
-			TextStyle,
-			Placeholder.configure({ placeholder }),
-			Bold,
-			Italic,
-			TextUnderline,
-			Strike,
-			Heading.configure({ levels: [1, 2, 3] }),
-			BulletList,
-			OrderedList,
-			TaskList.configure({ taskItem: { nested: true } }),
-			Blockquote,
-			CodeBlock,
-			Link.configure({ openOnClick: false }),
-			Color,
-			Highlight.configure({ multicolor: true }),
-			History,
-			Markdown,
-		],
-		[placeholder]
-	);
+		container.addEventListener("focusin", handleFocusIn);
+		container.addEventListener("focusout", handleFocusOut);
 
-	const editor = useEditor({
-		extensions,
-		content: value || "",
-		onUpdate: ({ editor }) => {
-			const markdownEditor = editor as unknown as {
-				storage: { markdown: { getMarkdown: () => string } };
-			};
-			onChange(markdownEditor.storage.markdown.getMarkdown());
-		},
-		onFocus: () => setIsFocused(true),
-		onBlur: () => setIsFocused(false),
-		editorProps: {
-			attributes: {
-				class: "max-w-none focus:outline-none p-1",
-			},
-		},
-	});
+		container.addEventListener("pointerdown", handleFocusIn);
+
+		return () => {
+			container.removeEventListener("focusin", handleFocusIn);
+			container.removeEventListener("focusout", handleFocusOut);
+			container.removeEventListener("pointerdown", handleFocusIn);
+		};
+	}, [handleFocusIn, handleFocusOut]);
 
 	useEffect(() => {
-		if (editor) {
-			const markdownEditor = editor as unknown as {
-				storage: { markdown: { getMarkdown: () => string } };
-			};
-			const currentMarkdown = markdownEditor.storage.markdown.getMarkdown();
-			if (value !== currentMarkdown) {
-				editor.commands.setContent(value || "", {
-					contentType: "markdown",
-				} as Parameters<typeof editor.commands.setContent>[1]);
+		if (!isFocused) {
+			return;
+		}
+
+		const handleClickOutside = (e: MouseEvent) => {
+			const container = containerRef.current;
+			if (container && !container.contains(e.target as Node)) {
+				handleFocusOut();
 			}
-		}
-	}, [value, editor]);
+		};
 
-	if (!editor) {
-		return null;
-	}
+		document.addEventListener("pointerdown", handleClickOutside);
+		return () =>
+			document.removeEventListener("pointerdown", handleClickOutside);
+	}, [isFocused, handleFocusOut]);
+
+	const plugins = useMemo(() => {
+		const pluginsToUse = [
+			headingsPlugin(),
+			listsPlugin(),
+			linkPlugin(),
+			linkDialogPlugin(),
+			quotePlugin(),
+			markdownShortcutPlugin(),
+			tablePlugin(),
+			imagePlugin(),
+			codeBlockPlugin({ defaultCodeBlockLanguage: "" }),
+			codeMirrorPlugin({
+				codeBlockLanguages: {
+					css: "css",
+					txt: "txt",
+					sql: "sql",
+					html: "html",
+					sass: "sass",
+					scss: "scss",
+					bash: "bash",
+					json: "json",
+					js: "javascript",
+					ts: "typescript",
+					"": "unspecified",
+					tsx: "TypeScript (React)",
+					jsx: "JavaScript (React)",
+				},
+				autoLoadLanguageSupport: true,
+				codeMirrorExtensions: themeExtension,
+			}),
+			diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "" }),
+			toolbarPlugin({
+				toolbarClassName: 'p-0!',
+				toolbarContents: () => isFocused ? (
+					<ConditionalContents
+						options={[
+							{
+								when: (editor) => editor?.editorType === "codeblock"
+								,
+								contents: () => <ChangeCodeMirrorLanguage />,
+							},
+							{
+								fallback: () => (
+									<>
+										<UndoRedo />
+										<Separator />
+										<BoldItalicUnderlineToggles />
+										<CodeToggle />
+										<Separator />
+										<ListsToggle />
+										<Separator />
+										<CreateLink />
+										<InsertImage />
+										<Separator />
+										<InsertTable />
+										<InsertThematicBreak />
+										<Separator />
+										<InsertCodeBlock />
+									</>
+								),
+							},
+						]}
+					/>
+				) : null,
+			}),
+		];
+		// if (isFocused) {
+		// 	pluginsToUse.push(
+		// 	)
+		// };
+
+		return pluginsToUse
+	}, [isFocused]);
 
 	return (
-		<div className="border">
-			<RichTextProvider editor={editor}>
-				<div
-					className={cn(
-						"relative flex max-h-full flex-col rounded-md bg-background transition-all duration-200",
-						className
-					)}
-				>
-					{isFocused && (
-						<div
-							className="flex flex-wrap items-center gap-0.5 border-b bg-muted/30 p-1"
-							onMouseDown={(e) => {
-								if (isFocused) {
-									e.preventDefault();
-								}
-							}}
-							role="none"
-						>
-							<RichTextBold />
-							<RichTextItalic />
-							<RichTextStrike />
-							<RichTextUnderline />
-
-							<div className="mx-1 h-6 w-px bg-border" />
-
-							<RichTextHeading />
-
-							<div className="mx-1 h-6 w-px bg-border" />
-
-							<RichTextBulletList />
-							<RichTextOrderedList />
-							<RichTextTaskList />
-
-							<div className="mx-1 h-6 w-px bg-border" />
-
-							<RichTextBlockquote />
-							<RichTextCodeBlock />
-
-							<div className="mx-1 h-6 w-px bg-border" />
-
-							<RichTextLink />
-							<RichTextColor />
-							<RichTextHighlight />
-
-							<div className="mx-1 h-6 w-px bg-border" />
-
-							<RichTextUndo />
-							<RichTextRedo />
-
-							<RichTextBubbleLink />
-							<RichTextBubbleText />
-						</div>
-					)}
-
-					<div className={cn("flex-1 overflow-hidden")}>
-						<div
-							className={cn(
-								"h-full overflow-y-auto",
-								isFocused ? "max-h-[250px]" : "max-h-[125px]"
-							)}
-						>
-							<EditorContent
-								// className={cn(!isFocused && value ? "px-3 py-2" : "")}
-								editor={editor}
-							/>
-						</div>
-					</div>
-				</div>
-			</RichTextProvider>
+		<div
+			className={cn(
+				"prose prose-sm dark:prose-invert max-w-none border-b",
+				isFocused && "ring-2 ring-ring ring-offset-2 ring-offset-background",
+				className
+			)}
+			ref={containerRef}
+			role="textbox"
+		>
+			<MDXEditor
+				key={resolvedTheme}
+				className="border-0"
+				markdown={value}
+				onChange={onChange}
+				placeholder={placeholder}
+				plugins={
+					plugins
+				}
+				readOnly={!isFocused}
+			/>
 		</div>
 	);
 }

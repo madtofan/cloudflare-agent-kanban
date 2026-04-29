@@ -5,6 +5,7 @@ import ReactDOM from "react-dom/client";
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
 import { orpc, queryClient } from "./utils/orpc";
+import "@mdxeditor/editor/style.css";
 
 const router = createRouter({
 	routeTree,
