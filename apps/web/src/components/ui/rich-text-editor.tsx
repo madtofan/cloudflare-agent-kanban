@@ -27,7 +27,7 @@ import {
 } from "@mdxeditor/editor";
 import { basicDark } from "cm6-theme-basic-dark";
 import { useTheme } from "next-themes";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -52,50 +52,39 @@ export function RichTextEditor({
 	const [isFocused, setIsFocused] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 
-	const handleFocusIn = useCallback(() => {
-		setIsFocused(true);
-		onFocus?.();
-	}, [onFocus]);
-
-	const handleFocusOut = useCallback(() => {
-		setIsFocused(false);
-		onBlur?.();
-	}, [onBlur]);
-
 	useEffect(() => {
 		const container = containerRef.current;
 		if (!container) {
 			return;
 		}
 
-		container.addEventListener("focusin", handleFocusIn);
-		container.addEventListener("focusout", handleFocusOut);
-
-		container.addEventListener("pointerdown", handleFocusIn);
-
-		return () => {
-			container.removeEventListener("focusin", handleFocusIn);
-			container.removeEventListener("focusout", handleFocusOut);
-			container.removeEventListener("pointerdown", handleFocusIn);
-		};
-	}, [handleFocusIn, handleFocusOut]);
-
-	useEffect(() => {
-		if (!isFocused) {
-			return;
+		const handlePointerDown = () => {
+			setIsFocused(true);
+			onFocus?.();
 		}
 
-		const handleClickOutside = (e: MouseEvent) => {
-			const container = containerRef.current;
-			if (container && !container.contains(e.target as Node)) {
-				handleFocusOut();
+		const handleFocusIn = (event: Event) => {
+			if ("relatedTarget" in event && container.contains(event.relatedTarget as Node)) {
+				handlePointerDown();
+			}
+		}
+
+		const handleFocusOut = (event: Event) => {
+			if ("relatedTarget" in event && !container.contains(event.relatedTarget as Node)) {
+				setIsFocused(false);
+				onBlur?.();
 			}
 		};
 
-		document.addEventListener("pointerdown", handleClickOutside);
-		return () =>
-			document.removeEventListener("pointerdown", handleClickOutside);
-	}, [isFocused, handleFocusOut]);
+		container.addEventListener("focusin", handleFocusIn);
+		container.addEventListener("focusout", handleFocusOut);
+		container.addEventListener("pointerdown", handlePointerDown);
+		return () => {
+			container.removeEventListener("focusin", handleFocusIn);
+			container.removeEventListener("focusout", handleFocusOut);
+			container.removeEventListener("pointerdown", handlePointerDown);
+		};
+	}, [onFocus, onBlur]);
 
 	const plugins = useMemo(() => {
 		const pluginsToUse = [
@@ -140,7 +129,7 @@ export function RichTextEditor({
 								},
 								{
 									fallback: () => (
-										<>
+										<div className="flex flex-row">
 											<UndoRedo />
 											<Separator />
 											<BoldItalicUnderlineToggles />
@@ -155,7 +144,7 @@ export function RichTextEditor({
 											<InsertThematicBreak />
 											<Separator />
 											<InsertCodeBlock />
-										</>
+										</div>
 									),
 								},
 							]}
@@ -163,10 +152,6 @@ export function RichTextEditor({
 					) : null,
 			}),
 		];
-		// if (isFocused) {
-		// 	pluginsToUse.push(
-		// 	)
-		// };
 
 		return pluginsToUse;
 	}, [isFocused]);

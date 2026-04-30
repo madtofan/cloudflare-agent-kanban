@@ -14,6 +14,7 @@
     "@cloudflare-agent-kanban/auth": "workspace:*",
     "@cloudflare-agent-kanban/db": "workspace:*",
     "@cloudflare-agent-kanban/env": "workspace:*",
+    "@cloudflare-agent-kanban/types": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

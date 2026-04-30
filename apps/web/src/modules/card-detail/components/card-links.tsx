@@ -1,5 +1,5 @@
-import type { CardLinkType } from "@cloudflare-agent-kanban/db/schema/kanban";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type CardLinkType } from "@cloudflare-agent-kanban/types";
 import { Link2, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

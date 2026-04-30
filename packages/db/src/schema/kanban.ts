@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { cardLinkType } from "@cloudflare-agent-kanban/types";
 import { user } from "./auth";
 
 export const project = sqliteTable(
@@ -329,21 +330,6 @@ export const cardCommentRelations = relations(cardComment, ({ one }) => ({
 		references: [user.id],
 	}),
 }));
-
-export const cardLinkType = [
-	"parent_of",
-	"child_of",
-	"blocked_by",
-	"blocks",
-	"depends_on",
-	"relates_to",
-	"duplicates",
-	"follows",
-	"part_of",
-	"implements",
-] as const;
-
-export type CardLinkType = (typeof cardLinkType)[number];
 
 export const cardLink = sqliteTable(
 	"card_link",

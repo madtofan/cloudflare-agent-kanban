@@ -26,7 +26,7 @@ catalogs:
       version: 1.13.5
     '@types/node':
       specifier: ^22.19.15
-      version: 22.19.11
+      version: 22.19.17
     alchemy:
       specifier: ^0.82.2
       version: 0.82.2
@@ -175,6 +175,9 @@ importers:
       '@cloudflare-agent-kanban/env':
         specifier: workspace:*
         version: link:../../packages/env
+      '@cloudflare-agent-kanban/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@hookform/resolvers':
         specifier: ^5.1.1
         version: 5.2.2(react-hook-form@7.71.2(react@19.2.3))
@@ -365,6 +368,9 @@ importers:
       '@cloudflare-agent-kanban/env':
         specifier: workspace:*
         version: link:../env
+      '@cloudflare-agent-kanban/types':
+        specifier: workspace:*
+        version: link:../types
       '@orpc/client':
         specifier: 'catalog:'
         version: 1.13.5
@@ -435,6 +441,9 @@ importers:
       '@cloudflare-agent-kanban/env':
         specifier: workspace:*
         version: link:../env
+      '@cloudflare-agent-kanban/types':
+        specifier: workspace:*
+        version: link:../types
       '@libsql/client':
         specifier: 'catalog:'
         version: 0.15.15
@@ -504,6 +513,15 @@ importers:
       alchemy:
         specifier: 'catalog:'
         version: 0.82.2(@libsql/client@0.15.15)(kysely@0.28.11)(vite@6.4.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260310.1))
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+
+  packages/types:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 22.19.17
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -4885,6 +4903,9 @@ packages:
 
   '@types/node@22.19.15':
     resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
+
+  '@types/node@22.19.17':
+    resolution: {integrity: sha512-wGdMcf+vPYM6jikpS/qhg6WiqSV/OhG+jeeHT/KlVqxYfD40iYJf9/AE1uQxVWFvU7MipKRkRv8NSHiCGgPr8Q==}
 
   '@types/node@25.4.0':
     resolution: {integrity: sha512-9wLpoeWuBlcbBpOY3XmzSTG3oscB6xjBEEtn+pYXTfhyXhIxC5FsBer2KTopBlvKEiW9l13po9fq+SJY/5lkhw==}
@@ -14208,6 +14229,10 @@ snapshots:
       undici-types: 6.21.0
 
   '@types/node@22.19.15':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/node@22.19.17':
     dependencies:
       undici-types: 6.21.0
 

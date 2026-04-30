@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@cloudflare-agent-kanban/env": "workspace:*",
+    "@cloudflare-agent-kanban/types": "workspace:*",
     "@libsql/client": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",

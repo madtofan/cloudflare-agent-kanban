@@ -18,6 +18,7 @@
     "@cloudflare-agent-kanban/api": "workspace:*",
     "@cloudflare-agent-kanban/auth": "workspace:*",
     "@cloudflare-agent-kanban/env": "workspace:*",
+    "@cloudflare-agent-kanban/types": "workspace:*",
     "@hookform/resolvers": "^5.1.1",
     "@libsql/client": "catalog:",
     "@mdxeditor/editor": "^3.55.0",
