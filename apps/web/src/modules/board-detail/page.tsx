@@ -224,7 +224,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 							<Archive className="mr-2 h-4 w-4" />
 							Archived
 							{archivedCount.data !== undefined && archivedCount.data > 0 && (
-								<span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-white text-xs">
+								<span className="ml-2 bg-red-500 px-2 py-0.5 text-white text-xs">
 									{archivedCount.data}
 								</span>
 							)}

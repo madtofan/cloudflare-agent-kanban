@@ -249,7 +249,7 @@ function Archives({ boardId }: ArchivesProps) {
 						</svg>
 					</Button>
 					{showColumnDropdown && (
-						<div className="absolute z-50 mt-1 w-[200px] rounded-md border bg-popover p-2 shadow-md">
+						<div className="absolute z-50 mt-1 w-[200px] border bg-popover p-2 shadow-md">
 							<Button
 								className="w-full justify-start"
 								onClick={() => {
@@ -313,8 +313,8 @@ function Archives({ boardId }: ArchivesProps) {
 					>
 						{dateFilter
 							? formatDate(dateFilter).split(" ")[0] +
-								" " +
-								formatDate(dateFilter).split(" ").slice(1, 3).join(" ")
+							" " +
+							formatDate(dateFilter).split(" ").slice(1, 3).join(" ")
 							: "Filter by Date"}
 						<svg
 							className="ml-2 h-4 w-4 opacity-50"
@@ -331,7 +331,7 @@ function Archives({ boardId }: ArchivesProps) {
 						</svg>
 					</Button>
 					{showDateDropdown && (
-						<div className="absolute z-50 mt-1 rounded-md border bg-popover p-2 shadow-md">
+						<div className="absolute z-50 mt-1 border bg-popover p-2 shadow-md">
 							<Button
 								className="w-full justify-start"
 								onClick={() => {
@@ -388,9 +388,9 @@ function Archives({ boardId }: ArchivesProps) {
 									{header.isPlaceholder
 										? null
 										: flexRender(
-												header.column.columnDef.header,
-												header.getContext()
-											)}
+											header.column.columnDef.header,
+											header.getContext()
+										)}
 								</TableHead>
 							))}
 						</TableRow>

@@ -39,8 +39,8 @@ function RouteComponent() {
 
 			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				<Link
-					className="group relative overflow-hidden rounded-lg border p-6 transition-colors hover:bg-accent"
-					to="/projects"
+					className="group relative overflow-hidden border p-6 transition-colors hover:bg-accent"
+					to="/app/projects"
 				>
 					<div className="flex items-center gap-4">
 						<FolderKanban className="h-10 w-10 text-muted-foreground" />
@@ -54,7 +54,7 @@ function RouteComponent() {
 				</Link>
 
 				<Link
-					className="group relative overflow-hidden rounded-lg border p-6 transition-colors hover:bg-accent"
+					className="group relative overflow-hidden border p-6 transition-colors hover:bg-accent"
 					to={profileUrl}
 				>
 					<div className="flex items-center gap-4">

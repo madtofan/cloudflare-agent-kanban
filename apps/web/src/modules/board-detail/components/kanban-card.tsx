@@ -51,7 +51,7 @@ function KanbanCardComponent({
 			<button
 				aria-label={`Card: ${card.title}`}
 				aria-roledescription="draggable card"
-				className={`mb-2 w-full cursor-grab rounded-md border bg-card p-3 text-left shadow-sm ${isDragging ? "opacity-50" : ""}`}
+				className={`mb-2 w-full cursor-grab border bg-card p-3 text-left shadow-sm ${isDragging ? "opacity-50" : ""}`}
 				data-card-cardnumber={card.cardNumber}
 				data-card-column-id={card.columnId}
 				data-card-id={card.id}

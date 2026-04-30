@@ -88,7 +88,7 @@ function ColumnComponent({
 
 	return (
 		<div
-			className={`flex h-full w-72 flex-col rounded-lg border bg-muted/30 ${isOverColumn ? "border-blue-500" : ""}`}
+			className={`flex h-full w-72 flex-col border bg-muted/30 ${isOverColumn ? "border-blue-500" : ""}`}
 			ref={columnRef}
 		>
 			<div className="flex items-center justify-between rounded-t-lg border-b bg-muted/50 p-3">
@@ -149,7 +149,7 @@ function ColumnComponent({
 					<KanbanCardComponent canEdit={canEdit} card={card} key={card.id} />
 				))}
 				{isOverColumn && !cards.some((c) => c.id === overCardId) && (
-					<div className="my-2 animate-pulse rounded-md border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
+					<div className="my-2 animate-pulse border-2 border-blue-500 border-dashed py-4 text-center text-blue-500 text-sm">
 						Move card to this column
 					</div>
 				)}

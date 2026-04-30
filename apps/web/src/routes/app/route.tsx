@@ -17,9 +17,9 @@ export const Route = createFileRoute("/app")({
 
 function RouteComponent() {
 	return (
-		<SidebarProvider>
+		<SidebarProvider className="h-screen overflow-hidden">
 			<AppSidebar />
-			<SidebarInset>
+			<SidebarInset className="flex h-full flex-col overflow-hidden">
 				<Header>
 					<Breadcrumb>
 						<BreadcrumbList>
@@ -33,7 +33,7 @@ function RouteComponent() {
 						</BreadcrumbList>
 					</Breadcrumb>
 				</Header>
-				<main className="min-h-0 grow overflow-auto bg-background/50 bg-grid">
+				<main className="min-h-0 flex-1 overflow-auto bg-background/50 bg-grid">
 					<Outlet />
 				</main>
 			</SidebarInset>

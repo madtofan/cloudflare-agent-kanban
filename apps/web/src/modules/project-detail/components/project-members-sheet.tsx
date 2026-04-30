@@ -186,7 +186,7 @@ function ProjectMembersSheet({
 								<Field>
 									<FieldLabel>Role</FieldLabel>
 									<select
-										className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+										className="flex h-9 w-full border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
 										onChange={(e) =>
 											field.handleChange(e.target.value as "admin" | "member")
 										}
@@ -266,9 +266,9 @@ function MemberItem({
 	isUpdatingRole,
 }: MemberItemProps) {
 	return (
-		<div className="flex items-center justify-between rounded-lg border bg-card p-3">
+		<div className="flex items-center justify-between border bg-card p-3">
 			<div className="flex items-center gap-3">
-				<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+				<div className="flex h-10 w-10 items-center justify-center bg-primary/10">
 					<Avatar className="size-32">
 						<AvatarImage src={member.user.image ?? undefined} />
 						<AvatarFallback>
@@ -289,7 +289,7 @@ function MemberItem({
 
 			<div className="flex items-center gap-2">
 				{isOwner ? (
-					<span className="rounded bg-primary/10 px-2 py-1 text-primary text-xs">
+					<span className="bg-primary/10 px-2 py-1 text-primary text-xs">
 						Owner
 					</span>
 				) : (
@@ -297,7 +297,7 @@ function MemberItem({
 						{canManageMembers && !isCurrentUser && (
 							<>
 								<select
-									className="rounded border bg-background px-2 py-1 text-xs"
+									className="border bg-background px-2 py-1 text-xs"
 									disabled={isUpdatingRole}
 									onChange={(e) =>
 										onRoleChange(e.target.value as "admin" | "member")
@@ -324,7 +324,7 @@ function MemberItem({
 							</>
 						)}
 						{!canManageMembers && (
-							<span className="rounded bg-muted px-2 py-1 text-xs">
+							<span className="bg-muted px-2 py-1 text-xs">
 								{member.role}
 							</span>
 						)}
