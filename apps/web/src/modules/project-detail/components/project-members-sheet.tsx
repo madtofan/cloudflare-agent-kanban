@@ -324,9 +324,7 @@ function MemberItem({
 							</>
 						)}
 						{!canManageMembers && (
-							<span className="bg-muted px-2 py-1 text-xs">
-								{member.role}
-							</span>
+							<span className="bg-muted px-2 py-1 text-xs">{member.role}</span>
 						)}
 					</>
 				)}

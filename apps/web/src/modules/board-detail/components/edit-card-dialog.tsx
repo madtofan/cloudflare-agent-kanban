@@ -27,7 +27,7 @@ function EditCardDialog({
 		<Dialog onOpenChange={onDialogOpenClose} open={open}>
 			<DialogContent
 				aria-describedby="edit-card-description"
-				className="w-[100dvw] max-w-[100dvw] overflow-hidden p-4 md:p-6 md:min-w-2xl"
+				className="w-[100dvw] max-w-[100dvw] overflow-hidden p-4 md:min-w-2xl md:p-6"
 			>
 				<CardDetailPage
 					boardId={boardId}

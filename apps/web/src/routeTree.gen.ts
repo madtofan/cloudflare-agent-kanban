@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SelectUsernameRouteImport } from './routes/select-username'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -22,6 +23,11 @@ import { Route as AppProjectsProjectIdBoardsBoardIdIndexRouteImport } from './ro
 import { Route as AppProjectsProjectIdBoardsBoardIdArchivedRouteImport } from './routes/app/projects/$projectId/boards/$boardId/archived'
 import { Route as AppProjectsProjectIdBoardsBoardIdCardIdRouteImport } from './routes/app/projects/$projectId/boards/$boardId/$cardId'
 
+const SelectUsernameRoute = SelectUsernameRouteImport.update({
+  id: '/select-username',
+  path: '/select-username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
+  '/select-username': typeof SelectUsernameRoute
   '/profile/$username': typeof ProfileUsernameRoute
   '/app/': typeof AppIndexRoute
   '/app/projects/': typeof AppProjectsIndexRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
+  '/select-username': typeof SelectUsernameRoute
   '/profile/$username': typeof ProfileUsernameRoute
   '/app': typeof AppIndexRoute
   '/app/projects': typeof AppProjectsIndexRoute
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/demo': typeof DemoRoute
   '/login': typeof LoginRoute
+  '/select-username': typeof SelectUsernameRoute
   '/profile/$username': typeof ProfileUsernameRoute
   '/app/': typeof AppIndexRoute
   '/app/projects/': typeof AppProjectsIndexRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo'
     | '/login'
+    | '/select-username'
     | '/profile/$username'
     | '/app/'
     | '/app/projects/'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo'
     | '/login'
+    | '/select-username'
     | '/profile/$username'
     | '/app'
     | '/app/projects'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/demo'
     | '/login'
+    | '/select-username'
     | '/profile/$username'
     | '/app/'
     | '/app/projects/'
@@ -179,11 +191,19 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DemoRoute: typeof DemoRoute
   LoginRoute: typeof LoginRoute
+  SelectUsernameRoute: typeof SelectUsernameRoute
   ProfileUsernameRoute: typeof ProfileUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/select-username': {
+      id: '/select-username'
+      path: '/select-username'
+      fullPath: '/select-username'
+      preLoaderRoute: typeof SelectUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DemoRoute: DemoRoute,
   LoginRoute: LoginRoute,
+  SelectUsernameRoute: SelectUsernameRoute,
   ProfileUsernameRoute: ProfileUsernameRoute,
 }
 export const routeTree = rootRouteImport

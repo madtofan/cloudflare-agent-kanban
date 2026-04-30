@@ -31,6 +31,7 @@ export const web = await Vite("web", {
 	cwd: "../../apps/web",
 	assets: "dist",
 	bindings: {
+		VITE_CLIENT_URL: alchemy.env.VITE_CLIENT_URL!,
 		VITE_SERVER_URL: alchemy.env.VITE_SERVER_URL!,
 		VITE_R2_PUBLIC_URL: alchemy.env.VITE_R2_PUBLIC_URL!,
 	},
@@ -49,6 +50,8 @@ export const server = await Worker("server", {
 		R2_PUBLIC_URL: alchemy.env.VITE_R2_PUBLIC_URL!,
 		RESEND_API_KEY: alchemy.secret.env.RESEND_API_KEY!,
 		CONTACT_EMAIL_TO: alchemy.env.CONTACT_EMAIL_TO!,
+		GOOGLE_CLIENT_ID: alchemy.env.GOOGLE_CLIENT_ID!,
+		GOOGLE_CLIENT_SECRET: alchemy.secret.env.GOOGLE_CLIENT_SECRET!,
 	},
 	dev: {
 		port: 3000,

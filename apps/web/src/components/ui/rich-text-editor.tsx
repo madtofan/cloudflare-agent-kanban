@@ -1,35 +1,34 @@
 import {
 	BoldItalicUnderlineToggles,
+	ChangeCodeMirrorLanguage,
 	CodeToggle,
+	ConditionalContents,
 	CreateLink,
 	codeBlockPlugin,
+	codeMirrorPlugin,
+	diffSourcePlugin,
 	headingsPlugin,
 	InsertCodeBlock,
+	InsertImage,
+	InsertTable,
 	InsertThematicBreak,
+	imagePlugin,
 	ListsToggle,
 	linkDialogPlugin,
 	linkPlugin,
 	listsPlugin,
 	MDXEditor,
+	markdownShortcutPlugin,
 	quotePlugin,
 	Separator,
+	tablePlugin,
 	toolbarPlugin,
 	UndoRedo,
-	ConditionalContents,
-	markdownShortcutPlugin,
-	tablePlugin,
-	imagePlugin,
-	codeMirrorPlugin,
-	diffSourcePlugin,
-	ChangeCodeMirrorLanguage,
-	InsertImage,
-	InsertTable,
 } from "@mdxeditor/editor";
 import { basicDark } from "cm6-theme-basic-dark";
+import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
-
 
 interface RichTextEditorProps {
 	className?: string;
@@ -130,38 +129,38 @@ export function RichTextEditor({
 			}),
 			diffSourcePlugin({ viewMode: "rich-text", diffMarkdown: "" }),
 			toolbarPlugin({
-				toolbarClassName: 'p-0!',
-				toolbarContents: () => isFocused ? (
-					<ConditionalContents
-						options={[
-							{
-								when: (editor) => editor?.editorType === "codeblock"
-								,
-								contents: () => <ChangeCodeMirrorLanguage />,
-							},
-							{
-								fallback: () => (
-									<>
-										<UndoRedo />
-										<Separator />
-										<BoldItalicUnderlineToggles />
-										<CodeToggle />
-										<Separator />
-										<ListsToggle />
-										<Separator />
-										<CreateLink />
-										<InsertImage />
-										<Separator />
-										<InsertTable />
-										<InsertThematicBreak />
-										<Separator />
-										<InsertCodeBlock />
-									</>
-								),
-							},
-						]}
-					/>
-				) : null,
+				toolbarClassName: "p-0!",
+				toolbarContents: () =>
+					isFocused ? (
+						<ConditionalContents
+							options={[
+								{
+									when: (editor) => editor?.editorType === "codeblock",
+									contents: () => <ChangeCodeMirrorLanguage />,
+								},
+								{
+									fallback: () => (
+										<>
+											<UndoRedo />
+											<Separator />
+											<BoldItalicUnderlineToggles />
+											<CodeToggle />
+											<Separator />
+											<ListsToggle />
+											<Separator />
+											<CreateLink />
+											<InsertImage />
+											<Separator />
+											<InsertTable />
+											<InsertThematicBreak />
+											<Separator />
+											<InsertCodeBlock />
+										</>
+									),
+								},
+							]}
+						/>
+					) : null,
 			}),
 		];
 		// if (isFocused) {
@@ -169,7 +168,7 @@ export function RichTextEditor({
 		// 	)
 		// };
 
-		return pluginsToUse
+		return pluginsToUse;
 	}, [isFocused]);
 
 	return (
@@ -183,14 +182,12 @@ export function RichTextEditor({
 			role="textbox"
 		>
 			<MDXEditor
-				key={resolvedTheme}
 				className="border-0"
+				key={resolvedTheme}
 				markdown={value}
 				onChange={onChange}
 				placeholder={placeholder}
-				plugins={
-					plugins
-				}
+				plugins={plugins}
 				readOnly={!isFocused}
 			/>
 		</div>
