@@ -25,6 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { DocumentationPage } from "@/modules/documentation";
 import { orpc } from "@/utils/orpc";
+import ProjectBoards from "./components/project-boards";
 import ProjectMembersSheet from "./components/project-members-sheet";
 import ProjectSettingsSheet from "./components/project-settings-sheet";
 
@@ -45,9 +46,6 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 
 	const project = useQuery(
 		orpc.project.getById.queryOptions({ input: { projectId } })
-	);
-	const boards = useQuery(
-		orpc.project.getBoards.queryOptions({ input: { projectId } })
 	);
 
 	const createMutation = useMutation(
@@ -196,54 +194,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 							</CardContent>
 						</Card>
 					)}
-
-					{boards.isLoading ? (
-						<div className="flex justify-center py-12">
-							<Loader2 className="h-8 w-8 animate-spin" />
-						</div>
-					) : boards.data?.length === 0 ? (
-						<div className="flex flex-col items-center justify-center py-12 text-center">
-							<LayoutGrid className="mb-4 h-12 w-12 text-muted-foreground" />
-							<h3 className="font-semibold text-lg">
-								No boards in this project
-							</h3>
-							<p className="text-muted-foreground">
-								Create your first board to get started
-							</p>
-						</div>
-					) : (
-						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-							{boards.data?.map((board) => (
-								<Card
-									className="cursor-pointer transition-shadow hover:shadow-md"
-									key={board.id}
-									onClick={() =>
-										navigate({
-											to: "/app/projects/$projectId/boards/$boardId",
-											params: { boardId: board.id, projectId },
-										})
-									}
-								>
-									<CardHeader>
-										<CardTitle className="truncate">{board.name}</CardTitle>
-										{board.description && (
-											<CardDescription className="line-clamp-2">
-												{board.description}
-											</CardDescription>
-										)}
-									</CardHeader>
-									<CardContent>
-										<p className="text-muted-foreground text-xs">
-											Created{" "}
-											{board.createdAt
-												? new Date(board.createdAt).toLocaleDateString()
-												: "recently"}
-										</p>
-									</CardContent>
-								</Card>
-							))}
-						</div>
-					)}
+					<ProjectBoards projectId={projectId} />
 				</TabsContent>
 
 				<TabsContent value="documentation">

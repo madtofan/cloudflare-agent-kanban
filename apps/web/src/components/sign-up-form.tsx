@@ -1,15 +1,13 @@
+import { env } from "@cloudflare-agent-kanban/env/web";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
-
 import { authClient } from "@/lib/auth-client";
-
 import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { env } from "@cloudflare-agent-kanban/env/web";
 
 const USERNAME_REGEX = /^[a-z0-9_-]+$/;
 

@@ -1,9 +1,8 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { FolderKanban, Globe, Loader2, Lock, Plus } from "lucide-react";
+import { Globe, Loader2, Lock, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -15,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { orpc } from "@/utils/orpc";
+import ProjectListCards from "./components/project-list-cards";
 
 function ProjectListPage() {
 	const navigate = useNavigate();
@@ -23,8 +23,6 @@ function ProjectListPage() {
 		"private" | "public"
 	>("private");
 	const [isCreating, setIsCreating] = useState(false);
-
-	const projects = useQuery(orpc.project.getAll.queryOptions());
 
 	const createMutation = useMutation(
 		orpc.project.create.mutationOptions({
@@ -140,51 +138,7 @@ function ProjectListPage() {
 				</Card>
 			)}
 
-			{projects.isLoading ? (
-				<div className="flex justify-center py-12">
-					<Loader2 className="h-8 w-8 animate-spin" />
-				</div>
-			) : projects.data?.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<FolderKanban className="mb-4 h-12 w-12 text-muted-foreground" />
-					<h3 className="font-semibold text-lg">No projects yet</h3>
-					<p className="text-muted-foreground">
-						Create your first project to get started
-					</p>
-				</div>
-			) : (
-				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-					{projects.data?.map((project) => (
-						<Card
-							className="cursor-pointer transition-shadow hover:shadow-md"
-							key={project.id}
-							onClick={() =>
-								navigate({
-									to: "/app/projects/$projectId",
-									params: { projectId: project.id },
-								})
-							}
-						>
-							<CardHeader>
-								<CardTitle className="truncate">{project.name}</CardTitle>
-								{project.description && (
-									<CardDescription className="line-clamp-2">
-										{project.description}
-									</CardDescription>
-								)}
-							</CardHeader>
-							<CardContent>
-								<p className="text-muted-foreground text-xs">
-									Created{" "}
-									{project.createdAt
-										? new Date(project.createdAt).toLocaleDateString()
-										: "recently"}
-								</p>
-							</CardContent>
-						</Card>
-					))}
-				</div>
-			)}
+			<ProjectListCards />
 		</div>
 	);
 }

@@ -61,16 +61,22 @@ export function RichTextEditor({
 		const handlePointerDown = () => {
 			setIsFocused(true);
 			onFocus?.();
-		}
+		};
 
 		const handleFocusIn = (event: Event) => {
-			if ("relatedTarget" in event && container.contains(event.relatedTarget as Node)) {
+			if (
+				"relatedTarget" in event &&
+				container.contains(event.relatedTarget as Node)
+			) {
 				handlePointerDown();
 			}
-		}
+		};
 
 		const handleFocusOut = (event: Event) => {
-			if ("relatedTarget" in event && !container.contains(event.relatedTarget as Node)) {
+			if (
+				"relatedTarget" in event &&
+				!container.contains(event.relatedTarget as Node)
+			) {
 				setIsFocused(false);
 				onBlur?.();
 			}
@@ -154,7 +160,7 @@ export function RichTextEditor({
 		];
 
 		return pluginsToUse;
-	}, [isFocused]);
+	}, [isFocused, themeExtension]);
 
 	return (
 		<div

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import type z from "zod";
 import ConfirmationDialog from "@/components/confirmation-dialog";
+import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { orpc } from "@/utils/orpc";
@@ -14,7 +15,6 @@ import CardLog from "./components/card-log";
 import type { cardFormSchema } from "./constants";
 import { useBoardDetailContext } from "./context";
 import type { KanbanCard } from "./types";
-import Loader from "@/components/loader";
 
 interface CardDetailProps {
 	boardId: string;
@@ -89,7 +89,9 @@ function CardDetailPage({
 					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getById.queryKey({ input: { cardId: card?.id ?? "" } }),
+					queryKey: orpc.card.getById.queryKey({
+						input: { cardId: card?.id ?? "" },
+					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getHistory.queryKey({
@@ -203,7 +205,9 @@ function CardDetailPage({
 						className="h-full gap-0 overflow-hidden border-t pt-4"
 						value="edit"
 					>
-						{!isFetching ? (
+						{isFetching ? (
+							<Loader />
+						) : (
 							<CardForm
 								cardDetail={cardDetail}
 								isPending={isSubmitting}
@@ -211,7 +215,7 @@ function CardDetailPage({
 								onSubmit={handleSubmitEdit}
 								projectId={projectId}
 							/>
-						) : (<Loader />)}
+						)}
 					</TabsContent>
 				)}
 				<TabsContent

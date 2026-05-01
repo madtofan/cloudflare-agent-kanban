@@ -1,6 +1,6 @@
+import { cardLinkType } from "@cloudflare-agent-kanban/types";
 import { relations, sql } from "drizzle-orm";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { cardLinkType } from "@cloudflare-agent-kanban/types";
 import { user } from "./auth";
 
 export const project = sqliteTable(
