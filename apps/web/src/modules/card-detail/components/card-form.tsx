@@ -2,7 +2,7 @@ import type { OrpcOutput } from "@cloudflare-agent-kanban/api/routers/index";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -20,9 +20,10 @@ import {
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { orpc } from "@/utils/orpc";
 import { cardFormSchema, cardTypes } from "../constants";
+import type { KanbanCard } from "../types";
 
 interface CardFormProps {
-	cardId?: string;
+	cardDetail?: KanbanCard;
 	isPending: boolean;
 	onCancel: () => void;
 	onSubmit: (formValues: z.infer<typeof cardFormSchema>) => void;
@@ -31,18 +32,11 @@ interface CardFormProps {
 
 function CardForm({
 	projectId,
-	cardId,
+	cardDetail,
 	isPending,
 	onCancel,
 	onSubmit,
 }: CardFormProps) {
-	const { data: card, isLoading } = useQuery(
-		orpc.card.getById.queryOptions({
-			input: { cardId: cardId ?? "" },
-			enabled: !!cardId,
-		})
-	);
-
 	const { data: projectMembersData, isLoading: isLoadingMembers } = useQuery(
 		orpc.project.getMembers.queryOptions({ input: { projectId } })
 	);
@@ -73,11 +67,11 @@ function CardForm({
 
 	const form = useForm({
 		defaultValues: {
-			title: "",
-			type: "user_story" as "epic" | "feature" | "user_story" | "bug" | "task",
-			description: "",
-			acceptanceCriteria: "",
-			assigneeId: null as string | null,
+			title: cardDetail?.title ?? "",
+			type: cardDetail?.type ?? "user_story",
+			description: cardDetail?.description ?? "",
+			acceptanceCriteria: cardDetail?.acceptanceCriteria ?? "",
+			assigneeId: cardDetail?.assigneeId ?? null,
 		},
 		validators: {
 			onSubmit: cardFormSchema,
@@ -86,29 +80,6 @@ function CardForm({
 			onSubmit(value);
 		},
 	});
-
-	useEffect(() => {
-		if (card) {
-			form.reset(
-				{
-					title: card.title,
-					type: card.type,
-					description: card.description ?? "",
-					acceptanceCriteria: card.acceptanceCriteria ?? "",
-					assigneeId: card.assigneeId ?? null,
-				},
-				{ keepDefaultValues: false }
-			);
-		}
-	}, [card, form]);
-
-	if (isLoading) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-			</div>
-		);
-	}
 
 	return (
 		<form
@@ -155,11 +126,10 @@ function CardForm({
 								<div className="flex flex-wrap gap-2 p-2">
 									{cardTypes.map((type) => (
 										<button
-											className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${
-												field.state.value === type.value
-													? "ring-2 ring-offset-2 ring-offset-background"
-													: "opacity-70 ring-0 hover:opacity-100"
-											}`}
+											className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${field.state.value === type.value
+												? "ring-2 ring-offset-2 ring-offset-background"
+												: "opacity-70 ring-0 hover:opacity-100"
+												}`}
 											key={`${type.value}${field.state.value}`}
 											onClick={() => field.handleChange(type.value)}
 											style={

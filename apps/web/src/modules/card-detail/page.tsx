@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, Trash2, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import CardLog from "./components/card-log";
 import type { cardFormSchema } from "./constants";
 import { useBoardDetailContext } from "./context";
 import type { KanbanCard } from "./types";
+import Loader from "@/components/loader";
 
 interface CardDetailProps {
 	boardId: string;
@@ -37,6 +38,13 @@ function CardDetailPage({
 	const queryClient = useQueryClient();
 	const { isTriggeringCard, triggerCardAgent } = useBoardDetailContext();
 	const [forceRerender, setForceRerender] = useState(false);
+
+	const { data: cardDetail, isFetching } = useQuery(
+		orpc.card.getById.queryOptions({
+			input: { cardId: card.id ?? "" },
+			enabled: !!card.id,
+		})
+	);
 
 	const deleteKanbanCardMutation = useMutation(
 		orpc.card.delete.mutationOptions({
@@ -79,6 +87,9 @@ function CardDetailPage({
 				}
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+				});
+				queryClient.invalidateQueries({
+					queryKey: orpc.card.getById.queryKey({ input: { cardId: card?.id ?? "" } }),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getHistory.queryKey({
@@ -192,13 +203,15 @@ function CardDetailPage({
 						className="h-full gap-0 overflow-hidden border-t pt-4"
 						value="edit"
 					>
-						<CardForm
-							cardId={card.id}
-							isPending={isSubmitting}
-							onCancel={() => onDialogOpenClose(false)}
-							onSubmit={handleSubmitEdit}
-							projectId={projectId}
-						/>
+						{!isFetching ? (
+							<CardForm
+								cardDetail={cardDetail}
+								isPending={isSubmitting}
+								onCancel={() => onDialogOpenClose(false)}
+								onSubmit={handleSubmitEdit}
+								projectId={projectId}
+							/>
+						) : (<Loader />)}
 					</TabsContent>
 				)}
 				<TabsContent
