@@ -12,17 +12,18 @@ import {
 import { authClient } from "@/lib/auth-client";
 
 import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
 
-export default function UserMenu() {
-	const navigate = useNavigate();
-	const { data: session, isPending } = authClient.useSession();
-
-	if (isPending) {
-		return <Skeleton className="h-9 w-24" />;
+interface UserMenuProps {
+	user?: {
+		name: string;
+		email: string;
 	}
+}
 
-	if (!session) {
+export default function UserMenu({ user }: UserMenuProps) {
+	const navigate = useNavigate();
+
+	if (!user) {
 		return (
 			<Link to="/login">
 				<Button variant="outline">Sign In</Button>
@@ -33,13 +34,13 @@ export default function UserMenu() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger render={<Button variant="outline" />}>
-				{session.user.name}
+				{user.name}
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuGroup>
 					<DropdownMenuLabel>My Account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>{session.user.email}</DropdownMenuItem>
+					<DropdownMenuItem>{user.email}</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => {
 							authClient.signOut({

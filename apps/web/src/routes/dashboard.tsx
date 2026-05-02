@@ -7,34 +7,25 @@ export const Route = createFileRoute("/dashboard")({
 	component: RouteComponent,
 	beforeLoad: async () => {
 		const session = await authClient.getSession();
-		if (!session.data?.session) {
+		const user = session.data?.user;
+		if (!session.data?.session || !user) {
 			redirect({
 				to: "/login",
 				throw: true,
 			});
 		}
-		if (!session.data?.user.username) {
+		if (user?.username) {
 			redirect({
 				to: "/select-username",
 				throw: true,
 			});
 		}
-		return { session };
+		return { user: user! };
 	},
 });
 
 function RouteComponent() {
-	const { session } = Route.useRouteContext();
-
-	const user = session.data?.user;
-
-	if (!user) {
-		redirect({
-			to: "/login",
-			throw: true,
-		});
-		return null;
-	}
+	const { user } = Route.useRouteContext();
 
 	const profileUrl = `/profile/${user.username}`;
 

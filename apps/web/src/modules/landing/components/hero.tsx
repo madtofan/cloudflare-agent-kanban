@@ -6,7 +6,7 @@ function HeroSection() {
 			<div className="mx-auto max-w-3xl text-center">
 				<h1 className="font-bold text-4xl tracking-tight sm:text-5xl lg:text-6xl">
 					Your Kanban Board, Your{" "}
-					<span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+					<span className="bg-gradient-to-r from-teal-500 to-teal-300 bg-clip-text text-transparent">
 						Portfolio
 					</span>
 				</h1>
