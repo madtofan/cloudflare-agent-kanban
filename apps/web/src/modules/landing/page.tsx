@@ -13,7 +13,7 @@ interface LandingPageProps {
 	user?: {
 		name: string;
 		email: string;
-	}
+	};
 }
 
 function LandingPage({ user }: LandingPageProps) {
@@ -36,11 +36,7 @@ function LandingPage({ user }: LandingPageProps) {
 							</Link>
 						);
 					})}
-					{user && (
-						<Link to="/app">
-							Dashboard
-						</Link>
-					)}
+					{user && <Link to="/app">Dashboard</Link>}
 				</nav>
 				<div className="flex items-center gap-2">
 					<ModeToggle />

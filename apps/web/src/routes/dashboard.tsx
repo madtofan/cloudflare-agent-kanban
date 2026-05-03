@@ -8,7 +8,7 @@ export const Route = createFileRoute("/dashboard")({
 	beforeLoad: async () => {
 		const session = await authClient.getSession();
 		const user = session.data?.user;
-		if (!session.data?.session || !user) {
+		if (!(session.data?.session && user)) {
 			redirect({
 				to: "/login",
 				throw: true,
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/dashboard")({
 				throw: true,
 			});
 		}
+		// biome-ignore lint/style/noNonNullAssertion: User will always exist
 		return { user: user! };
 	},
 });

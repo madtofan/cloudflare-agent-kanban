@@ -130,12 +130,14 @@ export const profileRouter = {
 				(p) => p.visibility === "public"
 			);
 
+			const showcasedProjectIds: string[] = profileData?.showcasedProjectIds
+				? JSON.parse(profileData.showcasedProjectIds)
+				: [];
+
 			return {
 				...userData,
 				aboutMe: profileData?.aboutMe || null,
-				showcasedProjectIds: profileData?.showcasedProjectIds
-					? JSON.parse(profileData.showcasedProjectIds)
-					: [],
+				showcasedProjectIds,
 				publicProjects,
 			};
 		}),

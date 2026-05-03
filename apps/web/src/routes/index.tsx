@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LandingPage } from "@/modules/landing";
 import { authClient } from "@/lib/auth-client";
+import { LandingPage } from "@/modules/landing";
 
 export const Route = createFileRoute("/")({
 	component: HomeComponent,
