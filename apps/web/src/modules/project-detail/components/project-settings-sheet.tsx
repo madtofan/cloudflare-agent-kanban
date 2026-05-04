@@ -91,7 +91,10 @@ function ProjectSettingsSheet({
 	return (
 		<>
 			<Sheet onOpenChange={onOpenChange} open={open}>
-				<SheetContent className="flex justify-between overflow-y-auto" side="right">
+				<SheetContent
+					className="flex justify-between overflow-y-auto"
+					side="right"
+				>
 					<div>
 						<SheetHeader>
 							<SheetTitle>Project Settings</SheetTitle>
@@ -126,7 +129,9 @@ function ProjectSettingsSheet({
 										onClick={() => handleVisibilityChange("public")}
 										size="sm"
 										variant={
-											initialData?.visibility === "public" ? "default" : "outline"
+											initialData?.visibility === "public"
+												? "default"
+												: "outline"
 										}
 									>
 										Public
@@ -144,7 +149,6 @@ function ProjectSettingsSheet({
 					<div>
 						<Separator className="my-4" />
 						<div className="space-y-6 p-4">
-
 							<div>
 								<h3 className="mb-2 font-semibold text-destructive text-sm">
 									Danger Zone

@@ -1,10 +1,18 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
+import type { LinkProps } from "@tanstack/react-router";
 import { ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
-import type * as React from "react";
+import type { ComponentProps, ReactNode } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from "react";
 import { cn } from "@/lib/utils";
 
-function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
+function Breadcrumb({ className, ...props }: ComponentProps<"nav">) {
 	return (
 		<nav
 			aria-label="breadcrumb"
@@ -15,7 +23,7 @@ function Breadcrumb({ className, ...props }: React.ComponentProps<"nav">) {
 	);
 }
 
-function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
+function BreadcrumbList({ className, ...props }: ComponentProps<"ol">) {
 	return (
 		<ol
 			className={cn(
@@ -28,7 +36,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<"ol">) {
 	);
 }
 
-function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
+function BreadcrumbItem({ className, ...props }: ComponentProps<"li">) {
 	return (
 		<li
 			className={cn("inline-flex items-center gap-1", className)}
@@ -58,7 +66,7 @@ function BreadcrumbLink({
 	});
 }
 
-function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
+function BreadcrumbPage({ className, ...props }: ComponentProps<"span">) {
 	return (
 		<span
 			aria-current="page"
@@ -75,7 +83,7 @@ function BreadcrumbSeparator({
 	children,
 	className,
 	...props
-}: React.ComponentProps<"li">) {
+}: ComponentProps<"li">) {
 	return (
 		<li
 			aria-hidden="true"
@@ -89,10 +97,7 @@ function BreadcrumbSeparator({
 	);
 }
 
-function BreadcrumbEllipsis({
-	className,
-	...props
-}: React.ComponentProps<"span">) {
+function BreadcrumbEllipsis({ className, ...props }: ComponentProps<"span">) {
 	return (
 		<span
 			aria-hidden="true"
@@ -107,6 +112,84 @@ function BreadcrumbEllipsis({
 			<MoreHorizontalIcon />
 			<span className="sr-only">More</span>
 		</span>
+	);
+}
+
+export type BreadcrumbTag =
+	| "app"
+	| "project-list"
+	| "project-detail"
+	| "board-detail"
+	| "board-archive";
+
+export interface BreadcrumbInterface {
+	href?: LinkProps;
+	label: string;
+	tag: BreadcrumbTag;
+}
+
+interface BreadcrumbContextType {
+	addBreadcrumb: (
+		breadcrumb: BreadcrumbInterface,
+		parentTag?: BreadcrumbTag
+	) => void;
+	breadcrumbs: BreadcrumbInterface[];
+	setBreadcrumbs: (items: BreadcrumbInterface[]) => void;
+}
+
+const BreadcrumbContext = createContext<BreadcrumbContextType>({
+	breadcrumbs: [],
+	setBreadcrumbs: () => {
+		// no-op default
+	},
+	addBreadcrumb: () => {
+		// no-op default
+	},
+});
+
+export function useBreadcrumb() {
+	const context = useContext(BreadcrumbContext);
+	return context;
+}
+
+interface BreadcrumbProviderProps {
+	children: ReactNode;
+}
+
+export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
+	const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbInterface[]>([]);
+
+	const addBreadcrumb = useCallback(
+		(breadcrumb: BreadcrumbInterface, parentTag?: BreadcrumbTag) => {
+			setBreadcrumbs((prevBreadcrumbs) => {
+				const parentCrumbIndex = prevBreadcrumbs.findIndex(
+					(crumb) => crumb.tag === parentTag
+				);
+				if (parentCrumbIndex >= 0) {
+					return [
+						...prevBreadcrumbs.slice(0, parentCrumbIndex + 1),
+						breadcrumb,
+					];
+				}
+				return [breadcrumb];
+			});
+		},
+		[]
+	);
+
+	const value = useMemo(
+		() => ({
+			breadcrumbs,
+			setBreadcrumbs,
+			addBreadcrumb,
+		}),
+		[breadcrumbs, addBreadcrumb]
+	);
+
+	return (
+		<BreadcrumbContext.Provider value={value}>
+			{children}
+		</BreadcrumbContext.Provider>
 	);
 }
 

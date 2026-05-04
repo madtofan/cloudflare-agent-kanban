@@ -1,8 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Archive, ArrowLeft, Loader2, Plus, Settings } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useBreadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useDragMonitor } from "@/hooks/use-drag-monitor";
 import { authClient } from "@/lib/auth-client";
@@ -24,6 +25,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const { data: session } = authClient.useSession();
 	const [isAddColumnOpen, setIsAddColumnOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+	const { addBreadcrumb } = useBreadcrumb();
 
 	const board = useQuery(
 		orpc.board.getById.queryOptions({ input: { boardId } })
@@ -37,6 +39,26 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const archivedCount = useQuery(
 		orpc.card.getArchivedCount.queryOptions({ input: { boardId } })
 	);
+
+	useEffect(() => {
+		if (!board.data) {
+			return;
+		}
+		addBreadcrumb(
+			{
+				href: {
+					to: "/app/projects/$projectId/boards/$boardId",
+					params: {
+						projectId,
+						boardId,
+					},
+				},
+				label: board.data.name,
+				tag: "board-detail",
+			},
+			"project-detail"
+		);
+	}, [board.data, addBreadcrumb, boardId, projectId]);
 
 	const userId = session?.user.id;
 	const isOwner = board.data?.ownerId === userId;

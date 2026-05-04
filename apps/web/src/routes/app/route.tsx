@@ -1,4 +1,12 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	type LinkProps,
+	Outlet,
+	redirect,
+	useNavigate,
+} from "@tanstack/react-router";
+import { SidebarIcon } from "lucide-react";
+import React from "react";
 import AppSidebar from "@/components/app-sidebar";
 import Header from "@/components/header";
 import {
@@ -7,12 +15,17 @@ import {
 	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
+	BreadcrumbProvider,
 	BreadcrumbSeparator,
+	useBreadcrumb,
 } from "@/components/ui/breadcrumb";
-import { SidebarInset, SidebarProvider, useSidebar } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { SidebarIcon } from "lucide-react";
+import {
+	SidebarInset,
+	SidebarProvider,
+	useSidebar,
+} from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/app")({
 	component: RouteComponentWrapper,
@@ -33,26 +46,59 @@ export const Route = createFileRoute("/app")({
 
 function RouteComponent() {
 	const { toggleSidebar } = useSidebar();
+	const navigate = useNavigate();
+	const { breadcrumbs } = useBreadcrumb();
+
+	const onBreadcrumbClick = (linkOptions?: LinkProps) => {
+		if (!linkOptions) {
+			return;
+		}
+		navigate(linkOptions);
+	};
 
 	return (
 		<>
 			<AppSidebar />
 			<SidebarInset className="flex h-full flex-col overflow-hidden">
 				<Header>
-					<Button size="icon" onClick={toggleSidebar}>
+					<Button onClick={toggleSidebar} size="icon">
 						<SidebarIcon />
 					</Button>
-					<Breadcrumb>
-						<BreadcrumbList>
-							<BreadcrumbItem className="hidden md:block">
-								<BreadcrumbLink href="#">Build Your Application</BreadcrumbLink>
-							</BreadcrumbItem>
-							<BreadcrumbSeparator className="hidden md:block" />
-							<BreadcrumbItem>
-								<BreadcrumbPage>Data Fetching</BreadcrumbPage>
-							</BreadcrumbItem>
-						</BreadcrumbList>
-					</Breadcrumb>
+					{breadcrumbs.length > 0 && (
+						<Breadcrumb>
+							<BreadcrumbList>
+								{breadcrumbs.map((item, index) => (
+									<React.Fragment key={item.href?.to ?? item.label}>
+										{index > 0 && (
+											<BreadcrumbSeparator
+												className={
+													index < breadcrumbs.length - 1
+														? "hidden md:block"
+														: ""
+												}
+											/>
+										)}
+										<BreadcrumbItem
+											className={
+												index < breadcrumbs.length - 1 ? "hidden md:block" : ""
+											}
+										>
+											{index === breadcrumbs.length - 1 ? (
+												<BreadcrumbPage>{item.label}</BreadcrumbPage>
+											) : (
+												<BreadcrumbLink
+													className="cursor-pointer"
+													onClick={() => onBreadcrumbClick(item.href)}
+												>
+													{item.label}
+												</BreadcrumbLink>
+											)}
+										</BreadcrumbItem>
+									</React.Fragment>
+								))}
+							</BreadcrumbList>
+						</Breadcrumb>
+					)}
 				</Header>
 				<main className="min-h-0 flex-1 overflow-auto bg-background/50 bg-grid">
 					<Outlet />
@@ -65,7 +111,9 @@ function RouteComponent() {
 function RouteComponentWrapper() {
 	return (
 		<SidebarProvider className="h-screen overflow-hidden">
-			<RouteComponent />
+			<BreadcrumbProvider>
+				<RouteComponent />
+			</BreadcrumbProvider>
 		</SidebarProvider>
-	)
+	);
 }

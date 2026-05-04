@@ -133,7 +133,10 @@ function BoardSettingsSheet({
 	return (
 		<>
 			<Sheet onOpenChange={onOpenChange} open={open}>
-				<SheetContent className="flex justify-between overflow-y-auto" side="right">
+				<SheetContent
+					className="flex justify-between overflow-y-auto"
+					side="right"
+				>
 					<div>
 						<SheetHeader>
 							<SheetTitle>Board Settings</SheetTitle>
@@ -189,7 +192,6 @@ function BoardSettingsSheet({
 									<Field>
 										<FieldLabel>Visibility</FieldLabel>
 										<div className="mt-2 flex items-center gap-4">
-
 											<Button
 												disabled={!isOwner}
 												onClick={() => field.handleChange("private")}
@@ -207,9 +209,7 @@ function BoardSettingsSheet({
 												onClick={() => field.handleChange("public")}
 												size="sm"
 												variant={
-													field.state.value === "public"
-														? "default"
-														: "outline"
+													field.state.value === "public" ? "default" : "outline"
 												}
 											>
 												Public

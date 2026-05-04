@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Globe, Loader2, Lock, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useBreadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -23,6 +24,20 @@ function ProjectListPage() {
 		"private" | "public"
 	>("private");
 	const [isCreating, setIsCreating] = useState(false);
+	const { addBreadcrumb } = useBreadcrumb();
+
+	useEffect(() => {
+		addBreadcrumb(
+			{
+				href: {
+					to: "/app/projects",
+				},
+				label: "Projects",
+				tag: "project-list",
+			},
+			"app"
+		);
+	}, [addBreadcrumb]);
 
 	const createMutation = useMutation(
 		orpc.project.create.mutationOptions({

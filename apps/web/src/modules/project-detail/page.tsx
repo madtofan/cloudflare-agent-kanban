@@ -9,9 +9,9 @@ import {
 	Settings,
 	Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
+import { useBreadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -41,12 +41,32 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 	const [isMembersOpen, setIsMembersOpen] = useState(false);
 	const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 	const [activeTab, setActiveTab] = useState(tab);
+	const { addBreadcrumb } = useBreadcrumb();
 
 	const { data: session } = authClient.useSession();
 
 	const project = useQuery(
 		orpc.project.getById.queryOptions({ input: { projectId } })
 	);
+
+	useEffect(() => {
+		if (!project.data) {
+			return;
+		}
+		addBreadcrumb(
+			{
+				href: {
+					to: "/app/projects/$projectId",
+					params: {
+						projectId,
+					},
+				},
+				label: project.data.name,
+				tag: "project-detail",
+			},
+			"project-list"
+		);
+	}, [project.data, addBreadcrumb, projectId]);
 
 	const createMutation = useMutation(
 		orpc.board.create.mutationOptions({

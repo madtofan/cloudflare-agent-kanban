@@ -1,36 +1,30 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { FolderKanban, User } from "lucide-react";
-
+import { useEffect } from "react";
+import { useBreadcrumb } from "@/components/ui/breadcrumb";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/app/")({
 	component: RouteComponent,
 	beforeLoad: async () => {
 		const session = await authClient.getSession();
-		if (!session.data) {
-			redirect({
-				to: "/login",
-				throw: true,
-			});
-		}
-		return { session };
+		const user = session.data?.user;
+		// biome-ignore lint/style/noNonNullAssertion: User will always exist
+		return { user: user! };
 	},
 });
 
 function RouteComponent() {
-	const { session } = Route.useRouteContext();
+	const { user } = Route.useRouteContext();
+	const { addBreadcrumb } = useBreadcrumb();
 
-	const user = session.data?.user;
-
-	if (!user) {
-		redirect({
-			to: "/login",
-			throw: true,
+	useEffect(() => {
+		addBreadcrumb({
+			href: { to: "/app" },
+			label: "Dashboard",
+			tag: "app",
 		});
-		return null;
-	}
-
-	const profileUrl = `/profile/${user.username}`;
+	}, [addBreadcrumb]);
 
 	return (
 		<div className="container mx-auto p-10">
@@ -55,7 +49,8 @@ function RouteComponent() {
 
 				<Link
 					className="group relative overflow-hidden border p-6 transition-colors hover:bg-accent"
-					to={profileUrl}
+					params={{ username: user.username ?? "" }}
+					to="/profile/$username"
 				>
 					<div className="flex items-center gap-4">
 						<User className="h-10 w-10 text-muted-foreground" />
