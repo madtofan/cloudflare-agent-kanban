@@ -15,7 +15,6 @@ function ProjectListCards() {
 	const { data: projects, isLoading } = useQuery(
 		orpc.project.getAll.queryOptions()
 	);
-	console.log({ projects });
 
 	if (isLoading) {
 		return (

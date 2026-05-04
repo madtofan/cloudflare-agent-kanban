@@ -9,11 +9,13 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import { SidebarIcon } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
-	component: RouteComponent,
+	component: RouteComponentWrapper,
 	beforeLoad: async () => {
 		const session = await authClient.getSession();
 		if (!session.data?.session) {
@@ -30,11 +32,16 @@ export const Route = createFileRoute("/app")({
 });
 
 function RouteComponent() {
+	const { toggleSidebar } = useSidebar();
+
 	return (
-		<SidebarProvider className="h-screen overflow-hidden">
+		<>
 			<AppSidebar />
 			<SidebarInset className="flex h-full flex-col overflow-hidden">
 				<Header>
+					<Button size="icon" onClick={toggleSidebar}>
+						<SidebarIcon />
+					</Button>
 					<Breadcrumb>
 						<BreadcrumbList>
 							<BreadcrumbItem className="hidden md:block">
@@ -51,6 +58,14 @@ function RouteComponent() {
 					<Outlet />
 				</main>
 			</SidebarInset>
-		</SidebarProvider>
+		</>
 	);
+}
+
+function RouteComponentWrapper() {
+	return (
+		<SidebarProvider className="h-screen overflow-hidden">
+			<RouteComponent />
+		</SidebarProvider>
+	)
 }

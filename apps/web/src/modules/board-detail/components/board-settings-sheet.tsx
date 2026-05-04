@@ -133,112 +133,115 @@ function BoardSettingsSheet({
 	return (
 		<>
 			<Sheet onOpenChange={onOpenChange} open={open}>
-				<SheetContent className="overflow-y-auto" side="right">
-					<SheetHeader>
-						<SheetTitle>Board Settings</SheetTitle>
-						<SheetDescription>
-							Manage your board settings and visibility.
-						</SheetDescription>
-					</SheetHeader>
+				<SheetContent className="flex justify-between overflow-y-auto" side="right">
+					<div>
+						<SheetHeader>
+							<SheetTitle>Board Settings</SheetTitle>
+							<SheetDescription>
+								Manage your board settings and visibility.
+							</SheetDescription>
+						</SheetHeader>
 
-					<form
-						className="space-y-6"
-						id="board-settings-form"
-						onSubmit={(e) => {
-							e.preventDefault();
-							form.handleSubmit();
-						}}
-					>
-						<form.Field name="name">
-							{(field) => (
-								<Field>
-									<FieldLabel htmlFor={field.name}>Board Name</FieldLabel>
-									<Input
-										disabled={!isOwner}
-										id={field.name}
-										name={field.name}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										value={field.state.value}
-									/>
-									<FieldError errors={field.state.meta.errors} />
-								</Field>
-							)}
-						</form.Field>
-
-						<form.Field name="description">
-							{(field) => (
-								<Field>
-									<FieldLabel htmlFor={field.name}>Description</FieldLabel>
-									<Input
-										disabled={!isOwner}
-										id={field.name}
-										name={field.name}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										placeholder="Add a description..."
-										value={field.state.value}
-									/>
-								</Field>
-							)}
-						</form.Field>
-
-						<form.Field name="visibility">
-							{(field) => (
-								<Field>
-									<FieldLabel>Visibility</FieldLabel>
-									<div className="mt-2 flex items-center gap-4">
-										<label className="flex cursor-pointer items-center gap-2">
-											<input
-												checked={field.state.value === "private"}
-												className="accent-primary"
-												disabled={!isOwner}
-												name={field.name}
-												onChange={() => field.handleChange("private")}
-												type="radio"
-												value="private"
-											/>
-											<span className="text-sm">Private</span>
-										</label>
-										<label className="flex cursor-pointer items-center gap-2">
-											<input
-												checked={field.state.value === "public"}
-												className="accent-primary"
-												disabled={!isOwner}
-												name={field.name}
-												onChange={() => field.handleChange("public")}
-												type="radio"
-												value="public"
-											/>
-											<span className="text-sm">Public</span>
-										</label>
-									</div>
-									<FieldDescription>
-										{isPublic
-											? "Anyone with the link can view this board."
-											: "Only members can view this board."}
-									</FieldDescription>
-								</Field>
-							)}
-						</form.Field>
-
-						{isOwner && (
-							<Button
-								className="w-full"
-								disabled={updateBoardMutation.isPending}
-								type="submit"
-							>
-								{updateBoardMutation.isPending ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
-								) : (
-									"Save Changes"
+						<form
+							className="space-y-6 p-4"
+							id="board-settings-form"
+							onSubmit={(e) => {
+								e.preventDefault();
+								form.handleSubmit();
+							}}
+						>
+							<form.Field name="name">
+								{(field) => (
+									<Field>
+										<FieldLabel htmlFor={field.name}>Board Name</FieldLabel>
+										<Input
+											disabled={!isOwner}
+											id={field.name}
+											name={field.name}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											value={field.state.value}
+										/>
+										<FieldError errors={field.state.meta.errors} />
+									</Field>
 								)}
-							</Button>
-						)}
+							</form.Field>
 
-						<Separator className="my-4" />
+							<form.Field name="description">
+								{(field) => (
+									<Field>
+										<FieldLabel htmlFor={field.name}>Description</FieldLabel>
+										<Input
+											disabled={!isOwner}
+											id={field.name}
+											name={field.name}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											placeholder="Add a description..."
+											value={field.state.value}
+										/>
+									</Field>
+								)}
+							</form.Field>
 
-						<div>
+							<form.Field name="visibility">
+								{(field) => (
+									<Field>
+										<FieldLabel>Visibility</FieldLabel>
+										<div className="mt-2 flex items-center gap-4">
+
+											<Button
+												disabled={!isOwner}
+												onClick={() => field.handleChange("private")}
+												size="sm"
+												variant={
+													field.state.value === "private"
+														? "default"
+														: "outline"
+												}
+											>
+												Private
+											</Button>
+											<Button
+												disabled={!isOwner}
+												onClick={() => field.handleChange("public")}
+												size="sm"
+												variant={
+													field.state.value === "public"
+														? "default"
+														: "outline"
+												}
+											>
+												Public
+											</Button>
+										</div>
+										<FieldDescription>
+											{isPublic
+												? "Anyone with the link can view this board."
+												: "Only members can view this board."}
+										</FieldDescription>
+									</Field>
+								)}
+							</form.Field>
+
+							{isOwner && (
+								<Button
+									className="w-full"
+									disabled={updateBoardMutation.isPending}
+									type="submit"
+								>
+									{updateBoardMutation.isPending ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										"Save Changes"
+									)}
+								</Button>
+							)}
+						</form>
+					</div>
+					<div>
+						<Separator />
+						<div className="p-4">
 							<h3 className="mb-2 font-semibold text-destructive text-sm">
 								Danger Zone
 							</h3>
@@ -266,7 +269,7 @@ function BoardSettingsSheet({
 								</p>
 							)}
 						</div>
-					</form>
+					</div>
 				</SheetContent>
 			</Sheet>
 

@@ -91,82 +91,88 @@ function ProjectSettingsSheet({
 	return (
 		<>
 			<Sheet onOpenChange={onOpenChange} open={open}>
-				<SheetContent className="overflow-y-auto" side="right">
-					<SheetHeader>
-						<SheetTitle>Project Settings</SheetTitle>
-						<SheetDescription>
-							Manage your project settings and visibility.
-						</SheetDescription>
-					</SheetHeader>
+				<SheetContent className="flex justify-between overflow-y-auto" side="right">
+					<div>
+						<SheetHeader>
+							<SheetTitle>Project Settings</SheetTitle>
+							<SheetDescription>
+								Manage your project settings and visibility.
+							</SheetDescription>
+						</SheetHeader>
 
-					<div className="space-y-6 py-4">
-						<div className="space-y-2">
-							<FieldLabel>Project Name</FieldLabel>
-							<p className="font-medium text-sm">{initialData?.name}</p>
-						</div>
-
-						<div className="space-y-2">
-							<FieldLabel>Visibility</FieldLabel>
-							<div className="flex gap-2">
-								<Button
-									disabled={updateProjectMutation.isPending || !canManage}
-									onClick={() => handleVisibilityChange("private")}
-									size="sm"
-									variant={
-										initialData?.visibility === "private"
-											? "default"
-											: "outline"
-									}
-								>
-									Private
-								</Button>
-								<Button
-									disabled={updateProjectMutation.isPending || !canManage}
-									onClick={() => handleVisibilityChange("public")}
-									size="sm"
-									variant={
-										initialData?.visibility === "public" ? "default" : "outline"
-									}
-								>
-									Public
-								</Button>
+						<div className="space-y-6 p-4">
+							<div className="space-y-2">
+								<FieldLabel>Project Name</FieldLabel>
+								<p className="font-medium text-sm">{initialData?.name}</p>
 							</div>
-							<FieldDescription>
-								{initialData?.visibility === "public"
-									? "Anyone can view this project"
-									: "Only members can view this project"}
-							</FieldDescription>
+
+							<div className="space-y-2">
+								<FieldLabel>Visibility</FieldLabel>
+								<div className="flex gap-2">
+									<Button
+										disabled={updateProjectMutation.isPending || !canManage}
+										onClick={() => handleVisibilityChange("private")}
+										size="sm"
+										variant={
+											initialData?.visibility === "private"
+												? "default"
+												: "outline"
+										}
+									>
+										Private
+									</Button>
+									<Button
+										disabled={updateProjectMutation.isPending || !canManage}
+										onClick={() => handleVisibilityChange("public")}
+										size="sm"
+										variant={
+											initialData?.visibility === "public" ? "default" : "outline"
+										}
+									>
+										Public
+									</Button>
+								</div>
+								<FieldDescription>
+									{initialData?.visibility === "public"
+										? "Anyone can view this project"
+										: "Only members can view this project"}
+								</FieldDescription>
+							</div>
 						</div>
+					</div>
 
+					<div>
 						<Separator className="my-4" />
+						<div className="space-y-6 p-4">
 
-						<div>
-							<h3 className="mb-2 font-semibold text-destructive text-sm">
-								Danger Zone
-							</h3>
-							<p className="mb-3 text-muted-foreground text-xs">
-								Deleting a project is permanent and cannot be undone.
-							</p>
-							{canManage ? (
-								<Button
-									className="w-full"
-									disabled={deleteProjectMutation.isPending || isDeleting}
-									onClick={handleDelete}
-									type="button"
-									variant="destructive"
-								>
-									{isDeleting ? (
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									) : (
-										<Trash2 className="mr-2 h-4 w-4" />
-									)}
-									Delete Project
-								</Button>
-							) : (
-								<p className="text-muted-foreground text-sm">
-									Only the owner and admins can delete this project.
+							<div>
+								<h3 className="mb-2 font-semibold text-destructive text-sm">
+									Danger Zone
+								</h3>
+								<p className="mb-3 text-muted-foreground text-xs">
+									Deleting a project is permanent and cannot be undone.
 								</p>
-							)}
+								{canManage ? (
+									<Button
+										className="w-full"
+										disabled={deleteProjectMutation.isPending || isDeleting}
+										onClick={handleDelete}
+										type="button"
+										variant="destructive"
+									>
+										{isDeleting ? (
+											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										) : (
+											<Trash2 className="mr-2 h-4 w-4" />
+										)}
+										Delete Project
+									</Button>
+								) : (
+									<p className="text-muted-foreground text-sm">
+										Only the owner and admins can delete this project.
+									</p>
+								)}
+							</div>
 						</div>
 					</div>
 				</SheetContent>

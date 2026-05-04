@@ -33,7 +33,7 @@ function RouteComponent() {
 	const profileUrl = `/profile/${user.username}`;
 
 	return (
-		<div className="container mx-auto py-10">
+		<div className="container mx-auto p-10">
 			<h1 className="mb-2 font-bold text-3xl">Dashboard</h1>
 			<p className="mb-8 text-muted-foreground">Welcome {user.name}</p>
 
