@@ -26,6 +26,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/app")({
 	component: RouteComponentWrapper,
@@ -61,40 +62,35 @@ function RouteComponent() {
 			<AppSidebar />
 			<SidebarInset className="flex h-full flex-col overflow-hidden">
 				<Header>
-					<Button onClick={toggleSidebar} size="icon">
+					<Button onClick={toggleSidebar} size="icon" variant="ghost">
 						<SidebarIcon />
 					</Button>
 					{breadcrumbs.length > 0 && (
 						<Breadcrumb>
-							<BreadcrumbList>
+							<BreadcrumbList className="space-x-6">
 								{breadcrumbs.map((item, index) => (
-									<React.Fragment key={item.href?.to ?? item.label}>
-										{index > 0 && (
-											<BreadcrumbSeparator
-												className={
-													index < breadcrumbs.length - 1
-														? "hidden md:block"
-														: ""
-												}
-											/>
-										)}
-										<BreadcrumbItem
-											className={
-												index < breadcrumbs.length - 1 ? "hidden md:block" : ""
-											}
-										>
+									<div key={item.href?.to ?? item.label} className={cn("flex flex-row space-x-2 align-bottom",
+										index === breadcrumbs.length - 1 && "pb-2 border-b",
+										index < breadcrumbs.length - 1 && "hidden md:block"
+									)}>
+										<span className="content-center">
+											{(index + 1).toString().padStart(2, "0")}.
+										</span>
+										<BreadcrumbItem>
 											{index === breadcrumbs.length - 1 ? (
-												<BreadcrumbPage>{item.label}</BreadcrumbPage>
+												<BreadcrumbPage >{item.label.toUpperCase()}</BreadcrumbPage>
 											) : (
 												<BreadcrumbLink
 													className="cursor-pointer"
 													onClick={() => onBreadcrumbClick(item.href)}
 												>
-													{item.label}
+													<span>
+														{item.label.toUpperCase()}
+													</span>
 												</BreadcrumbLink>
 											)}
 										</BreadcrumbItem>
-									</React.Fragment>
+									</div>
 								))}
 							</BreadcrumbList>
 						</Breadcrumb>
