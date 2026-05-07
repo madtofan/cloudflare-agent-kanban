@@ -6,7 +6,6 @@ import {
 	useNavigate,
 } from "@tanstack/react-router";
 import { SidebarIcon } from "lucide-react";
-import React from "react";
 import AppSidebar from "@/components/app-sidebar";
 import Header from "@/components/header";
 import {
@@ -16,7 +15,6 @@ import {
 	BreadcrumbList,
 	BreadcrumbPage,
 	BreadcrumbProvider,
-	BreadcrumbSeparator,
 	useBreadcrumb,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -69,24 +67,28 @@ function RouteComponent() {
 						<Breadcrumb>
 							<BreadcrumbList className="space-x-6">
 								{breadcrumbs.map((item, index) => (
-									<div key={item.href?.to ?? item.label} className={cn("flex flex-row space-x-2 align-bottom",
-										index === breadcrumbs.length - 1 && "pb-2 border-b",
-										index < breadcrumbs.length - 1 && "hidden md:block"
-									)}>
+									<div
+										className={cn(
+											"flex flex-row space-x-2 align-bottom",
+											index === breadcrumbs.length - 1 && "border-b pb-2",
+											index < breadcrumbs.length - 1 && "hidden md:block"
+										)}
+										key={item.href?.to ?? item.label}
+									>
 										<span className="content-center">
 											{(index + 1).toString().padStart(2, "0")}.
 										</span>
 										<BreadcrumbItem>
 											{index === breadcrumbs.length - 1 ? (
-												<BreadcrumbPage >{item.label.toUpperCase()}</BreadcrumbPage>
+												<BreadcrumbPage>
+													{item.label.toUpperCase()}
+												</BreadcrumbPage>
 											) : (
 												<BreadcrumbLink
 													className="cursor-pointer"
 													onClick={() => onBreadcrumbClick(item.href)}
 												>
-													<span>
-														{item.label.toUpperCase()}
-													</span>
+													<span>{item.label.toUpperCase()}</span>
 												</BreadcrumbLink>
 											)}
 										</BreadcrumbItem>

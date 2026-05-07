@@ -14,7 +14,11 @@ function ScrollHandler({ active, hash, links, setActive }: ScrollHandler) {
 		if (hash) {
 			const element = document.getElementById(hash);
 			if (element) {
-				element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+				element.scrollIntoView({
+					behavior: "smooth",
+					block: "center",
+					inline: "center",
+				});
 			}
 		}
 	}, [hash]);
@@ -27,11 +31,11 @@ function ScrollHandler({ active, hash, links, setActive }: ScrollHandler) {
 			const scrollPosition = window.scrollY;
 			const progress = (scrollPosition / totalHeight) * 100;
 			setScrollProgress(progress);
-			const newActive = links.findLast(link => {
+			const newActive = links.findLast((link) => {
 				if (!link.ref?.current) {
 					return false;
 				}
-				return link.ref.current.getBoundingClientRect().top < scrollPosition
+				return link.ref.current.getBoundingClientRect().top < scrollPosition;
 			});
 			if (newActive && newActive.label !== active) {
 				setActive(newActive.label);

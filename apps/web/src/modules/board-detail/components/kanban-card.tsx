@@ -1,7 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
-import { GripVertical, Link2, MessageSquare, MoreVertical, Zap } from "lucide-react";
+import {
+	GripVertical,
+	Link2,
+	MessageSquare,
+	MoreVertical,
+	Zap,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	ContextMenu,
@@ -21,8 +28,13 @@ import {
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useDraggable } from "@/hooks/use-draggable";
-import { cardTypes } from "@/modules/card-detail";
+import { cardTypeIconMap, cardTypes } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
 import type { KanbanCard } from "../types";
@@ -70,6 +82,11 @@ function KanbanCardComponent({
 
 	const otherColumns = columns.filter((col) => col.id !== card.columnId);
 
+	const typeLabel = cardTypes.find((t) => t.value === card.type)?.label;
+	const typeColor =
+		cardTypes.find((t) => t.value === card.type)?.color ?? "#6b7280";
+	const TypeIcon = card.type ? cardTypeIconMap[card.type] : undefined;
+
 	return (
 		<>
 			<ContextMenu>
@@ -88,44 +105,52 @@ function KanbanCardComponent({
 						role="button"
 						tabIndex={0}
 					>
-						<div className="flex items-start gap-2 p-3 grow-1">
+						<div className="flex grow-1 items-start gap-2 p-3">
 							<GripVertical className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
 							<div className="min-w-0 flex-1">
 								<div className="mb-2 flex items-center justify-between">
-									<div className="gap-2 items-center">
+									<div className="items-center">
 										{card.cardNumber && (
-											<span className="text-muted-foreground text-xs">
+											<span className="text-muted-foreground text-xs mr-2">
 												#{card.cardNumber}{" "}
 											</span>
 										)}
 										{card.type && (
-											<span
-												className="rounded-full px-2 py-0.5 font-medium text-white text-xs"
-												style={{
-													backgroundColor:
-														cardTypes.find((t) => t.value === card.type)?.color ??
-														"#6b7280",
-												}}
-											>
-												{cardTypes.find((t) => t.value === card.type)?.label}
-											</span>
+											<Tooltip>
+												<TooltipTrigger
+													render={
+														<Badge
+															className="h-5 w-5 rounded-full p-0"
+															style={{ backgroundColor: typeColor }}
+														>
+															{TypeIcon && (
+																<TypeIcon className="h-3 w-3 text-white" />
+															)}
+														</Badge>
+													}
+												/>
+												<TooltipContent>{typeLabel}</TooltipContent>
+											</Tooltip>
 										)}
 									</div>
 									<DropdownMenu>
-										<DropdownMenuTrigger render={(
-											<Button
-												className="ml-auto h-6 w-6 p-0"
-												variant="ghost"
-												onClick={(e) => e.stopPropagation()}
-											>
-												<MoreVertical className="h-4 w-4" />
-											</Button>
-										)}>
-										</DropdownMenuTrigger>
+										<DropdownMenuTrigger
+											render={
+												<Button
+													className="ml-auto h-6 w-6 p-0"
+													onClick={(e) => e.stopPropagation()}
+													variant="ghost"
+												>
+													<MoreVertical className="h-4 w-4" />
+												</Button>
+											}
+										/>
 										<DropdownMenuContent align="end">
 											{otherColumns.length > 0 && (
 												<DropdownMenuSub>
-													<DropdownMenuSubTrigger>Move to...</DropdownMenuSubTrigger>
+													<DropdownMenuSubTrigger>
+														Move to...
+													</DropdownMenuSubTrigger>
 													<DropdownMenuSubContent>
 														{otherColumns.map((column) => (
 															<DropdownMenuItem

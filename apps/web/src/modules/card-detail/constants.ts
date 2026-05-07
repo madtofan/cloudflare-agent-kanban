@@ -1,3 +1,11 @@
+import {
+	Bug,
+	CheckSquare,
+	Layers,
+	type LucideIcon,
+	Sparkles,
+	User,
+} from "lucide-react";
 import z from "zod";
 
 export const cardTypes = [
@@ -7,6 +15,14 @@ export const cardTypes = [
 	{ value: "bug", label: "Bug", color: "#ef4444" },
 	{ value: "task", label: "Task", color: "#6b7280" },
 ] as const;
+
+export const cardTypeIconMap: Record<string, LucideIcon> = {
+	epic: Layers,
+	feature: Sparkles,
+	user_story: User,
+	bug: Bug,
+	task: CheckSquare,
+};
 
 export const cardFormSchema = z.object({
 	title: z.string().min(5, "Card title must be at least 5 characters."),
