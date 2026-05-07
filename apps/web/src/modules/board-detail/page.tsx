@@ -178,6 +178,30 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 		deleteColumnMutation.mutate({ boardId, columnId: column.id });
 	};
 
+	const handleMoveCard = (cardId: string, targetColumnId: string) => {
+		const sourceCard = findCardById(cardsByColumn.data, cardId);
+		if (!sourceCard) {
+			return;
+		}
+
+		const targetColumnCards = cardsByColumn.data?.[targetColumnId] || [];
+		const newPosition = calculateNewPosition(targetColumnCards, null, null);
+		const hasChanged = hasCardChanged(
+			sourceCard,
+			targetColumnId,
+			targetColumnCards,
+			newPosition
+		);
+
+		if (hasChanged) {
+			moveKanbanCardMutation.mutate({
+				cardId,
+				columnId: targetColumnId,
+				position: newPosition,
+			});
+		}
+	};
+
 	if (board.isLoading || columns.isLoading) {
 		return (
 			<div className="flex h-full items-center justify-center">
@@ -207,6 +231,8 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 			boardId={boardId}
 			boardMemberRole={isAdminOrOwner ? "admin" : "member"}
 			boardOwnerId={board.data?.ownerId ?? null}
+			columns={columns.data ?? []}
+			moveCard={handleMoveCard}
 			projectId={projectId}
 		>
 			<div className="flex h-full flex-col">

@@ -10,14 +10,16 @@ import {
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
-import type { KanbanCard } from "./types";
+import type { Column, KanbanCard } from "./types";
 
 interface BoardDetailContextType {
 	boardId: string;
 	boardMemberRole: "admin" | "member" | null;
 	boardOwnerId: string | null;
+	columns: Column[];
 	currentUser: { id: string; name: string | null; image: string | null } | null;
 	isTriggeringCard: boolean;
+	moveCard: (cardId: string, targetColumnId: string) => void;
 	projectId: string;
 	triggerCardAgent: (card: KanbanCard) => void;
 }
@@ -25,7 +27,11 @@ interface BoardDetailContextType {
 const BoardDetailContext = createContext<BoardDetailContextType>({
 	boardId: "",
 	projectId: "",
+	columns: [],
 	isTriggeringCard: false,
+	moveCard: () => {
+		// empty default function
+	},
 	triggerCardAgent: () => {
 		// empty default function
 	},
@@ -44,6 +50,8 @@ interface BoardDetailProviderProps {
 	boardMemberRole: "admin" | "member" | null;
 	boardOwnerId: string | null;
 	children: ReactNode;
+	columns: Column[];
+	moveCard: (cardId: string, targetColumnId: string) => void;
 	projectId: string;
 }
 
@@ -53,6 +61,8 @@ export function BoardDetailProvider({
 	boardOwnerId,
 	boardMemberRole,
 	children,
+	columns,
+	moveCard,
 }: BoardDetailProviderProps): ReactElement {
 	const { data: session } = authClient.useSession();
 	const triggerAgentMutation = useMutation(
@@ -85,7 +95,9 @@ export function BoardDetailProvider({
 		() => ({
 			boardId,
 			projectId,
+			columns,
 			isTriggeringCard: triggerAgentMutation.isPending,
+			moveCard,
 			triggerCardAgent: handleTriggerAgent,
 			currentUser,
 			boardOwnerId,
@@ -94,7 +106,9 @@ export function BoardDetailProvider({
 		[
 			boardId,
 			projectId,
+			columns,
 			triggerAgentMutation.isPending,
+			moveCard,
 			handleTriggerAgent,
 			currentUser,
 			boardOwnerId,
