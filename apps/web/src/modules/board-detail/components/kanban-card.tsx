@@ -34,7 +34,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDraggable } from "@/hooks/use-draggable";
-import { cardTypeIconMap, cardTypes } from "@/modules/card-detail";
+import { cardTypes } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
 import { useBoardDetailContext } from "../context";
 import type { KanbanCard } from "../types";
@@ -82,10 +82,10 @@ function KanbanCardComponent({
 
 	const otherColumns = columns.filter((col) => col.id !== card.columnId);
 
-	const typeLabel = cardTypes.find((t) => t.value === card.type)?.label;
-	const typeColor =
-		cardTypes.find((t) => t.value === card.type)?.color ?? "#6b7280";
-	const TypeIcon = card.type ? cardTypeIconMap[card.type] : undefined;
+	const currentCardType = cardTypes.find((t) => t.value === card.type);
+	const typeLabel = currentCardType?.label;
+	const typeColor = currentCardType?.color ?? "#6b7280";
+	const TypeIcon = currentCardType?.icon;
 
 	return (
 		<>
@@ -111,7 +111,7 @@ function KanbanCardComponent({
 								<div className="mb-2 flex items-center justify-between">
 									<div className="items-center">
 										{card.cardNumber && (
-											<span className="text-muted-foreground text-xs mr-2">
+											<span className="mr-2 text-muted-foreground text-xs">
 												#{card.cardNumber}{" "}
 											</span>
 										)}

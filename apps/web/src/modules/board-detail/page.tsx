@@ -3,7 +3,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { Archive, ArrowLeft, Loader2, Plus, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useBreadcrumb } from "@/components/ui/breadcrumb";
+import {
+	generateBoardDetailParams,
+	useBreadcrumb,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useDragMonitor } from "@/hooks/use-drag-monitor";
 import { authClient } from "@/lib/auth-client";
@@ -45,18 +48,11 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 			return;
 		}
 		addBreadcrumb(
-			{
-				href: {
-					to: "/app/projects/$projectId/boards/$boardId",
-					params: {
-						projectId,
-						boardId,
-					},
-				},
-				label: board.data.name,
-				tag: "board-detail",
-			},
-			"project-detail"
+			...generateBoardDetailParams({
+				boardId,
+				projectId,
+				boardData: board.data,
+			})
 		);
 	}, [board.data, addBreadcrumb, boardId, projectId]);
 

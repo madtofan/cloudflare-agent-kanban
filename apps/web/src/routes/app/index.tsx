@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { FolderKanban, User } from "lucide-react";
 import { useEffect } from "react";
-import { useBreadcrumb } from "@/components/ui/breadcrumb";
+import { generateAppParams, useBreadcrumb } from "@/components/ui/breadcrumb";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/app/")({
@@ -19,11 +19,7 @@ function RouteComponent() {
 	const { addBreadcrumb } = useBreadcrumb();
 
 	useEffect(() => {
-		addBreadcrumb({
-			href: { to: "/app" },
-			label: "Dashboard",
-			tag: "app",
-		});
+		addBreadcrumb(...generateAppParams());
 	}, [addBreadcrumb]);
 
 	return (

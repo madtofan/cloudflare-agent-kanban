@@ -11,7 +11,10 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useBreadcrumb } from "@/components/ui/breadcrumb";
+import {
+	generateProjectDetailParams,
+	useBreadcrumb,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -54,17 +57,7 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 			return;
 		}
 		addBreadcrumb(
-			{
-				href: {
-					to: "/app/projects/$projectId",
-					params: {
-						projectId,
-					},
-				},
-				label: project.data.name,
-				tag: "project-detail",
-			},
-			"project-list"
+			...generateProjectDetailParams({ projectId, projectData: project.data })
 		);
 	}, [project.data, addBreadcrumb, projectId]);
 

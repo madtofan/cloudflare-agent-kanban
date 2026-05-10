@@ -3,7 +3,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { Globe, Loader2, Lock, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useBreadcrumb } from "@/components/ui/breadcrumb";
+import {
+	generateProjectListParams,
+	useBreadcrumb,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -27,16 +30,7 @@ function ProjectListPage() {
 	const { addBreadcrumb } = useBreadcrumb();
 
 	useEffect(() => {
-		addBreadcrumb(
-			{
-				href: {
-					to: "/app/projects",
-				},
-				label: "Projects",
-				tag: "project-list",
-			},
-			"app"
-		);
+		addBreadcrumb(...generateProjectListParams());
 	}, [addBreadcrumb]);
 
 	const createMutation = useMutation(
