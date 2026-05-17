@@ -6,7 +6,7 @@ import {
 	useNavigate,
 } from "@tanstack/react-router";
 import { SidebarIcon } from "lucide-react";
-import AppSidebar from "@/components/app-sidebar";
+import AppSidebar from "@/components/sidebar/app-sidebar";
 import Header from "@/components/header";
 import {
 	Breadcrumb,

@@ -53,6 +53,10 @@ function ProjectDetailPage({ projectId, tab }: ProjectDetailPageProps) {
 	);
 
 	useEffect(() => {
+		setActiveTab(tab);
+	}, [tab]);
+
+	useEffect(() => {
 		if (!project.data) {
 			return;
 		}
