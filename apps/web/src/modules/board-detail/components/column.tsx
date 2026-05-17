@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Archive, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import type { Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationDialog from "@/components/confirmation-dialog";
 import { Button } from "@/components/ui/button";
@@ -50,10 +51,19 @@ function ColumnComponent({
 	const [openDeleteColumnDialog, setOpenDeleteColumnDialog] = useState(false);
 	const [openArchiveAllDialog, setOpenArchiveAllDialog] = useState(false);
 
+	const droppableData = useMemo(
+		() => ({ type: "column", columnId: column.id }),
+		[column.id]
+	);
+	const droppableAllowedEdges = useMemo<Edge[]>(
+		() => ["top", "bottom", "left", "right"],
+		[]
+	);
+
 	const { ref: columnRef } = useDroppable<HTMLDivElement>({
 		id: column.id,
-		data: { type: "column", columnId: column.id },
-		allowedEdges: ["top", "bottom", "left", "right"],
+		data: droppableData,
+		allowedEdges: droppableAllowedEdges,
 	});
 
 	const archiveAllCardsMutation = useMutation(

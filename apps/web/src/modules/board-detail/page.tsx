@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Archive, ArrowLeft, Loader2, Plus, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
 	generateBoardDetailParams,
@@ -16,6 +16,59 @@ import BoardSettingsSheet from "./components/board-settings-sheet";
 import ColumnComponent from "./components/column";
 import { BoardDetailProvider } from "./context";
 import type { Column, KanbanCard } from "./types";
+
+function findCardById(
+	cardsByColumn: Record<string, KanbanCard[]> | undefined,
+	cardId: string,
+): KanbanCard | undefined {
+	if (!cardsByColumn) {
+		return undefined;
+	}
+	for (const columnCards of Object.values(cardsByColumn)) {
+		const card = columnCards.find((c) => c.id === cardId);
+		if (card) {
+			return card;
+		}
+	}
+	return undefined;
+}
+
+function calculateNewPosition(
+	targetCards: KanbanCard[],
+	cardId: string | null,
+	closestEdge: string | null,
+): number {
+	if (!cardId) {
+		return targetCards.length > 0
+			? Math.max(...targetCards.map((c) => c.position ?? 0)) + 1
+			: 0;
+	}
+
+	const overCardIndex = targetCards.findIndex((c) => c.id === cardId);
+
+	if (overCardIndex >= 0) {
+		if (closestEdge === "top") {
+			return overCardIndex;
+		}
+		if (closestEdge === "bottom") {
+			return overCardIndex + 1;
+		}
+	}
+
+	return overCardIndex >= 0 ? overCardIndex : targetCards.length;
+}
+
+function hasCardChanged(
+	card: KanbanCard,
+	targetColumnId: string,
+	targetCards: KanbanCard[],
+	newPosition: number,
+): boolean {
+	const hasColumnChanged = card.columnId !== targetColumnId;
+	const hasPositionChanged =
+		targetCards.find((c) => c.id === card.id)?.position !== newPosition;
+	return hasColumnChanged || hasPositionChanged;
+}
 
 interface BoardDetailPageProps {
 	boardId: string;
@@ -83,18 +136,22 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 		})
 	);
 
-	const { dragState } = useDragMonitor({
-		onDragEnd: ({ cardId, overColumnId, closestEdge }) => {
+	const cardsByColumnDataRef = useRef(cardsByColumn.data);
+	cardsByColumnDataRef.current = cardsByColumn.data;
+
+	const onDragEndCallback = useCallback(
+		({ cardId, overColumnId, closestEdge }: { cardId: string; overColumnId: string | null; closestEdge: string | null }) => {
 			if (!overColumnId) {
 				return;
 			}
 
-			const sourceCard = findCardById(cardsByColumn.data, cardId);
+			const currentData = cardsByColumnDataRef.current;
+			const sourceCard = findCardById(currentData, cardId);
 			if (!sourceCard) {
 				return;
 			}
 
-			const targetColumnCards = cardsByColumn.data?.[overColumnId] || [];
+			const targetColumnCards = currentData?.[overColumnId] || [];
 			const newPosition = calculateNewPosition(
 				targetColumnCards,
 				null,
@@ -115,88 +172,44 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				});
 			}
 		},
+		[moveKanbanCardMutation.mutate]
+	);
+
+	const { dragState } = useDragMonitor({
+		onDragEnd: onDragEndCallback,
 	});
-
-	const findCardById = (
-		cardsByColumn: Record<string, KanbanCard[]> | undefined,
-		cardId: string
-	): KanbanCard | undefined => {
-		if (!cardsByColumn) {
-			return undefined;
-		}
-		for (const columnCards of Object.values(cardsByColumn)) {
-			const card = columnCards.find((c) => c.id === cardId);
-			if (card) {
-				return card;
-			}
-		}
-		return undefined;
-	};
-
-	const calculateNewPosition = (
-		targetCards: KanbanCard[],
-		cardId: string | null,
-		closestEdge: string | null
-	): number => {
-		if (!cardId) {
-			return targetCards.length > 0
-				? Math.max(...targetCards.map((c) => c.position ?? 0)) + 1
-				: 0;
-		}
-
-		const overCardIndex = targetCards.findIndex((c) => c.id === cardId);
-
-		if (overCardIndex >= 0) {
-			if (closestEdge === "top") {
-				return overCardIndex;
-			}
-			if (closestEdge === "bottom") {
-				return overCardIndex + 1;
-			}
-		}
-
-		return overCardIndex >= 0 ? overCardIndex : targetCards.length;
-	};
-
-	const hasCardChanged = (
-		card: KanbanCard,
-		targetColumnId: string,
-		targetCards: KanbanCard[],
-		newPosition: number
-	): boolean => {
-		const hasColumnChanged = card.columnId !== targetColumnId;
-		const hasPositionChanged =
-			targetCards.find((c) => c.id === card.id)?.position !== newPosition;
-		return hasColumnChanged || hasPositionChanged;
-	};
 
 	const handleDeleteColumn = (column: Column) => {
 		deleteColumnMutation.mutate({ boardId, columnId: column.id });
 	};
 
-	const handleMoveCard = (cardId: string, targetColumnId: string) => {
-		const sourceCard = findCardById(cardsByColumn.data, cardId);
-		if (!sourceCard) {
-			return;
-		}
+	const handleMoveCard = useCallback(
+		(cardId: string, targetColumnId: string) => {
+			const currentData = cardsByColumnDataRef.current;
+			const sourceCard = findCardById(currentData, cardId);
+			if (!sourceCard) {
+				return;
+			}
 
-		const targetColumnCards = cardsByColumn.data?.[targetColumnId] || [];
-		const newPosition = calculateNewPosition(targetColumnCards, null, null);
-		const hasChanged = hasCardChanged(
-			sourceCard,
-			targetColumnId,
-			targetColumnCards,
-			newPosition
-		);
+			const targetColumnCards = currentData?.[targetColumnId] || [];
+			const newPosition = calculateNewPosition(targetColumnCards, null, null);
+			const hasChanged = hasCardChanged(
+				sourceCard,
+				targetColumnId,
+				targetColumnCards,
+				newPosition
+			);
 
-		if (hasChanged) {
-			moveKanbanCardMutation.mutate({
-				cardId,
-				columnId: targetColumnId,
-				position: newPosition,
-			});
-		}
-	};
+			if (hasChanged) {
+				moveKanbanCardMutation.mutate({
+					cardId,
+					columnId: targetColumnId,
+					position: newPosition,
+				});
+			}
+		},
+		[moveKanbanCardMutation.mutate]
+	);
 
 	if (board.isLoading || columns.isLoading) {
 		return (

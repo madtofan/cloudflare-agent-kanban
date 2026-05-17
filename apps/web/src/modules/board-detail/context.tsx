@@ -83,13 +83,17 @@ export function BoardDetailProvider({
 		[triggerAgentMutation.mutate]
 	);
 
-	const currentUser = session?.user
-		? {
-				id: session.user.id,
-				name: session.user.name ?? null,
-				image: session.user.image ?? null,
-			}
-		: null;
+	const currentUser = useMemo(
+		() =>
+			session?.user
+				? {
+						id: session.user.id,
+						name: session.user.name ?? null,
+						image: session.user.image ?? null,
+					}
+				: null,
+		[session?.user]
+	);
 
 	const contextValue = useMemo<BoardDetailContextType>(
 		() => ({
