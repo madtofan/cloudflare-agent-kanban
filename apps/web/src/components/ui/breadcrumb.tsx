@@ -356,30 +356,50 @@ function generateBreadcrumbs(
 export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
 	const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbInterface[]>([]);
 
+	const initializeBreadcrumb = (
+		breadcrumb: BreadcrumbInterface,
+		parentTag?: BreadcrumbTag
+	) => {
+		if (!parentTag) {
+			return;
+		}
+
+		const parentCrumbIndex = breadcrumbs.findIndex(
+			(crumb) => crumb.tag === parentTag
+		);
+
+		if (parentCrumbIndex < 0) {
+			Promise.all(generateBreadcrumbs(breadcrumb, parentTag)).then(
+				(resultingBreadcrumbs) => {
+					setBreadcrumbs([...resultingBreadcrumbs, breadcrumb]);
+				}
+			);
+		}
+	};
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: We want to ignore breadcrumb changes
 	const addBreadcrumb = useCallback(
-		async (breadcrumb: BreadcrumbInterface, parentTag?: BreadcrumbTag) => {
+		(breadcrumb: BreadcrumbInterface, parentTag?: BreadcrumbTag) => {
 			if (!parentTag) {
 				setBreadcrumbs([breadcrumb]);
 				return;
 			}
 
-			const parentCrumbIndex = breadcrumbs.findIndex(
-				(crumb) => crumb.tag === parentTag
-			);
-			if (parentCrumbIndex < 0) {
-				const generatedBreadcrumbs = await Promise.all(
-					generateBreadcrumbs(breadcrumb, parentTag)
-				);
-				setBreadcrumbs(generatedBreadcrumbs);
-				return;
-			}
+			initializeBreadcrumb(breadcrumb, parentTag);
 
-			setBreadcrumbs((prevBreadcrumbs) => [
-				...prevBreadcrumbs.slice(0, parentCrumbIndex + 1),
-				breadcrumb,
-			]);
+			setBreadcrumbs((prevBreadcrumbs) => {
+				const parentCrumbIndex = prevBreadcrumbs.findIndex(
+					(crumb) => crumb.tag === parentTag
+				);
+
+				if (parentCrumbIndex < 0) {
+					return prevBreadcrumbs;
+				}
+
+				return [...prevBreadcrumbs.slice(0, parentCrumbIndex + 1), breadcrumb];
+			});
 		},
-		[breadcrumbs]
+		[]
 	);
 
 	const value = useMemo(
