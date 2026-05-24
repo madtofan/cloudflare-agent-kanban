@@ -27,7 +27,7 @@ export class ProjectDO implements DurableObject {
 	constructor(ctx: DurableObjectState, env: DOEnv) {
 		this.ctx = ctx;
 		this.env = env;
-		this.projectId = (ctx.id as { name?: string }).name ?? "";
+		this.projectId = "";
 		this.db = createDoDb(ctx.storage);
 
 		ctx.blockConcurrencyWhile(async () => {
@@ -208,6 +208,11 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async fetch(request: Request): Promise<Response> {
+		this.projectId =
+			request.headers.get("X-Project-Id") ??
+			(this.ctx.id as { name?: string }).name ??
+			"";
+
 		try {
 			const body = (await request.json()) as {
 				method: string;
@@ -393,11 +398,11 @@ export class ProjectDO implements DurableObject {
 			)
 				.bind(userId)
 				.first()) as {
-					id: string;
-					name: string;
-					image: string | null;
-					email: string;
-				} | null;
+				id: string;
+				name: string;
+				image: string | null;
+				email: string;
+			} | null;
 			return row ?? null;
 		} catch {
 			return null;
@@ -424,10 +429,10 @@ export class ProjectDO implements DurableObject {
 			)
 				.bind(email)
 				.first()) as {
-					id: string;
-					name: string;
-					image: string | null;
-				} | null;
+				id: string;
+				name: string;
+				image: string | null;
+			} | null;
 			return row ?? null;
 		} catch {
 			return null;
@@ -467,20 +472,16 @@ export class ProjectDO implements DurableObject {
 	// ========== Boards ==========
 
 	async getBoards() {
-		const rows = await this.db
-			.select()
-			.from(schema.board)
-			.orderBy(schema.board.createdAt);
-		return rows;
+		const boards = await this.db.query.board.findMany({
+			orderBy: schema.board.createdAt,
+		});
+		return boards;
 	}
 
 	async getBoard(params: { boardId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.board)
-			.where(eq(schema.board.id, params.boardId))
-			.limit(1);
-		const boardData = rows.find(Boolean);
+		const boardData = await this.db.query.board.findFirst({
+			where: eq(schema.board.id, params.boardId),
+		});
 		if (!boardData) {
 			throw new Error("Board not found");
 		}
@@ -489,15 +490,18 @@ export class ProjectDO implements DurableObject {
 
 	async createBoard(params: CreateBoardParams) {
 		const ts = new Date();
-		const rows = await this.db.insert(schema.board).values({
-			id: params.boardId,
-			name: params.name,
-			description: params.description ?? null,
-			visibility: (params.visibility ?? "private") as "private" | "public",
-			ownerId: params.ownerId,
-			createdAt: ts,
-			updatedAt: ts,
-		}).returning();
+		const rows = await this.db
+			.insert(schema.board)
+			.values({
+				id: params.boardId,
+				name: params.name,
+				description: params.description ?? null,
+				visibility: (params.visibility ?? "private") as "private" | "public",
+				ownerId: params.ownerId,
+				createdAt: ts,
+				updatedAt: ts,
+			})
+			.returning();
 		return rows.find(Boolean);
 	}
 
@@ -519,12 +523,10 @@ export class ProjectDO implements DurableObject {
 			.set(updates)
 			.where(eq(schema.board.id, params.boardId));
 
-		const rows = await this.db
-			.select()
-			.from(schema.board)
-			.where(eq(schema.board.id, params.boardId))
-			.limit(1);
-		return rows.find(Boolean);
+		const boardData = await this.db.query.board.findFirst({
+			where: eq(schema.board.id, params.boardId),
+		});
+		return boardData;
 	}
 
 	async deleteBoard(params: DeleteBoardParams) {
@@ -574,21 +576,17 @@ export class ProjectDO implements DurableObject {
 	// ========== Columns ==========
 
 	async getColumns(params: { boardId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.column)
-			.where(eq(schema.column.boardId, params.boardId))
-			.orderBy(schema.column.position);
-		return rows;
+		const columns = await this.db.query.column.findMany({
+			where: eq(schema.column.boardId, params.boardId),
+			orderBy: schema.column.position,
+		});
+		return columns;
 	}
 
 	async getColumn(params: { columnId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.column)
-			.where(eq(schema.column.id, params.columnId))
-			.limit(1);
-		const col = rows.find(Boolean);
+		const col = await this.db.query.column.findFirst({
+			where: eq(schema.column.id, params.columnId),
+		});
 		if (!col) {
 			throw new Error("Column not found");
 		}
@@ -597,23 +595,25 @@ export class ProjectDO implements DurableObject {
 
 	async createColumn(params: CreateColumnParams) {
 		const colId = this._prefixId(params.columnId);
-		const existing = await this.db
-			.select({ position: schema.column.position })
-			.from(schema.column)
-			.where(eq(schema.column.boardId, params.boardId))
-			.orderBy(desc(schema.column.position))
-			.limit(1);
+		const existing = await this.db.query.column.findFirst({
+			columns: { position: true },
+			where: eq(schema.column.boardId, params.boardId),
+			orderBy: desc(schema.column.position),
+		});
 
-		const maxPos = existing[0];
+		const maxPos = existing;
 		const ts = new Date();
-		const rows = await this.db.insert(schema.column).values({
-			id: colId,
-			boardId: params.boardId,
-			name: params.name,
-			position: (maxPos?.position ?? -1) + 1,
-			createdAt: ts,
-			updatedAt: ts,
-		}).returning();
+		const rows = await this.db
+			.insert(schema.column)
+			.values({
+				id: colId,
+				boardId: params.boardId,
+				name: params.name,
+				position: (maxPos?.position ?? -1) + 1,
+				createdAt: ts,
+				updatedAt: ts,
+			})
+			.returning();
 		return rows.find(Boolean);
 	}
 
@@ -640,12 +640,10 @@ export class ProjectDO implements DurableObject {
 			.set(updates)
 			.where(eq(schema.column.id, params.columnId));
 
-		const rows = await this.db
-			.select()
-			.from(schema.column)
-			.where(eq(schema.column.id, params.columnId))
-			.limit(1);
-		return rows.find(Boolean);
+		const updatedCol = await this.db.query.column.findFirst({
+			where: eq(schema.column.id, params.columnId),
+		});
+		return updatedCol;
 	}
 
 	async deleteColumn(params: DeleteColumnParams) {
@@ -745,64 +743,54 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async getCardsByColumnId(params: { columnId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(
-				and(
-					eq(schema.card.columnId, params.columnId),
-					isNull(schema.card.archivedDate)
-				)
-			)
-			.orderBy(schema.card.position);
+		const rows = await this.db.query.card.findMany({
+			where: and(
+				eq(schema.card.columnId, params.columnId),
+				isNull(schema.card.archivedDate)
+			),
+			orderBy: schema.card.position,
+		});
 		return rows;
 	}
 
 	async getCard(params: { cardId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		const card = rows.find(Boolean);
+		const card = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
 		if (!card) {
 			throw new Error("Card not found");
 		}
 
-		const labels = await this.db
-			.select()
-			.from(schema.cardLabel)
-			.where(eq(schema.cardLabel.cardId, params.cardId));
+		const labels = await this.db.query.cardLabel.findMany({
+			where: eq(schema.cardLabel.cardId, params.cardId),
+		});
 
 		return { ...card, labels };
 	}
 
 	async getCardNumber(params: { columnId: string; boardId: string }) {
-		const existing = await this.db
-			.select({ cardNumber: schema.card.cardNumber })
-			.from(schema.card)
-			.where(eq(schema.card.boardId, params.boardId))
-			.orderBy(desc(schema.card.cardNumber))
-			.limit(1);
-		return (existing[0]?.cardNumber ?? 0) + 1;
+		const existing = await this.db.query.card.findFirst({
+			columns: { cardNumber: true },
+			where: eq(schema.card.boardId, params.boardId),
+			orderBy: desc(schema.card.cardNumber),
+		});
+		return (existing?.cardNumber ?? 0) + 1;
 	}
 
 	async createCard(params: CreateCardParams) {
 		const col = await this.getColumn({ columnId: params.columnId });
 
-		const maxPositionExisting = await this.db
-			.select({ position: schema.card.position })
-			.from(schema.card)
-			.where(eq(schema.card.columnId, params.columnId))
-			.orderBy(desc(schema.card.position))
-			.limit(1);
+		const maxPositionExisting = await this.db.query.card.findFirst({
+			columns: { position: true },
+			where: eq(schema.card.columnId, params.columnId),
+			orderBy: desc(schema.card.position),
+		});
 
-		const maxCardNumberExisting = await this.db
-			.select({ cardNumber: schema.card.cardNumber })
-			.from(schema.card)
-			.where(eq(schema.card.boardId, col.boardId))
-			.orderBy(desc(schema.card.cardNumber))
-			.limit(1);
+		const maxCardNumberExisting = await this.db.query.card.findFirst({
+			columns: { cardNumber: true },
+			where: eq(schema.card.boardId, col.boardId),
+			orderBy: desc(schema.card.cardNumber),
+		});
 
 		const rawId = params.cardId ?? crypto.randomUUID();
 		const id = this._prefixId(rawId);
@@ -811,13 +799,13 @@ export class ProjectDO implements DurableObject {
 		await this.db.insert(schema.card).values({
 			id,
 			boardId: col.boardId,
-			cardNumber: (maxCardNumberExisting[0]?.cardNumber ?? 0) + 1,
+			cardNumber: (maxCardNumberExisting?.cardNumber ?? 0) + 1,
 			columnId: params.columnId,
 			title: params.title,
 			type: params.type as "epic" | "feature" | "user_story" | "bug" | "task",
 			description: params.description ?? null,
 			acceptanceCriteria: params.acceptanceCriteria ?? null,
-			position: (maxPositionExisting[0]?.position ?? -1) + 1,
+			position: (maxPositionExisting?.position ?? -1) + 1,
 			assigneeId: params.assigneeId ?? null,
 			createdAt: ts,
 			updatedAt: ts,
@@ -837,21 +825,16 @@ export class ProjectDO implements DurableObject {
 			})
 		);
 
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, id))
-			.limit(1);
-		return rows.find(Boolean);
+		const card = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, id),
+		});
+		return card;
 	}
 
 	async updateCard(params: UpdateCardParams) {
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		const existingCard = rows.find(Boolean);
+		const existingCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
 		if (!existingCard) {
 			throw new Error("Card not found");
 		}
@@ -928,21 +911,16 @@ export class ProjectDO implements DurableObject {
 			);
 		}
 
-		const updatedRows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		return updatedRows.find(Boolean);
+		const updatedCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
+		return updatedCard;
 	}
 
 	async deleteCard(params: DeleteCardParams) {
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		const existingCard = rows.find(Boolean);
+		const existingCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
 		if (!existingCard) {
 			throw new Error("Card not found");
 		}
@@ -979,12 +957,9 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async moveCard(params: MoveCardParams) {
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		const existingCard = rows.find(Boolean);
+		const existingCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
 		if (!existingCard) {
 			throw new Error("Card not found");
 		}
@@ -1009,12 +984,10 @@ export class ProjectDO implements DurableObject {
 			})
 			.where(eq(schema.card.id, params.cardId));
 
-		const updatedRows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		return updatedRows.find(Boolean);
+		const updatedCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
+		return updatedCard;
 	}
 
 	async searchCards(params: SearchCardsParams) {
@@ -1069,12 +1042,9 @@ export class ProjectDO implements DurableObject {
 	// ========== Archive ==========
 
 	async archiveCards(params: ArchiveCardsParams) {
-		const rows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		const existingCard = rows.find(Boolean);
+		const existingCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
 		if (!existingCard) {
 			throw new Error("Card not found");
 		}
@@ -1094,21 +1064,16 @@ export class ProjectDO implements DurableObject {
 			JSON.stringify({ title: existingCard.title })
 		);
 
-		const updatedRows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.cardId))
-			.limit(1);
-		return updatedRows.find(Boolean);
+		const updatedCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.cardId),
+		});
+		return updatedCard;
 	}
 
 	async archiveByColumn(params: { columnId: string }) {
-		const colRows = await this.db
-			.select()
-			.from(schema.column)
-			.where(eq(schema.column.id, params.columnId))
-			.limit(1);
-		const col = colRows.find(Boolean);
+		const col = await this.db.query.column.findFirst({
+			where: eq(schema.column.id, params.columnId),
+		});
 		if (!col) {
 			throw new Error("Column not found");
 		}
@@ -1167,9 +1132,9 @@ export class ProjectDO implements DurableObject {
 		const columns =
 			columnIds.length > 0
 				? await this.db
-					.select({ id: schema.column.id, name: schema.column.name })
-					.from(schema.column)
-					.where(inArray(schema.column.id, columnIds))
+						.select({ id: schema.column.id, name: schema.column.name })
+						.from(schema.column)
+						.where(inArray(schema.column.id, columnIds))
 				: [];
 
 		const columnMap = new Map(columns.map((c) => [c.id, c.name]));
@@ -1213,9 +1178,9 @@ export class ProjectDO implements DurableObject {
 		const columns =
 			columnIds.length > 0
 				? await this.db
-					.select({ id: schema.column.id, name: schema.column.name })
-					.from(schema.column)
-					.where(inArray(schema.column.id, columnIds))
+						.select({ id: schema.column.id, name: schema.column.name })
+						.from(schema.column)
+						.where(inArray(schema.column.id, columnIds))
 				: [];
 
 		const columnMap = new Map(columns.map((c) => [c.id, c.name]));
@@ -1268,11 +1233,10 @@ export class ProjectDO implements DurableObject {
 	// ========== Comments ==========
 
 	async getComments(params: { cardId: string }) {
-		const comments = await this.db
-			.select()
-			.from(schema.cardComment)
-			.where(eq(schema.cardComment.cardId, params.cardId))
-			.orderBy(schema.cardComment.createdAt);
+		const comments = await this.db.query.cardComment.findMany({
+			where: eq(schema.cardComment.cardId, params.cardId),
+			orderBy: schema.cardComment.createdAt,
+		});
 
 		const commentsWithUser = await Promise.all(
 			comments.map(async (comment) => {
@@ -1316,13 +1280,11 @@ export class ProjectDO implements DurableObject {
 		}
 
 		const userData = await this._getUser(params.userId);
-		const rows = await this.db
-			.select()
-			.from(schema.cardComment)
-			.where(eq(schema.cardComment.id, commentId))
-			.limit(1);
+		const comment = await this.db.query.cardComment.findFirst({
+			where: eq(schema.cardComment.id, commentId),
+		});
 
-		return { ...rows.find(Boolean), user: userData };
+		return { ...comment, user: userData };
 	}
 
 	async deleteComment(params: { commentId: string }) {
@@ -1335,11 +1297,10 @@ export class ProjectDO implements DurableObject {
 	// ========== History ==========
 
 	async getHistory(params: { cardId: string }) {
-		const history = await this.db
-			.select()
-			.from(schema.cardHistory)
-			.where(eq(schema.cardHistory.cardId, params.cardId))
-			.orderBy(desc(schema.cardHistory.createdAt));
+		const history = await this.db.query.cardHistory.findMany({
+			where: eq(schema.cardHistory.cardId, params.cardId),
+			orderBy: desc(schema.cardHistory.createdAt),
+		});
 
 		const historyWithUser = await Promise.all(
 			history.map(async (entry) => {
@@ -1407,22 +1368,16 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async createLink(params: CreateLinkParams) {
-		const sourceRows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.sourceCardId))
-			.limit(1);
-		const sourceCard = sourceRows.find(Boolean);
+		const sourceCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.sourceCardId),
+		});
 		if (!sourceCard) {
 			throw new Error("Source card not found");
 		}
 
-		const targetRows = await this.db
-			.select()
-			.from(schema.card)
-			.where(eq(schema.card.id, params.targetCardId))
-			.limit(1);
-		const targetCard = targetRows.find(Boolean);
+		const targetCard = await this.db.query.card.findFirst({
+			where: eq(schema.card.id, params.targetCardId),
+		});
 		if (!targetCard) {
 			throw new Error("Target card not found");
 		}
@@ -1431,31 +1386,23 @@ export class ProjectDO implements DurableObject {
 			throw new Error("Cannot link cards from different boards");
 		}
 
-		const existingRows = await this.db
-			.select()
-			.from(schema.cardLink)
-			.where(
-				and(
-					eq(schema.cardLink.sourceCardId, params.sourceCardId),
-					eq(schema.cardLink.targetCardId, params.targetCardId)
-				)
-			)
-			.limit(1);
+		const existingLink = await this.db.query.cardLink.findFirst({
+			where: and(
+				eq(schema.cardLink.sourceCardId, params.sourceCardId),
+				eq(schema.cardLink.targetCardId, params.targetCardId)
+			),
+		});
 
-		if (existingRows.find(Boolean)) {
+		if (existingLink) {
 			throw new Error("Link already exists");
 		}
 
-		const reverseExistingRows = await this.db
-			.select()
-			.from(schema.cardLink)
-			.where(
-				and(
-					eq(schema.cardLink.sourceCardId, params.targetCardId),
-					eq(schema.cardLink.targetCardId, params.sourceCardId)
-				)
-			)
-			.limit(1);
+		const reverseExistingLink = await this.db.query.cardLink.findFirst({
+			where: and(
+				eq(schema.cardLink.sourceCardId, params.targetCardId),
+				eq(schema.cardLink.targetCardId, params.sourceCardId)
+			),
+		});
 
 		const reverseLinkType = getReverseLinkType(params.linkType);
 
@@ -1467,7 +1414,7 @@ export class ProjectDO implements DurableObject {
 			createdAt: new Date(),
 		});
 
-		if (!reverseExistingRows.find(Boolean)) {
+		if (!reverseExistingLink) {
 			await this.db.insert(schema.cardLink).values({
 				id: this._prefixId(crypto.randomUUID()),
 				sourceCardId: params.targetCardId,
@@ -1481,12 +1428,9 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async deleteLink(params: DeleteLinkParams) {
-		const linkRows = await this.db
-			.select()
-			.from(schema.cardLink)
-			.where(eq(schema.cardLink.id, params.linkId))
-			.limit(1);
-		const link = linkRows.find(Boolean);
+		const link = await this.db.query.cardLink.findFirst({
+			where: eq(schema.cardLink.id, params.linkId),
+		});
 
 		if (
 			!link ||
@@ -1517,37 +1461,38 @@ export class ProjectDO implements DurableObject {
 	// ========== Labels ==========
 
 	async getLabels(params: { cardId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.cardLabel)
-			.where(eq(schema.cardLabel.cardId, params.cardId));
-		return rows;
+		const labels = await this.db.query.cardLabel.findMany({
+			where: eq(schema.cardLabel.cardId, params.cardId),
+		});
+		return labels;
 	}
 
 	// ========== Documentation ==========
 
 	async getFolders() {
-		const rows = await this.db
-			.select()
-			.from(schema.documentationFolder)
-			.orderBy(
+		const folders = await this.db.query.documentationFolder.findMany({
+			orderBy: [
 				schema.documentationFolder.position,
-				schema.documentationFolder.name
-			);
-		return rows;
+				schema.documentationFolder.name,
+			],
+		});
+		return folders;
 	}
 
 	async createFolder(params: CreateFolderParams) {
 		const folderId = this._prefixId(params.folderId);
 		const ts = new Date();
-		const rows = await this.db.insert(schema.documentationFolder).values({
-			id: folderId,
-			name: params.name,
-			parentFolderId: params.parentFolderId ?? null,
-			position: 0,
-			createdAt: ts,
-			updatedAt: ts,
-		}).returning();
+		const rows = await this.db
+			.insert(schema.documentationFolder)
+			.values({
+				id: folderId,
+				name: params.name,
+				parentFolderId: params.parentFolderId ?? null,
+				position: 0,
+				createdAt: ts,
+				updatedAt: ts,
+			})
+			.returning();
 		return rows.find(Boolean);
 	}
 
@@ -1566,12 +1511,10 @@ export class ProjectDO implements DurableObject {
 			.set(updates)
 			.where(eq(schema.documentationFolder.id, params.folderId));
 
-		const rows = await this.db
-			.select()
-			.from(schema.documentationFolder)
-			.where(eq(schema.documentationFolder.id, params.folderId))
-			.limit(1);
-		return rows.find(Boolean);
+		const folder = await this.db.query.documentationFolder.findFirst({
+			where: eq(schema.documentationFolder.id, params.folderId),
+		});
+		return folder;
 	}
 
 	async deleteFolder(params: { folderId: string }) {
@@ -1582,13 +1525,12 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async getPages() {
-		const rows = await this.db
-			.select()
-			.from(schema.documentationPage)
-			.orderBy(
+		const rows = await this.db.query.documentationPage.findMany({
+			orderBy: [
 				schema.documentationPage.position,
-				schema.documentationPage.title
-			);
+				schema.documentationPage.title,
+			],
+		});
 
 		const authorIds = [
 			...new Set(rows.map((p) => p.authorId).filter(Boolean)),
@@ -1611,12 +1553,9 @@ export class ProjectDO implements DurableObject {
 	}
 
 	async getPage(params: { pageId: string }) {
-		const rows = await this.db
-			.select()
-			.from(schema.documentationPage)
-			.where(eq(schema.documentationPage.id, params.pageId))
-			.limit(1);
-		const page = rows.find(Boolean);
+		const page = await this.db.query.documentationPage.findFirst({
+			where: eq(schema.documentationPage.id, params.pageId),
+		});
 		if (!page) {
 			throw new Error("Page not found");
 		}
@@ -1632,17 +1571,20 @@ export class ProjectDO implements DurableObject {
 	async createPage(params: CreatePageParams) {
 		const pageId = this._prefixId(params.pageId);
 		const ts = new Date();
-		const rows = await this.db.insert(schema.documentationPage).values({
-			id: pageId,
-			title: params.title,
-			content: params.content ?? "",
-			folderId: params.folderId ?? null,
-			visibility: (params.visibility ?? "private") as "public" | "private",
-			authorId: params.userId,
-			position: 0,
-			createdAt: ts,
-			updatedAt: ts,
-		}).returning();
+		const rows = await this.db
+			.insert(schema.documentationPage)
+			.values({
+				id: pageId,
+				title: params.title,
+				content: params.content ?? "",
+				folderId: params.folderId ?? null,
+				visibility: (params.visibility ?? "private") as "public" | "private",
+				authorId: params.userId,
+				position: 0,
+				createdAt: ts,
+				updatedAt: ts,
+			})
+			.returning();
 		return rows.find(Boolean);
 	}
 
@@ -1667,12 +1609,10 @@ export class ProjectDO implements DurableObject {
 			.set(updates)
 			.where(eq(schema.documentationPage.id, params.pageId));
 
-		const rows = await this.db
-			.select()
-			.from(schema.documentationPage)
-			.where(eq(schema.documentationPage.id, params.pageId))
-			.limit(1);
-		return rows.find(Boolean);
+		const page = await this.db.query.documentationPage.findFirst({
+			where: eq(schema.documentationPage.id, params.pageId),
+		});
+		return page;
 	}
 
 	async deletePage(params: { pageId: string }) {

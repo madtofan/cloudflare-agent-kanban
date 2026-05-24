@@ -186,7 +186,10 @@ export async function callDo<T extends keyof DoMethodReturnTypes>(
 	const stub = getProjectDo(env, projectId);
 	const response = await stub.fetch("http://do", {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers: {
+			"Content-Type": "application/json",
+			"X-Project-Id": projectId,
+		},
 		body: JSON.stringify({ method, params }),
 	});
 	const data = (await response.json()) as DoMethodReturnTypes[T] & {

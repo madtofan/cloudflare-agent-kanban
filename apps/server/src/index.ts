@@ -13,8 +13,9 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { handleSeed } from "./seed";
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Env }>();
 
 app.use(logger());
 app.use(
@@ -28,6 +29,8 @@ app.use(
 );
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+
+app.get("/api/dev/seed", handleSeed);
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
 	plugins: [
