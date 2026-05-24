@@ -1,80 +1,9 @@
-import { db } from "@cloudflare-agent-kanban/db";
-import type { user } from "@cloudflare-agent-kanban/db/schema/auth";
-import {
-	notification,
-	user as userTable,
-} from "@cloudflare-agent-kanban/db/schema/auth";
-import {
-	board,
-	card,
-	cardComment,
-	cardHistory,
-	cardLabel,
-	cardLink,
-	column,
-} from "@cloudflare-agent-kanban/db/schema/kanban";
-import {
-	type CardLinkType,
-	cardLinkType,
-} from "@cloudflare-agent-kanban/types";
-import {
-	asc,
-	desc,
-	eq,
-	type InferSelectModel,
-	inArray,
-	isNull,
-	sql,
-} from "drizzle-orm";
-import { nanoid } from "nanoid";
+import { cardLinkType } from "@cloudflare-agent-kanban/types";
 import z from "zod";
+import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
-import { getBoardAccess } from "../utils";
-import { requireEditAccess } from "./board";
-
-const boardIdSchema = z.object({ boardId: z.string() });
-const columnIdSchema = z.object({ columnId: z.string() });
-const cardIdSchema = z.object({ cardId: z.string() });
-
-function getReverseLinkType(linkType: string): string {
-	const reverseMap: Record<CardLinkType, string> = {
-		parent_of: "child_of",
-		child_of: "parent_of",
-		blocked_by: "blocks",
-		blocks: "blocked_by",
-		depends_on: "depends_on",
-		relates_to: "relates_to",
-		duplicates: "duplicates",
-		follows: "follows",
-		part_of: "implements",
-		implements: "part_of",
-	};
-	return reverseMap[linkType as CardLinkType] ?? linkType;
-}
-
-export type Card = InferSelectModel<typeof card>;
-export type User = InferSelectModel<typeof user>;
-export type CardHistory = InferSelectModel<typeof cardHistory>;
-
-async function logCardChange(
-	cardId: string,
-	userId: string,
-	action: "CREATE" | "UPDATE" | "DELETE" | "MOVE" | "ARCHIVE" | "UNARCHIVE",
-	fieldName: string | null | undefined,
-	oldValue: string | null | undefined,
-	newValue: string | null | undefined
-) {
-	await db.insert(cardHistory).values({
-		id: nanoid(),
-		cardId,
-		userId,
-		action,
-		fieldName: fieldName ?? null,
-		oldValue: oldValue ?? null,
-		newValue: newValue ?? null,
-		createdAt: new Date(),
-	});
-}
+import { getProjectAccess } from "../utils";
+import { requireEditAccess } from "./project";
 
 export const cardRouter = {
 	getByColumnId: protectedProcedure
@@ -84,29 +13,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(columnIdSchema)
+		.input(z.object({ columnId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, input.columnId),
-			});
-
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			const access = await getBoardAccess(columnData.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const cards = await db.query.card.findMany({
-				where: sql`${card.columnId} = ${input.columnId} AND ${card.archivedDate} IS NULL`,
-				orderBy: asc(card.position),
+			return callDo(context.env, input.projectId, "getCardsByColumnId", {
+				columnId: input.columnId,
 			});
-
-			return cards;
 		}),
 
 	getByBoardId: protectedProcedure
@@ -116,118 +33,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(boardIdSchema)
+		.input(z.object({ boardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const access = await getBoardAccess(input.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const cards = await db.query.board.findFirst({
-				where: eq(board.id, input.boardId),
-				columns: {
-					id: true,
-				},
-				with: {
-					members: {
-						columns: {
-							userId: true,
-						},
-					},
-					columns: {
-						columns: {
-							id: true,
-						},
-						with: {
-							cards: {
-								where: isNull(card.archivedDate),
-								columns: {
-									id: true,
-									cardNumber: true,
-									columnId: true,
-									title: true,
-									type: true,
-									description: false,
-									acceptanceCriteria: false,
-									position: true,
-									agentTriggerUrl: false,
-									createdAt: false,
-									updatedAt: false,
-									archivedDate: false,
-								},
-								with: {
-									assignee: {
-										columns: {
-											image: true,
-										},
-									},
-								},
-								extras: {
-									cardCommentCount:
-										sql<number>`(select count(*) from "card_comment" where "card_comment"."card_id" = "board_columns_cards"."id")`.as(
-											"card_comment_count"
-										),
-									cardLinkCount:
-										sql<number>`(select count(*) from "card_link" where "card_link"."source_card_id" = "board_columns_cards"."id")`.as(
-											"card_link_count"
-										),
-								},
-							},
-						},
-					},
-				},
+			return callDo(context.env, input.projectId, "getCardsByBoardId", {
+				boardId: input.boardId,
 			});
-
-			const isMember =
-				access === "owner" || access === "admin" || access === "member";
-
-			if (isMember) {
-				return cards?.columns.reduce<
-					Record<
-						string,
-						Partial<
-							Card & {
-								assignee: Partial<User> | null;
-								cardCommentCount: number;
-								cardLinkCount: number;
-							}
-						>[]
-					>
-				>((acc, column) => {
-					acc[column.id] = column.cards;
-					return acc;
-				}, {});
-			}
-
-			return cards?.columns.reduce<
-				Record<
-					string,
-					Partial<
-						Card & {
-							assignee: Partial<User> | null;
-							cardCommentCount: number;
-							cardLinkCount: number;
-						}
-					>[]
-				>
-			>((acc, column) => {
-				acc[column.id] = column.cards.map<
-					Partial<Card & { assignee: Partial<User> | null }>
-				>((card) => ({
-					id: card.id,
-					cardNumber: card.cardNumber,
-					columnId: card.columnId,
-					title: card.title,
-					type: card.type,
-					position: card.position,
-					assignee: card.assignee,
-					cardCommentCount: card.cardCommentCount,
-					cardLinkCount: card.cardLinkCount,
-				}));
-				return acc;
-			}, {});
 		}),
 
 	getById: protectedProcedure
@@ -237,43 +53,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-				with: {
-					assignee: {
-						columns: {
-							id: true,
-							name: true,
-							image: true,
-						},
-					},
-				},
-			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-			const access = await getBoardAccess(columnData.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const labels = await db.query.cardLabel.findMany({
-				where: eq(cardLabel.cardId, input.cardId),
+			return callDo(context.env, input.projectId, "getCard", {
+				cardId: input.cardId,
 			});
-
-			return { ...cardData, labels };
 		}),
 
 	getHistory: protectedProcedure
@@ -283,49 +73,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-			const access = await getBoardAccess(columnData.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const history = await db.query.cardHistory.findMany({
-				where: eq(cardHistory.cardId, input.cardId),
-				orderBy: desc(cardHistory.createdAt),
+			return callDo(context.env, input.projectId, "getHistory", {
+				cardId: input.cardId,
 			});
-
-			const historyWithUser = await Promise.all(
-				history.map(async (entry) => {
-					let userName = "Unknown";
-					if (entry.userId) {
-						const userData = await db.query.user.findFirst({
-							where: eq(userTable.id, entry.userId),
-							columns: { name: true },
-						});
-						userName = userData?.name ?? "Unknown";
-					}
-					return { ...entry, userName };
-				})
-			);
-
-			return historyWithUser;
 		}),
 
 	getComments: protectedProcedure
@@ -335,45 +93,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-			const access = await getBoardAccess(columnData.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const comments = await db.query.cardComment.findMany({
-				where: eq(cardComment.cardId, input.cardId),
-				orderBy: asc(cardComment.createdAt),
+			return callDo(context.env, input.projectId, "getComments", {
+				cardId: input.cardId,
 			});
-
-			const commentsWithUser = await Promise.all(
-				comments.map(async (comment) => {
-					const userData = await db.query.user.findFirst({
-						where: eq(userTable.id, comment.userId),
-						columns: { id: true, name: true, image: true, username: true },
-					});
-					return { ...comment, user: userData };
-				})
-			);
-
-			return commentsWithUser;
 		}),
 
 	createComment: protectedProcedure
@@ -384,79 +114,24 @@ export const cardRouter = {
 			tags: ["Card"],
 		})
 		.input(
-			cardIdSchema.extend({
+			z.object({
+				cardId: z.string(),
 				content: z.string().min(1),
+				projectId: z.string(),
 			})
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-			const access = await getBoardAccess(columnData.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const newComment = await db
-				.insert(cardComment)
-				.values({
-					id: nanoid(),
-					cardId: input.cardId,
-					userId,
-					content: input.content,
-				})
-				.returning();
-
-			const userData = await db.query.user.findFirst({
-				where: eq(userTable.id, userId),
-				columns: { id: true, name: true, image: true, username: true },
+			return callDo(context.env, input.projectId, "createComment", {
+				cardId: input.cardId,
+				userId,
+				content: input.content,
 			});
-
-			const mentionRegex = /@([a-z0-9_-]{6,30})/g;
-			const mentions = input.content.match(mentionRegex);
-
-			if (mentions && mentions.length > 0) {
-				const mentionedUsernames = mentions.map((m) =>
-					m.substring(1).toLowerCase()
-				);
-
-				const mentionedUsers = await db
-					.select()
-					.from(userTable)
-					.where(sql`${userTable.username} IN (${mentionedUsernames})`);
-
-				if (mentionedUsers.length > 0 && newComment[0]) {
-					const commentId = newComment[0].id;
-
-					await db.insert(notification).values(
-						mentionedUsers
-							.filter((u) => u.id !== userId)
-							.map((u) => ({
-								id: nanoid(),
-								userId: u.id,
-								type: "mention" as const,
-								sourceId: commentId,
-								sourceType: "comment",
-								read: false,
-							}))
-					);
-				}
-			}
-
-			return { ...newComment[0], user: userData };
 		}),
 
 	deleteComment: protectedProcedure
@@ -466,43 +141,11 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
-		.handler(async ({ context, input }) => {
-			const userId = context.session.user.id;
-			const comment = await db.query.cardComment.findFirst({
-				where: eq(cardComment.id, input.cardId),
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
+		.handler(({ context, input }) => {
+			return callDo(context.env, input.projectId, "deleteComment", {
+				commentId: input.cardId,
 			});
-
-			if (!comment) {
-				throw new Error("Comment not found");
-			}
-
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, comment.cardId),
-			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			const access = await getBoardAccess(columnData.boardId, userId);
-			const isAuthor = comment.userId === userId;
-			const isAdmin = access === "owner" || access === "admin";
-
-			if (!(isAuthor || isAdmin)) {
-				throw new Error("You don't have permission to delete this comment");
-			}
-
-			await db.delete(cardComment).where(eq(cardComment.id, input.cardId));
-
-			return { success: true };
 		}),
 
 	create: protectedProcedure
@@ -513,7 +156,9 @@ export const cardRouter = {
 			tags: ["Card"],
 		})
 		.input(
-			columnIdSchema.extend({
+			z.object({
+				columnId: z.string(),
+				projectId: z.string(),
 				title: z.string().min(5),
 				type: z.enum(["epic", "feature", "user_story", "bug", "task"]),
 				description: z.string().optional(),
@@ -523,60 +168,18 @@ export const cardRouter = {
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, input.columnId),
-			});
+			await requireEditAccess(input.projectId, userId);
 
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
-			const maxPosition = await db.query.card.findFirst({
-				where: eq(card.columnId, input.columnId),
-				orderBy: asc(card.position),
-				columns: { position: true },
-			});
-
-			const maxCardNumber = await db.query.card.findFirst({
-				where: eq(card.boardId, columnData.boardId),
-				orderBy: desc(card.cardNumber),
-				columns: { cardNumber: true },
-			});
-
-			const cardId = nanoid();
-			const newCard = await db
-				.insert(card)
-				.values({
-					id: cardId,
-					boardId: columnData.boardId,
-					columnId: input.columnId,
-					title: input.title,
-					type: input.type,
-					description: input.description,
-					acceptanceCriteria: input.acceptanceCriteria,
-					assigneeId: input.assigneeId,
-					position: (maxPosition?.position ?? -1) + 1,
-					cardNumber: (maxCardNumber?.cardNumber ?? 0) + 1,
-				})
-				.returning();
-
-			await logCardChange(
-				cardId,
+			return callDo(context.env, input.projectId, "createCard", {
+				cardId: crypto.randomUUID(),
+				columnId: input.columnId,
 				userId,
-				"CREATE",
-				null,
-				null,
-				JSON.stringify({
-					title: input.title,
-					type: input.type,
-					description: input.description,
-					acceptanceCriteria: input.acceptanceCriteria,
-				})
-			);
-
-			return newCard[0];
+				title: input.title,
+				type: input.type,
+				description: input.description,
+				acceptanceCriteria: input.acceptanceCriteria,
+				assigneeId: input.assigneeId,
+			});
 		}),
 
 	update: protectedProcedure
@@ -587,7 +190,9 @@ export const cardRouter = {
 			tags: ["Card"],
 		})
 		.input(
-			cardIdSchema.extend({
+			z.object({
+				cardId: z.string(),
+				projectId: z.string(),
 				title: z.string().min(1).optional(),
 				type: z.enum(["epic", "feature", "user_story", "bug", "task"]),
 				description: z.string().optional(),
@@ -600,50 +205,19 @@ export const cardRouter = {
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
+			await requireEditAccess(input.projectId, userId);
+
+			return callDo(context.env, input.projectId, "updateCard", {
+				cardId: input.cardId,
+				userId,
+				title: input.title,
+				type: input.type,
+				description: input.description,
+				acceptanceCriteria: input.acceptanceCriteria,
+				position: input.position,
+				assigneeId: input.assigneeId,
+				agentTriggerUrl: input.agentTriggerUrl,
 			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
-			const { cardId, ...updateData } = input;
-			const updatedCard = await db
-				.update(card)
-				.set({ ...updateData, updatedAt: new Date() })
-				.where(eq(card.id, input.cardId))
-				.returning();
-
-			for (const [field, newValue] of Object.entries(updateData)) {
-				const oldValue = cardData[field as keyof typeof cardData];
-				const oldStr =
-					oldValue !== undefined && oldValue !== null ? String(oldValue) : null;
-				const newStr =
-					newValue !== undefined && newValue !== null ? String(newValue) : null;
-
-				if (oldStr !== newStr) {
-					await logCardChange(
-						cardId,
-						userId,
-						"UPDATE",
-						field,
-						oldStr ?? undefined,
-						newStr ?? undefined
-					);
-				}
-			}
-
-			return updatedCard;
 		}),
 
 	delete: protectedProcedure
@@ -653,37 +227,15 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
+			await requireEditAccess(input.projectId, userId);
 
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
-			await logCardChange(
-				input.cardId,
+			return callDo(context.env, input.projectId, "deleteCard", {
+				cardId: input.cardId,
 				userId,
-				"DELETE",
-				null,
-				JSON.stringify(cardData),
-				null
-			);
-
-			await db.delete(card).where(eq(card.id, input.cardId));
-			return { success: true };
+			});
 		}),
 
 	move: protectedProcedure
@@ -693,46 +245,24 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema.extend({ columnId: z.string(), position: z.number() }))
+		.input(
+			z.object({
+				cardId: z.string(),
+				projectId: z.string(),
+				columnId: z.string(),
+				position: z.number(),
+			})
+		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
+			await requireEditAccess(input.projectId, userId);
+
+			return callDo(context.env, input.projectId, "moveCard", {
+				cardId: input.cardId,
+				userId,
+				newColumnId: input.columnId,
+				newPosition: input.position,
 			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
-			if (cardData.columnId !== input.columnId) {
-				await logCardChange(
-					input.cardId,
-					userId,
-					"MOVE",
-					"columnId",
-					cardData.columnId,
-					input.columnId
-				);
-			}
-
-			return await db
-				.update(card)
-				.set({
-					columnId: input.columnId,
-					position: input.position,
-					updatedAt: new Date(),
-				})
-				.where(eq(card.id, input.cardId))
-				.returning();
 		}),
 
 	triggerAgent: protectedProcedure
@@ -742,39 +272,25 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
+			await requireEditAccess(input.projectId, userId);
+
+			const cardResult = await callDo(context.env, input.projectId, "getCard", {
+				cardId: input.cardId,
 			});
 
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			if (!cardData.agentTriggerUrl) {
+			if (!cardResult.agentTriggerUrl) {
 				throw new Error("No agent trigger URL configured for this card");
 			}
 
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
 			try {
-				const response = await fetch(cardData.agentTriggerUrl, {
+				const response = await fetch(cardResult.agentTriggerUrl, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
-						cardId: cardData.id,
-						title: cardData.title,
-						description: cardData.description,
-						acceptanceCriteria: cardData.acceptanceCriteria,
+						cardId: cardResult.id,
 						triggeredBy: userId,
 					}),
 				});
@@ -796,87 +312,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
-
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			const access = await getBoardAccess(columnData.boardId, userId);
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const outgoingLinks = await db.query.cardLink.findMany({
-				where: eq(cardLink.sourceCardId, input.cardId),
+			return callDo(context.env, input.projectId, "getLinks", {
+				cardId: input.cardId,
 			});
-
-			const incomingLinks = await db.query.cardLink.findMany({
-				where: eq(cardLink.targetCardId, input.cardId),
-			});
-
-			const targetCardIds = outgoingLinks.map((l) => l.targetCardId);
-			const sourceCardIds = incomingLinks.map((l) => l.sourceCardId);
-			const allRelatedCardIds = [
-				...new Set([...targetCardIds, ...sourceCardIds]),
-			];
-
-			let relatedCards: (typeof card.$inferSelect)[] = [];
-			if (allRelatedCardIds.length > 0) {
-				relatedCards = await db
-					.select()
-					.from(card)
-					.where(inArray(card.id, allRelatedCardIds));
-			}
-
-			const cardMap = new Map(relatedCards.map((c) => [c.id, c]));
-
-			const outgoingWithDetails = outgoingLinks.map((link) => {
-				const targetCard = cardMap.get(link.targetCardId);
-				return {
-					...link,
-					targetCard: targetCard
-						? {
-								id: targetCard.id,
-								cardNumber: targetCard.cardNumber,
-								title: targetCard.title,
-								type: targetCard.type,
-							}
-						: null,
-				};
-			});
-
-			const incomingWithDetails = incomingLinks.map((link) => {
-				const sourceCard = cardMap.get(link.sourceCardId);
-				return {
-					...link,
-					sourceCard: sourceCard
-						? {
-								id: sourceCard.id,
-								cardNumber: sourceCard.cardNumber,
-								title: sourceCard.title,
-								type: sourceCard.type,
-							}
-						: null,
-				};
-			});
-
-			return {
-				outgoing: outgoingWithDetails,
-				incoming: incomingWithDetails,
-			};
 		}),
 
 	searchCards: protectedProcedure
@@ -889,51 +335,24 @@ export const cardRouter = {
 		.input(
 			z.object({
 				boardId: z.string(),
+				projectId: z.string(),
 				query: z.string(),
 				excludeCardId: z.string().optional(),
 			})
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const access = await getBoardAccess(input.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const queryNum = Number.parseInt(input.query, 10);
-
-			let cards: (typeof card.$inferSelect)[] = [];
-			if (!Number.isNaN(queryNum)) {
-				cards = await db
-					.select()
-					.from(card)
-					.where(
-						sql`${card.boardId} = ${input.boardId} AND ${card.cardNumber} = ${queryNum}${
-							input.excludeCardId
-								? sql` AND ${card.id} != ${input.excludeCardId}`
-								: sql``
-						}`
-					);
-			} else if (input.query.trim().length > 0) {
-				cards = await db
-					.select()
-					.from(card)
-					.where(
-						sql`${card.boardId} = ${input.boardId} AND LOWER(${card.title}) LIKE ${`%${input.query.toLowerCase()}%`}${
-							input.excludeCardId
-								? sql` AND ${card.id} != ${input.excludeCardId}`
-								: sql``
-						}`
-					);
-			}
-
-			return cards.map((c) => ({
-				id: c.id,
-				cardNumber: c.cardNumber,
-				title: c.title,
-				type: c.type,
-			}));
+			return callDo(context.env, input.projectId, "searchCards", {
+				boardId: input.boardId,
+				query: input.query,
+				excludeCardId: input.excludeCardId,
+				userId,
+			});
 		}),
 
 	createLink: protectedProcedure
@@ -948,79 +367,24 @@ export const cardRouter = {
 				sourceCardId: z.string(),
 				targetCardId: z.string(),
 				linkType: z.enum(cardLinkType),
+				projectId: z.string(),
 			})
 		)
-		.handler(async ({ context, input }) => {
+		.handler(({ context, input }) => {
 			const userId = context.session.user.id;
 
-			const sourceCard = await db.query.card.findFirst({
-				where: eq(card.id, input.sourceCardId),
-			});
-			if (!sourceCard) {
-				throw new Error("Source card not found");
-			}
-
-			const targetCard = await db.query.card.findFirst({
-				where: eq(card.id, input.targetCardId),
-			});
-			if (!targetCard) {
-				throw new Error("Target card not found");
-			}
-
-			if (sourceCard.boardId !== targetCard.boardId) {
-				throw new Error("Cannot link cards from different boards");
-			}
-
-			const access = await getBoardAccess(sourceCard.boardId, userId);
-			if (access === "none") {
-				throw new Error("Board not found");
-			}
-
-			const existingLink = await db
-				.select()
-				.from(cardLink)
-				.where(
-					sql`${cardLink.sourceCardId} = ${input.sourceCardId} AND ${cardLink.targetCardId} = ${input.targetCardId}`
-				);
-
-			if (existingLink.length > 0) {
-				throw new Error("Link already exists");
-			}
-
-			const reverseLink = await db
-				.select()
-				.from(cardLink)
-				.where(
-					sql`${cardLink.sourceCardId} = ${input.targetCardId} AND ${cardLink.targetCardId} = ${input.sourceCardId}`
-				);
-
-			const reverseLinkType = getReverseLinkType(
-				input.linkType
-			) as (typeof cardLinkType)[number];
-
-			await db.insert(cardLink).values({
-				id: nanoid(),
+			return callDo(context.env, input.projectId, "createLink", {
 				sourceCardId: input.sourceCardId,
 				targetCardId: input.targetCardId,
+				userId,
 				linkType: input.linkType,
 			});
-
-			if (reverseLink.length === 0) {
-				await db.insert(cardLink).values({
-					id: nanoid(),
-					sourceCardId: input.targetCardId,
-					targetCardId: input.sourceCardId,
-					linkType: reverseLinkType,
-				});
-			}
-
-			return { success: true };
 		}),
 
 	deleteLink: protectedProcedure
 		.route({
-			method: "GET",
-			path: "/api/card/{cardId}/link",
+			method: "DELETE",
+			path: "/api/card/{cardId}/link/{linkId}",
 			summary: "",
 			tags: ["Card"],
 		})
@@ -1028,43 +392,17 @@ export const cardRouter = {
 			z.object({
 				cardId: z.string(),
 				linkId: z.string(),
+				projectId: z.string(),
 			})
 		)
-		.handler(async ({ context, input }) => {
+		.handler(({ context, input }) => {
 			const userId = context.session.user.id;
 
-			const link = await db.query.cardLink.findFirst({
-				where: eq(cardLink.id, input.linkId),
+			return callDo(context.env, input.projectId, "deleteLink", {
+				cardId: input.cardId,
+				linkId: input.linkId,
+				userId,
 			});
-
-			if (
-				!link ||
-				(link.sourceCardId !== input.cardId &&
-					link.targetCardId !== input.cardId)
-			) {
-				throw new Error("Link not found");
-			}
-
-			const sourceCard = await db.query.card.findFirst({
-				where: eq(card.id, link.sourceCardId),
-			});
-
-			if (!sourceCard) {
-				throw new Error("Source card not found");
-			}
-
-			const access = await getBoardAccess(sourceCard.boardId, userId);
-			if (access === "none") {
-				throw new Error("Board not found");
-			}
-
-			await db
-				.delete(cardLink)
-				.where(
-					sql`(${cardLink.sourceCardId} = ${link.sourceCardId} AND ${cardLink.targetCardId} = ${link.targetCardId}) OR (${cardLink.sourceCardId} = ${link.targetCardId} AND ${cardLink.targetCardId} = ${link.sourceCardId})`
-				);
-
-			return { success: true };
 		}),
 
 	archive: protectedProcedure
@@ -1074,42 +412,15 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(cardIdSchema)
+		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const cardData = await db.query.card.findFirst({
-				where: eq(card.id, input.cardId),
-			});
+			await requireEditAccess(input.projectId, userId);
 
-			if (!cardData) {
-				throw new Error("Card not found");
-			}
-
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, cardData.columnId),
-			});
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
-			const updatedCard = await db
-				.update(card)
-				.set({ archivedDate: new Date(), updatedAt: new Date() })
-				.where(eq(card.id, input.cardId))
-				.returning();
-
-			await logCardChange(
-				input.cardId,
+			return callDo(context.env, input.projectId, "archiveCards", {
+				cardId: input.cardId,
 				userId,
-				"ARCHIVE",
-				null,
-				null,
-				JSON.stringify({ title: cardData.title })
-			);
-
-			return updatedCard[0];
+			});
 		}),
 
 	archiveByColumnId: protectedProcedure
@@ -1119,47 +430,15 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(columnIdSchema)
+		.input(z.object({ columnId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const columnData = await db.query.column.findFirst({
-				where: eq(column.id, input.columnId),
+			await requireEditAccess(input.projectId, userId);
+
+			return callDo(context.env, input.projectId, "archiveByColumn", {
+				columnId: input.columnId,
+				userId,
 			});
-
-			if (!columnData) {
-				throw new Error("Column not found");
-			}
-
-			await requireEditAccess(columnData.boardId, userId);
-
-			const cardsToArchive = await db.query.card.findMany({
-				where: sql`${card.columnId} = ${input.columnId} AND ${card.archivedDate} IS NULL`,
-			});
-
-			if (cardsToArchive.length === 0) {
-				return { success: true, archivedCount: 0 };
-			}
-
-			const now = new Date();
-			await db
-				.update(card)
-				.set({ archivedDate: now, updatedAt: now })
-				.where(
-					sql`${card.columnId} = ${input.columnId} AND ${card.archivedDate} IS NULL`
-				);
-
-			for (const cardData of cardsToArchive) {
-				await logCardChange(
-					cardData.id,
-					userId,
-					"ARCHIVE",
-					null,
-					null,
-					JSON.stringify({ title: cardData.title, columnName: columnData.name })
-				);
-			}
-
-			return { success: true, archivedCount: cardsToArchive.length };
 		}),
 
 	getArchivedByBoardId: protectedProcedure
@@ -1169,34 +448,17 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(boardIdSchema)
+		.input(z.object({ boardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const access = await getBoardAccess(input.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const archivedCards = await db
-				.select()
-				.from(card)
-				.where(
-					sql`${card.boardId} = ${input.boardId} AND ${card.archivedDate} IS NOT NULL`
-				);
-
-			const columnIds = [...new Set(archivedCards.map((c) => c.columnId))];
-			const columns = await db
-				.select()
-				.from(column)
-				.where(inArray(column.id, columnIds));
-
-			const columnMap = new Map(columns.map((c) => [c.id, c.name]));
-
-			return archivedCards.map((c) => ({
-				...c,
-				originalColumnName: columnMap.get(c.columnId) ?? "Unknown",
-			}));
+			return callDo(context.env, input.projectId, "getArchivedCards", {
+				boardId: input.boardId,
+			});
 		}),
 
 	unarchive: protectedProcedure
@@ -1206,81 +468,23 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(z.object({ cardIds: z.array(z.string()) }))
+		.input(z.object({ cardIds: z.array(z.string()), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-
 			if (input.cardIds.length === 0) {
 				return { success: true, unarchivedCount: 0 };
 			}
 
-			const cardsToUnarchive = await db
-				.select()
-				.from(card)
-				.where(inArray(card.id, input.cardIds));
-
-			if (cardsToUnarchive.length === 0) {
-				throw new Error("No cards found to unarchive");
+			const firstCardId = input.cardIds[0];
+			if (!firstCardId) {
+				return { success: true, unarchivedCount: 0 };
 			}
+			await requireEditAccess(input.projectId, userId);
 
-			const boardIds = [...new Set(cardsToUnarchive.map((c) => c.boardId))];
-
-			for (const boardId of boardIds) {
-				await requireEditAccess(boardId, userId);
-			}
-
-			const columnIds = [...new Set(cardsToUnarchive.map((c) => c.columnId))];
-			const columns = await db
-				.select()
-				.from(column)
-				.where(inArray(column.id, columnIds));
-
-			const columnMap = new Map(columns.map((c) => [c.id, c]));
-
-			const firstColumnMap = new Map<string, typeof column.$inferSelect>();
-			for (const boardId of boardIds) {
-				const firstColumn = await db.query.column.findFirst({
-					where: eq(column.boardId, boardId),
-					orderBy: asc(column.position),
-				});
-				if (firstColumn) {
-					firstColumnMap.set(boardId, firstColumn);
-				}
-			}
-
-			const now = new Date();
-			for (const cardData of cardsToUnarchive) {
-				const targetColumn = columnMap.get(cardData.columnId);
-				const targetColumnId = targetColumn
-					? cardData.columnId
-					: firstColumnMap.get(cardData.boardId)?.id;
-
-				if (!targetColumnId) {
-					throw new Error("No column available to unarchive card");
-				}
-
-				const isDifferentColumn = targetColumnId !== cardData.columnId;
-
-				await db
-					.update(card)
-					.set({
-						archivedDate: null,
-						columnId: targetColumnId,
-						updatedAt: now,
-					})
-					.where(eq(card.id, cardData.id));
-
-				await logCardChange(
-					cardData.id,
-					userId,
-					"UNARCHIVE",
-					isDifferentColumn ? "columnId" : null,
-					cardData.columnId,
-					targetColumnId
-				);
-			}
-
-			return { success: true, unarchivedCount: cardsToUnarchive.length };
+			return callDo(context.env, input.projectId, "unarchiveCards", {
+				cardIds: input.cardIds,
+				userId,
+			});
 		}),
 
 	getArchivedCount: protectedProcedure
@@ -1290,22 +494,16 @@ export const cardRouter = {
 			summary: "",
 			tags: ["Card"],
 		})
-		.input(boardIdSchema)
+		.input(z.object({ boardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
-			const access = await getBoardAccess(input.boardId, userId);
-
+			const access = await getProjectAccess(input.projectId, userId);
 			if (access === "none") {
 				throw new Error("Board not found");
 			}
 
-			const result = await db
-				.select({ count: card.id })
-				.from(card)
-				.where(
-					sql`${card.boardId} = ${input.boardId} AND ${card.archivedDate} IS NOT NULL`
-				);
-
-			return result.length;
+			return callDo(context.env, input.projectId, "getArchivedCount", {
+				boardId: input.boardId,
+			});
 		}),
 };

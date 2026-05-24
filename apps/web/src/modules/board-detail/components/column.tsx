@@ -1,6 +1,6 @@
+import type { Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Archive, Info, MoreHorizontal, Plus, Trash2 } from "lucide-react";
-import type { Edge } from "@atlaskit/pragmatic-drag-and-drop-hitbox/closest-edge";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import ConfirmationDialog from "@/components/confirmation-dialog";
@@ -70,16 +70,18 @@ function ColumnComponent({
 		orpc.card.archiveByColumnId.mutationOptions({
 			onSuccess: (data) => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getArchivedByBoardId.queryKey({
-						input: { boardId },
+						input: { boardId, projectId },
 					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getArchivedCount.queryKey({
-						input: { boardId },
+						input: { boardId, projectId },
 					}),
 				});
 				toast.success(`${data.archivedCount} cards archived`);
@@ -92,6 +94,7 @@ function ColumnComponent({
 		if (cards.length > 0) {
 			archiveAllCardsMutation.mutate({
 				columnId: column.id,
+				projectId,
 			});
 		}
 	};
@@ -186,6 +189,7 @@ function ColumnComponent({
 					column={column}
 					onDialogOpenClose={setIsEditColumnOpen}
 					open={isEditColumnOpen}
+					projectId={projectId}
 				/>
 			</div>
 

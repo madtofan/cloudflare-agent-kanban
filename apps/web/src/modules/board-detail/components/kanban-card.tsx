@@ -68,7 +68,7 @@ function KanbanCardComponent({
 
 	const handleTriggerAgent = () => {
 		if (card.id) {
-			triggerAgentMutation.mutate({ cardId: card.id });
+			triggerAgentMutation.mutate({ cardId: card.id, projectId });
 		}
 	};
 

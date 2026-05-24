@@ -13,7 +13,7 @@ interface ArchivedCardsListProps {
 function BoardArchivesPage({ boardId, projectId }: ArchivedCardsListProps) {
 	const navigate = useNavigate();
 	const board = useQuery(
-		orpc.board.getById.queryOptions({ input: { boardId } })
+		orpc.board.getById.queryOptions({ input: { boardId, projectId } })
 	);
 
 	return (
@@ -37,7 +37,7 @@ function BoardArchivesPage({ boardId, projectId }: ArchivedCardsListProps) {
 					</div>
 				</div>
 			</div>
-			<Archives boardId={boardId} />
+			<Archives boardId={boardId} projectId={projectId} />
 		</div>
 	);
 }

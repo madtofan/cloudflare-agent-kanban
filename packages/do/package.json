@@ -1,0 +1,28 @@
+{
+  "name": "@cloudflare-agent-kanban/do",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "check-types": "tsc -b",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@cloudflare-agent-kanban/types": "workspace:*",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare-agent-kanban/config": "workspace:*",
+    "@cloudflare/workers-types": "catalog:",
+    "drizzle-kit": "^0.31.8",
+    "typescript": "catalog:"
+  }
+}

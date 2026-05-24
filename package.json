@@ -18,6 +18,7 @@
     "dev:web": "turbo -F web dev",
     "dev:server": "turbo -F server dev",
     "db:push": "turbo -F @cloudflare-agent-kanban/db db:push",
+    "db:push:local": "turbo -F @cloudflare-agent-kanban/db db:push:local",
     "db:generate": "turbo -F @cloudflare-agent-kanban/db db:generate",
     "deploy": "turbo -F @cloudflare-agent-kanban/infra deploy",
     "destroy": "turbo -F @cloudflare-agent-kanban/infra destroy",

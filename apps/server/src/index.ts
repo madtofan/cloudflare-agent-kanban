@@ -1,3 +1,5 @@
+export { ProjectDO } from "@cloudflare-agent-kanban/do";
+
 import { createContext } from "@cloudflare-agent-kanban/api/context";
 import { appRouter } from "@cloudflare-agent-kanban/api/routers/index";
 import { auth } from "@cloudflare-agent-kanban/auth";

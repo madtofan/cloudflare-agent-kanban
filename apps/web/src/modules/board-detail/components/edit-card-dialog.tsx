@@ -1,14 +1,14 @@
+import type { OrpcOutput } from "@cloudflare-agent-kanban/api/routers/index";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CardDetailPage } from "@/modules/card-detail";
-import type { KanbanCard } from "../types";
 
 interface EditCardDialogProps {
 	boardId: string;
 	canEdit?: boolean;
-	card: KanbanCard;
+	card: { id: string; agentTriggerUrl: string | null };
 	onDeleteCard?: () => void;
 	onDialogOpenClose: (open: boolean) => void;
-	onUpdateCard?: (card: KanbanCard) => void;
+	onUpdateCard?: (card: NonNullable<OrpcOutput["card"]["update"]>) => void;
 	open: boolean;
 	projectId: string;
 }

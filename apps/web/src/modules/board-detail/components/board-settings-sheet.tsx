@@ -48,11 +48,13 @@ interface BoardSettingsSheetProps {
 	onDeleteSuccess?: () => void;
 	onOpenChange: (open: boolean) => void;
 	open: boolean;
+	projectId: string;
 	userId?: string;
 }
 
 function BoardSettingsSheet({
 	boardId,
+	projectId,
 	open,
 	onOpenChange,
 	initialData,
@@ -70,10 +72,9 @@ function BoardSettingsSheet({
 		orpc.board.update.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.board.getById.queryKey({ input: { boardId } }),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.board.getAll.queryKey(),
+					queryKey: orpc.board.getById.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				toast.success("Board updated");
 			},
@@ -84,9 +85,6 @@ function BoardSettingsSheet({
 	const deleteBoardMutation = useMutation(
 		orpc.board.delete.mutationOptions({
 			onSuccess: () => {
-				queryClient.invalidateQueries({
-					queryKey: orpc.board.getAll.queryKey(),
-				});
 				toast.success("Board deleted");
 				onDeleteSuccess?.();
 				navigate({ to: "/app/projects" });
@@ -110,6 +108,7 @@ function BoardSettingsSheet({
 		},
 		onSubmit: ({ value }) => {
 			updateBoardMutation.mutate({
+				projectId,
 				boardId,
 				name: value.name,
 				description: value.description || undefined,
@@ -125,7 +124,7 @@ function BoardSettingsSheet({
 	const confirmDelete = () => {
 		setShowDeleteConfirm(false);
 		setIsDeleting(true);
-		deleteBoardMutation.mutate({ boardId });
+		deleteBoardMutation.mutate({ projectId, boardId });
 	};
 
 	const isPublic = form.getFieldValue("visibility") === "public";

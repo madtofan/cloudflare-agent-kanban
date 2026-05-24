@@ -34,9 +34,11 @@ interface AddColumnDialogProps {
 	onCreateColumn?: (column: Column) => void;
 	onDialogOpenClose: (open: boolean) => void;
 	open: boolean;
+	projectId: string;
 }
 
 function AddColumnDialog({
+	projectId,
 	boardId,
 	open,
 	onDialogOpenClose,
@@ -48,7 +50,9 @@ function AddColumnDialog({
 		orpc.column.create.mutationOptions({
 			onSuccess: (data) => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.column.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.column.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				onCreateColumn?.(data);
 				onDialogOpenClose(false);
@@ -68,6 +72,7 @@ function AddColumnDialog({
 		},
 		onSubmit: ({ value }) => {
 			createColumnMutation.mutate({
+				projectId,
 				boardId,
 				name: value.name,
 			});

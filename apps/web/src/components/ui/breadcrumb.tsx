@@ -279,7 +279,7 @@ function generateBreadcrumbs(
 		const boardDetailPromise = new Promise<BreadcrumbInterface>(
 			(resolve, reject) => {
 				orpc.board.getById
-					.call({ boardId })
+					.call({ boardId, projectId })
 					.then((boardData) => {
 						currentBreadcrumb.label = boardData.name;
 						resolve(currentBreadcrumb);

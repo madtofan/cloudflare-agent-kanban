@@ -19,7 +19,7 @@ import type { Column, KanbanCard } from "./types";
 
 function findCardById(
 	cardsByColumn: Record<string, KanbanCard[]> | undefined,
-	cardId: string,
+	cardId: string
 ): KanbanCard | undefined {
 	if (!cardsByColumn) {
 		return undefined;
@@ -36,7 +36,7 @@ function findCardById(
 function calculateNewPosition(
 	targetCards: KanbanCard[],
 	cardId: string | null,
-	closestEdge: string | null,
+	closestEdge: string | null
 ): number {
 	if (!cardId) {
 		return targetCards.length > 0
@@ -62,7 +62,7 @@ function hasCardChanged(
 	card: KanbanCard,
 	targetColumnId: string,
 	targetCards: KanbanCard[],
-	newPosition: number,
+	newPosition: number
 ): boolean {
 	const hasColumnChanged = card.columnId !== targetColumnId;
 	const hasPositionChanged =
@@ -84,16 +84,16 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const { addBreadcrumb } = useBreadcrumb();
 
 	const board = useQuery(
-		orpc.board.getById.queryOptions({ input: { boardId } })
+		orpc.board.getById.queryOptions({ input: { boardId, projectId } })
 	);
 	const columns = useQuery(
-		orpc.column.getByBoardId.queryOptions({ input: { boardId } })
+		orpc.column.getByBoardId.queryOptions({ input: { boardId, projectId } })
 	);
 	const cardsByColumn = useQuery(
-		orpc.card.getByBoardId.queryOptions({ input: { boardId } })
+		orpc.card.getByBoardId.queryOptions({ input: { boardId, projectId } })
 	);
 	const archivedCount = useQuery(
-		orpc.card.getArchivedCount.queryOptions({ input: { boardId } })
+		orpc.card.getArchivedCount.queryOptions({ input: { boardId, projectId } })
 	);
 
 	useEffect(() => {
@@ -117,7 +117,9 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 		orpc.column.delete.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.column.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.column.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				toast.success("Column deleted");
 			},
@@ -129,7 +131,9 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 		orpc.card.move.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 			},
 			onError: (error) => toast.error(error.message),
@@ -140,7 +144,15 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	cardsByColumnDataRef.current = cardsByColumn.data;
 
 	const onDragEndCallback = useCallback(
-		({ cardId, overColumnId, closestEdge }: { cardId: string; overColumnId: string | null; closestEdge: string | null }) => {
+		({
+			cardId,
+			overColumnId,
+			closestEdge,
+		}: {
+			cardId: string;
+			overColumnId: string | null;
+			closestEdge: string | null;
+		}) => {
 			if (!overColumnId) {
 				return;
 			}
@@ -169,10 +181,11 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					cardId: sourceCard.id ?? "",
 					columnId: overColumnId,
 					position: newPosition,
+					projectId,
 				});
 			}
 		},
-		[moveKanbanCardMutation.mutate]
+		[moveKanbanCardMutation.mutate, projectId]
 	);
 
 	const { dragState } = useDragMonitor({
@@ -180,7 +193,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	});
 
 	const handleDeleteColumn = (column: Column) => {
-		deleteColumnMutation.mutate({ boardId, columnId: column.id });
+		deleteColumnMutation.mutate({ projectId, boardId, columnId: column.id });
 	};
 
 	const handleMoveCard = useCallback(
@@ -205,10 +218,11 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					cardId,
 					columnId: targetColumnId,
 					position: newPosition,
+					projectId,
 				});
 			}
 		},
-		[moveKanbanCardMutation.mutate]
+		[moveKanbanCardMutation.mutate, projectId]
 	);
 
 	if (board.isLoading || columns.isLoading) {
@@ -333,6 +347,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					boardId={boardId}
 					onDialogOpenClose={setIsAddColumnOpen}
 					open={isAddColumnOpen}
+					projectId={projectId}
 				/>
 
 				<BoardSettingsSheet
@@ -345,6 +360,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 					}}
 					onOpenChange={setIsSettingsOpen}
 					open={isSettingsOpen}
+					projectId={projectId}
 					userId={userId}
 				/>
 			</div>

@@ -8,7 +8,7 @@ export const Route = createFileRoute(
 	component: CardDetailRoute,
 	beforeLoad: async ({ params }) => {
 		const card = await orpc.card.getById
-			.call({ cardId: params.cardId })
+			.call({ cardId: params.cardId, projectId: params.projectId })
 			.catch(() => {
 				throw notFound();
 			});

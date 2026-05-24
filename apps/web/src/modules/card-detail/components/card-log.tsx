@@ -5,12 +5,13 @@ import { formatDate, getActionLabel } from "../utils";
 
 interface CardLogProps {
 	cardId?: string;
+	projectId: string;
 }
 
-function CardLog({ cardId }: CardLogProps) {
+function CardLog({ cardId, projectId }: CardLogProps) {
 	const { data: history, isLoading: isHistoryLoading } = useQuery(
 		orpc.card.getHistory.queryOptions({
-			input: { cardId: cardId ?? "" },
+			input: { cardId: cardId ?? "", projectId },
 			enabled: !!cardId,
 		})
 	);

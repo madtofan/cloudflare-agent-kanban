@@ -33,6 +33,7 @@ function PageContent() {
 		selectedItem,
 		isEditing,
 		isLoadingCurrentPage,
+		projectId,
 		updateIsEditing,
 		updateSelectedItem,
 		refetchCurrentPage,
@@ -79,6 +80,7 @@ function PageContent() {
 			return;
 		}
 		updatePageMutation.mutate({
+			projectId,
 			pageId: selectedItem.id,
 			title: editTitle,
 			content: editContent,
@@ -90,7 +92,7 @@ function PageContent() {
 		if (selectedItem?.type !== "Page") {
 			return;
 		}
-		deletePageMutation.mutate({ pageId: selectedItem.id });
+		deletePageMutation.mutate({ projectId, pageId: selectedItem.id });
 	};
 
 	const handleCancelEdit = () => {

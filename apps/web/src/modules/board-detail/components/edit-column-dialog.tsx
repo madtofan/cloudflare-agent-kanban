@@ -36,6 +36,7 @@ interface EditColumnDialogProps {
 	onDialogOpenClose: (open: boolean) => void;
 	onEditColumn?: (column: Column) => void;
 	open: boolean;
+	projectId: string;
 }
 
 function EditColumnDialog({
@@ -43,25 +44,26 @@ function EditColumnDialog({
 	open,
 	onDialogOpenClose,
 	onEditColumn,
+	projectId,
 }: EditColumnDialogProps) {
 	const queryClient = useQueryClient();
 
 	const updateColumnMutation = useMutation(
 		orpc.column.update.mutationOptions({
 			onSuccess: (data) => {
-				const updatedColumn = data.find(Boolean);
 				queryClient.invalidateQueries({
 					queryKey: orpc.column.getByBoardId.queryKey({
 						input: {
+							projectId,
 							boardId: column.boardId,
 						},
 					}),
 				});
-				if (!updatedColumn) {
+				if (!data) {
 					return;
 				}
 				onDialogOpenClose(false);
-				onEditColumn?.(updatedColumn);
+				onEditColumn?.(data);
 				form.reset();
 				toast.success("Column updated");
 			},
@@ -79,6 +81,7 @@ function EditColumnDialog({
 		},
 		onSubmit: ({ value }) => {
 			updateColumnMutation.mutate({
+				projectId,
 				boardId: column.boardId,
 				columnId: column.id,
 				name: value.name,

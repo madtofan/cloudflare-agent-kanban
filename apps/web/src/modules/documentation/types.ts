@@ -11,9 +11,13 @@ export interface PageWithAuthor {
 		id: string;
 		name: string;
 		image: string | null;
-	};
+		email: string;
+	} | null;
+	content: string;
+	createdAt: Date;
 	folderId: string | null;
 	id: string;
+	position: number;
 	title: string;
 	updatedAt: Date;
 	visibility: "public" | "private";

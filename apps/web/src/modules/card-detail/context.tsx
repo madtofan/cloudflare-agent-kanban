@@ -10,7 +10,6 @@ import {
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
-import type { KanbanCard } from "./types";
 
 interface BoardDetailContextType {
 	boardId: string;
@@ -19,7 +18,7 @@ interface BoardDetailContextType {
 	currentUser: { id: string; name: string | null; image: string | null } | null;
 	isTriggeringCard: boolean;
 	projectId: string;
-	triggerCardAgent: (card: KanbanCard) => void;
+	triggerCardAgent: (card: { id: string }) => void;
 }
 
 const BoardDetailContext = createContext<BoardDetailContextType>({
@@ -65,12 +64,12 @@ export function BoardDetailProvider({
 	);
 
 	const handleTriggerAgent = useCallback(
-		(card: KanbanCard) => {
+		(card: { id: string }) => {
 			if (card.id) {
-				triggerAgentMutation.mutate({ cardId: card.id });
+				triggerAgentMutation.mutate({ cardId: card.id, projectId });
 			}
 		},
-		[triggerAgentMutation.mutate]
+		[projectId, triggerAgentMutation.mutate]
 	);
 
 	const currentUser = useMemo(

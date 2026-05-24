@@ -28,6 +28,7 @@ interface CardSearchModalProps {
 	excludeCardId?: string;
 	onClose: () => void;
 	onSelect: (cardId: string) => void;
+	projectId: string;
 }
 
 export default function CardSearchModal({
@@ -35,13 +36,14 @@ export default function CardSearchModal({
 	excludeCardId,
 	onClose,
 	onSelect,
+	projectId,
 }: CardSearchModalProps) {
 	const [query, setQuery] = useState("");
 	const debouncedQuery = useDebounce(query, 300);
 
 	const { data: searchResults, isLoading } = useQuery(
 		orpc.card.searchCards.queryOptions({
-			input: { boardId, query: debouncedQuery, excludeCardId },
+			input: { boardId, projectId, query: debouncedQuery, excludeCardId },
 			enabled: debouncedQuery.length > 0,
 		})
 	);

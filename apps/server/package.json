@@ -11,6 +11,7 @@
     "@cloudflare-agent-kanban/api": "workspace:*",
     "@cloudflare-agent-kanban/auth": "workspace:*",
     "@cloudflare-agent-kanban/db": "workspace:*",
+    "@cloudflare-agent-kanban/do": "workspace:*",
     "@cloudflare-agent-kanban/env": "workspace:*",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

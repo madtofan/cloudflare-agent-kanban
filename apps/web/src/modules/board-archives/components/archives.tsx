@@ -31,9 +31,10 @@ interface ArchivedCard {
 
 interface ArchivesProps {
 	boardId: string;
+	projectId: string;
 }
 
-function Archives({ boardId }: ArchivesProps) {
+function Archives({ boardId, projectId }: ArchivesProps) {
 	const queryClient = useQueryClient();
 	const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 	const [columnFilter, setColumnFilter] = useState<string>("");
@@ -42,7 +43,9 @@ function Archives({ boardId }: ArchivesProps) {
 	const [showDateDropdown, setShowDateDropdown] = useState(false);
 
 	const archivedCards = useQuery(
-		orpc.card.getArchivedByBoardId.queryOptions({ input: { boardId } })
+		orpc.card.getArchivedByBoardId.queryOptions({
+			input: { boardId, projectId },
+		})
 	);
 
 	const formatDate = useCallback((date: Date | null | undefined) => {
@@ -62,16 +65,18 @@ function Archives({ boardId }: ArchivesProps) {
 		orpc.card.unarchive.mutationOptions({
 			onSuccess: (data) => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getArchivedByBoardId.queryKey({
-						input: { boardId },
+						input: { boardId, projectId },
 					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getArchivedCount.queryKey({
-						input: { boardId },
+						input: { boardId, projectId },
 					}),
 				});
 				setRowSelection({});
@@ -189,7 +194,7 @@ function Archives({ boardId }: ArchivesProps) {
 			toast.error("No cards selected");
 			return;
 		}
-		unarchiveMutation.mutate({ cardIds: selectedIds });
+		unarchiveMutation.mutate({ cardIds: selectedIds, projectId });
 	};
 
 	const clearColumnFilter = () => setColumnFilter("");

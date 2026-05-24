@@ -1,3 +1,4 @@
+import type { OrpcOutput } from "@cloudflare-agent-kanban/api/routers/index";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Archive, Trash2, Zap } from "lucide-react";
 import { useState } from "react";
@@ -14,15 +15,14 @@ import CardLinks from "./components/card-links";
 import CardLog from "./components/card-log";
 import type { cardFormSchema } from "./constants";
 import { useBoardDetailContext } from "./context";
-import type { KanbanCard } from "./types";
 
 interface CardDetailProps {
 	boardId: string;
 	canEdit?: boolean;
-	card: KanbanCard;
+	card: { id: string; agentTriggerUrl: string | null };
 	onDeleteCard?: () => void;
 	onDialogOpenClose: (open: boolean) => void;
-	onUpdateCard?: (card: KanbanCard) => void;
+	onUpdateCard?: (card: NonNullable<OrpcOutput["card"]["update"]>) => void;
 	projectId: string;
 }
 
@@ -41,7 +41,7 @@ function CardDetailPage({
 
 	const { data: cardDetail, isFetching } = useQuery(
 		orpc.card.getById.queryOptions({
-			input: { cardId: card.id ?? "" },
+			input: { cardId: card.id ?? "", projectId },
 			enabled: !!card.id,
 		})
 	);
@@ -50,7 +50,9 @@ function CardDetailPage({
 		orpc.card.delete.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				onDeleteCard?.();
 				onDialogOpenClose(false);
@@ -64,11 +66,13 @@ function CardDetailPage({
 		orpc.card.archive.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getArchivedByBoardId.queryKey({
-						input: { boardId },
+						input: { boardId, projectId },
 					}),
 				});
 				onDialogOpenClose(false);
@@ -81,24 +85,22 @@ function CardDetailPage({
 	const editKanbanCardMutation = useMutation(
 		orpc.card.update.mutationOptions({
 			onSuccess: (data) => {
-				const updatedCard = data.find(Boolean);
-				if (!updatedCard) {
-					return;
-				}
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getById.queryKey({
-						input: { cardId: card?.id ?? "" },
+						input: { cardId: card?.id ?? "", projectId },
 					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getHistory.queryKey({
-						input: { cardId: card.id ?? "" },
+						input: { cardId: card.id ?? "", projectId },
 					}),
 				});
-				onUpdateCard?.(updatedCard);
+				onUpdateCard?.(data);
 				toast.success("Card updated");
 				setForceRerender((prev) => !prev);
 			},
@@ -113,6 +115,7 @@ function CardDetailPage({
 
 		editKanbanCardMutation.mutate({
 			cardId: card.id,
+			projectId,
 			title: value.title,
 			type: value.type,
 			description: value.description,
@@ -126,12 +129,12 @@ function CardDetailPage({
 			return;
 		}
 
-		deleteKanbanCardMutation.mutate({ cardId: card.id });
+		deleteKanbanCardMutation.mutate({ cardId: card.id, projectId });
 	};
 
 	const handleArchiveCard = () => {
 		if (card.id) {
-			archiveKanbanCardMutation.mutate({ cardId: card.id });
+			archiveKanbanCardMutation.mutate({ cardId: card.id, projectId });
 		}
 	};
 
@@ -222,19 +225,27 @@ function CardDetailPage({
 					className="max-h-max flex-1 overflow-auto border-t pt-4"
 					value="links"
 				>
-					<CardLinks boardId={boardId} cardId={card.id ?? ""} />
+					<CardLinks
+						boardId={boardId}
+						cardId={card.id ?? ""}
+						projectId={projectId}
+					/>
 				</TabsContent>
 				<TabsContent
 					className="max-h-max flex-1 overflow-auto border-t pt-4"
 					value="comments"
 				>
-					<CardComments boardId={boardId} cardId={card.id} />
+					<CardComments
+						boardId={boardId}
+						cardId={card.id}
+						projectId={projectId}
+					/>
 				</TabsContent>
 				<TabsContent
 					className="max-h-max flex-1 overflow-auto border-t pt-4"
 					value="history"
 				>
-					<CardLog cardId={card.id} />
+					<CardLog cardId={card.id} projectId={projectId} />
 				</TabsContent>
 			</Tabs>
 		</div>

@@ -91,7 +91,7 @@ function SidebarProjectList() {
 				<SidebarMenuButton
 					className={cn(
 						"py-6",
-						active && "border-sidebar-foreground border-l-4 pl-4",
+						active && "border-sidebar-foreground border-l-4 pl-4"
 					)}
 					isActive={active}
 					onClick={() => handleProjectClick(project.id)}
@@ -100,7 +100,7 @@ function SidebarProjectList() {
 					<span>{project.name}</span>
 				</SidebarMenuButton>
 				<SidebarMenuAction
-					className={cn("transition-transform mt-2", isExpanded && "rotate-90")}
+					className={cn("mt-2 transition-transform", isExpanded && "rotate-90")}
 					onClick={() => toggleProject(project.id)}
 					showOnHover={false}
 				>

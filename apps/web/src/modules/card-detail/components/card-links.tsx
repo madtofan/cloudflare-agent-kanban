@@ -24,26 +24,35 @@ const linkTypeLabels: Record<string, string> = {
 interface CardLinksProps {
 	boardId: string;
 	cardId: string;
+	projectId: string;
 }
 
-export default function CardLinks({ cardId, boardId }: CardLinksProps) {
+export default function CardLinks({
+	cardId,
+	boardId,
+	projectId,
+}: CardLinksProps) {
 	const queryClient = useQueryClient();
 	const [showSearchModal, setShowSearchModal] = useState(false);
 	const [selectedLinkType, setSelectedLinkType] =
 		useState<string>("relates_to");
 
 	const { data: linksData, isLoading } = useQuery(
-		orpc.card.getLinks.queryOptions({ input: { cardId } })
+		orpc.card.getLinks.queryOptions({ input: { cardId, projectId } })
 	);
 
 	const createLinkMutation = useMutation(
 		orpc.card.createLink.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getLinks.queryKey({ input: { cardId } }),
+					queryKey: orpc.card.getLinks.queryKey({
+						input: { cardId, projectId },
+					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				setShowSearchModal(false);
 				toast.success("Link created");
@@ -56,10 +65,14 @@ export default function CardLinks({ cardId, boardId }: CardLinksProps) {
 		orpc.card.deleteLink.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getLinks.queryKey({ input: { cardId } }),
+					queryKey: orpc.card.getLinks.queryKey({
+						input: { cardId, projectId },
+					}),
 				});
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				toast.success("Link removed");
 			},
@@ -72,11 +85,12 @@ export default function CardLinks({ cardId, boardId }: CardLinksProps) {
 			sourceCardId: cardId,
 			targetCardId,
 			linkType: selectedLinkType as CardLinkType,
+			projectId,
 		});
 	};
 
 	const handleDeleteLink = (linkId: string) => {
-		deleteLinkMutation.mutate({ cardId, linkId });
+		deleteLinkMutation.mutate({ cardId, linkId, projectId });
 	};
 
 	if (isLoading) {
@@ -203,6 +217,7 @@ export default function CardLinks({ cardId, boardId }: CardLinksProps) {
 					excludeCardId={cardId}
 					onClose={() => setShowSearchModal(false)}
 					onSelect={handleLinkCreated}
+					projectId={projectId}
 				/>
 			)}
 		</div>

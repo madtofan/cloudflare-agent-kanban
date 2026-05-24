@@ -20,9 +20,10 @@ import { formatDate } from "../utils";
 interface CardCommentsProps {
 	boardId: string;
 	cardId?: string;
+	projectId: string;
 }
 
-function CardComments({ boardId, cardId }: CardCommentsProps) {
+function CardComments({ boardId, cardId, projectId }: CardCommentsProps) {
 	const queryClient = useQueryClient();
 	const { currentUser, boardOwnerId, boardMemberRole } =
 		useBoardDetailContext();
@@ -31,7 +32,7 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 
 	const { data: comments, isLoading } = useQuery(
 		orpc.card.getComments.queryOptions({
-			input: { cardId: cardId ?? "" },
+			input: { cardId: cardId ?? "", projectId },
 			enabled: !!cardId,
 		})
 	);
@@ -41,13 +42,14 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 			onSuccess: () => {
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getComments.queryKey({
-						input: { cardId: cardId ?? "" },
+						input: { cardId: cardId ?? "", projectId },
 					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getByBoardId.queryKey({
 						input: {
 							boardId,
+							projectId,
 						},
 					}),
 				});
@@ -63,13 +65,14 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 			onSuccess: () => {
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getComments.queryKey({
-						input: { cardId: cardId ?? "" },
+						input: { cardId: cardId ?? "", projectId },
 					}),
 				});
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getByBoardId.queryKey({
 						input: {
 							boardId,
+							projectId,
 						},
 					}),
 				});
@@ -83,7 +86,11 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 		if (!(cardId && commentContent.trim())) {
 			return;
 		}
-		createCommentMutation.mutate({ cardId, content: commentContent });
+		createCommentMutation.mutate({
+			cardId,
+			content: commentContent,
+			projectId,
+		});
 	};
 
 	const handleDeleteComment = (commentId: string) => {
@@ -92,7 +99,7 @@ function CardComments({ boardId, cardId }: CardCommentsProps) {
 
 	const confirmDeleteComment = () => {
 		if (deleteCommentId) {
-			deleteCommentMutation.mutate({ cardId: deleteCommentId });
+			deleteCommentMutation.mutate({ cardId: deleteCommentId, projectId });
 			setDeleteCommentId(null);
 		}
 	};

@@ -1,6 +1,12 @@
 // biome-ignore-all lint/style/noNonNullAssertion: Infra works
 import alchemy from "alchemy";
-import { D1Database, R2Bucket, Vite, Worker } from "alchemy/cloudflare";
+import {
+	D1Database,
+	DurableObjectNamespace,
+	R2Bucket,
+	Vite,
+	Worker,
+} from "alchemy/cloudflare";
 import { config } from "dotenv";
 
 config({
@@ -27,6 +33,11 @@ const db = await D1Database("database", {
 
 const r2Bucket = await R2Bucket("profile-images");
 
+const projectDo = await DurableObjectNamespace("PROJECT_DO", {
+	className: "ProjectDO",
+	sqlite: true,
+});
+
 export const web = await Vite("web", {
 	cwd: "../../apps/web",
 	assets: "dist",
@@ -52,6 +63,7 @@ export const server = await Worker("server", {
 		CONTACT_EMAIL_TO: alchemy.env.CONTACT_EMAIL_TO!,
 		GOOGLE_CLIENT_ID: alchemy.env.GOOGLE_CLIENT_ID!,
 		GOOGLE_CLIENT_SECRET: alchemy.secret.env.GOOGLE_CLIENT_SECRET!,
+		PROJECT_DO: projectDo,
 	},
 	dev: {
 		port: 3000,

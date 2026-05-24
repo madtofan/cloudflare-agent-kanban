@@ -21,6 +21,7 @@ interface DocumentationContextType {
 	isLoadingFolders: boolean;
 	isLoadingPages: boolean;
 	pages?: OrpcOutput["documentation"]["getPages"];
+	projectId: string;
 	refetchCurrentPage: () => void;
 	refetchFolder: () => void;
 	refetchPages: () => void;
@@ -40,6 +41,7 @@ const DocumentationContext = createContext<DocumentationContextType>({
 	refetchPages: () => {},
 	updateSelectedItem: () => {},
 	updateIsEditing: () => {},
+	projectId: "",
 });
 
 export const useDocumentationContext = () => {
@@ -73,7 +75,7 @@ export function DocumentationProvider({
 		isLoading: isLoadingCurrentPage,
 	} = useQuery(
 		orpc.documentation.getPage.queryOptions({
-			input: { pageId: selectedItem?.id ?? "" },
+			input: { projectId, pageId: selectedItem?.id ?? "" },
 			enabled: selectedItem?.type === "Page",
 		})
 	);
@@ -101,6 +103,7 @@ export function DocumentationProvider({
 			isLoadingPages,
 			isLoadingCurrentPage,
 			pages,
+			projectId,
 			refetchCurrentPage,
 			refetchFolder,
 			refetchPages,
@@ -116,6 +119,7 @@ export function DocumentationProvider({
 			isLoadingPages,
 			isLoadingCurrentPage,
 			pages,
+			projectId,
 			refetchCurrentPage,
 			refetchFolder,
 			refetchPages,

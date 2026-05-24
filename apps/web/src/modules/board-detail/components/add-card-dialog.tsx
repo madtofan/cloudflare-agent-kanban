@@ -1,3 +1,4 @@
+import type { OrpcOutput } from "@cloudflare-agent-kanban/api/routers/index";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type z from "zod";
@@ -10,12 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { CardForm, type cardFormSchema } from "@/modules/card-detail";
 import { orpc } from "@/utils/orpc";
-import type { KanbanCard } from "../types";
 
 interface AddCardDialogProps {
 	boardId: string;
 	columnId?: string;
-	onCreateCard?: (card: KanbanCard) => void;
+	onCreateCard?: (card: NonNullable<OrpcOutput["card"]["create"]>) => void;
 	onDialogOpenClose: (open: boolean) => void;
 	open: boolean;
 	projectId: string;
@@ -35,7 +35,9 @@ function AddCardDialog({
 		orpc.card.create.mutationOptions({
 			onSuccess: (data) => {
 				queryClient.invalidateQueries({
-					queryKey: orpc.card.getByBoardId.queryKey({ input: { boardId } }),
+					queryKey: orpc.card.getByBoardId.queryKey({
+						input: { boardId, projectId },
+					}),
 				});
 				onDialogOpenClose(false);
 				onCreateCard?.(data);
@@ -52,6 +54,7 @@ function AddCardDialog({
 
 		createKanbanCardMutation.mutate({
 			title: value.title,
+			projectId,
 			type: value.type,
 			description: value.description,
 			acceptanceCriteria: value.acceptanceCriteria,

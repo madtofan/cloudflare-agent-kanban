@@ -1,13 +1,13 @@
 import { db } from "@cloudflare-agent-kanban/db";
 import { user as userTable } from "@cloudflare-agent-kanban/db/schema/auth";
 import {
-	board,
 	project,
 	projectMember,
 } from "@cloudflare-agent-kanban/db/schema/kanban";
 import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import z from "zod";
+import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
 import { getProjectAccess, type ProjectAccess } from "../utils";
 
@@ -118,11 +118,7 @@ export const projectRouter = {
 				throw new Error("Project not found");
 			}
 
-			const boards = await db.query.board.findMany({
-				where: eq(board.projectId, input.projectId),
-			});
-
-			return boards;
+			return callDo(context.env, input.projectId, "getBoards");
 		}),
 
 	create: protectedProcedure

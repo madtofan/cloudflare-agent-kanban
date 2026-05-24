@@ -12,8 +12,8 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import SidebarProjectList from "./sidebar-project-list";
 import SidebarCreateProject from "./sidebar-create-project";
+import SidebarProjectList from "./sidebar-project-list";
 import SidebarUserDropdown from "./sidebar-user-dropdown";
 
 function AppSidebar() {
@@ -53,7 +53,6 @@ function AppSidebar() {
 						<SidebarMenu>
 							<SidebarProjectList />
 							<SidebarCreateProject />
-
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
