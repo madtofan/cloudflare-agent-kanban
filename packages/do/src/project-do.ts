@@ -723,6 +723,7 @@ export class ProjectDO implements DurableObject {
 					title: schema.card.title,
 					type: schema.card.type,
 					position: schema.card.position,
+					assigneeId: schema.card.assigneeId,
 					agentTriggerUrl: schema.card.agentTriggerUrl,
 					cardCommentCount: sql<number>`(SELECT COUNT(*) FROM card_comment WHERE card_id = card.id)`,
 					cardLinkCount: sql<number>`(SELECT COUNT(*) FROM card_link WHERE source_card_id = card.id)`,

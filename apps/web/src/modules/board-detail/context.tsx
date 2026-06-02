@@ -1,4 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
+import type { OrpcOutput } from "@cloudflare-agent-kanban/api/routers/index";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
 	createContext,
 	type ReactElement,
@@ -12,6 +13,8 @@ import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 import type { Column } from "./types";
 
+type ProjectMembers = OrpcOutput["project"]["getMembers"];
+
 interface BoardDetailContextType {
 	boardId: string;
 	boardMemberRole: "admin" | "member" | null;
@@ -21,6 +24,8 @@ interface BoardDetailContextType {
 	isTriggeringCard: boolean;
 	moveCard: (cardId: string, targetColumnId: string) => void;
 	projectId: string;
+	projectMembers: ProjectMembers | undefined;
+	projectMembersLoading: boolean;
 	triggerCardAgent: (card: { id: string }) => void;
 }
 
@@ -38,6 +43,8 @@ const BoardDetailContext = createContext<BoardDetailContextType>({
 	currentUser: null,
 	boardOwnerId: null,
 	boardMemberRole: null,
+	projectMembers: undefined,
+	projectMembersLoading: false,
 });
 
 export const useBoardDetailContext = () => {
@@ -65,6 +72,10 @@ export function BoardDetailProvider({
 	moveCard,
 }: BoardDetailProviderProps): ReactElement {
 	const { data: session } = authClient.useSession();
+
+	const { data: projectMembers, isLoading: projectMembersLoading } = useQuery(
+		orpc.project.getMembers.queryOptions({ input: { projectId } })
+	);
 	const triggerAgentMutation = useMutation(
 		orpc.card.triggerAgent.mutationOptions({
 			onSuccess: () => {
@@ -106,6 +117,8 @@ export function BoardDetailProvider({
 			currentUser,
 			boardOwnerId,
 			boardMemberRole,
+			projectMembers,
+			projectMembersLoading,
 		}),
 		[
 			boardId,
@@ -117,6 +130,8 @@ export function BoardDetailProvider({
 			currentUser,
 			boardOwnerId,
 			boardMemberRole,
+			projectMembers,
+			projectMembersLoading,
 		]
 	);
 

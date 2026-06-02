@@ -194,7 +194,9 @@ export const cardRouter = {
 				cardId: z.string(),
 				projectId: z.string(),
 				title: z.string().min(1).optional(),
-				type: z.enum(["epic", "feature", "user_story", "bug", "task"]),
+				type: z
+					.enum(["epic", "feature", "user_story", "bug", "task"])
+					.optional(),
 				description: z.string().optional(),
 				acceptanceCriteria: z.string().optional(),
 				columnId: z.string().optional(),

@@ -10,9 +10,9 @@
     }
   },
   "scripts": {
-    "dev": "export LOCAL_DB_PATH=$(find ../../.alchemy -name \"*.sqlite\" | head -n 1) && drizzle-kit studio",
+    "dev": "export LOCAL_DB_PATH=$(find ../../.alchemy/miniflare/v3/d1 -name \"*.sqlite\" | head -n 1) && drizzle-kit studio",
     "db:push": "drizzle-kit push",
-    "db:push:local": "export LOCAL_DB_PATH=$(find ../../.alchemy -name \"*.sqlite\" | head -n 1) && drizzle-kit push",
+    "db:push:local": "export LOCAL_DB_PATH=$(find ../../.alchemy/miniflare/v3/d1 -name d1 \"*.sqlite\" | head -n 1) && drizzle-kit push",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

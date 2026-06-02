@@ -106,6 +106,7 @@ export interface PageData {
 
 interface CardSummary {
 	agentTriggerUrl: string | null;
+	assigneeId: string | null;
 	cardCommentCount: number;
 	cardLinkCount: number;
 	cardNumber: number;

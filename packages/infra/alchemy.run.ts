@@ -33,7 +33,7 @@ const db = await D1Database("database", {
 
 const r2Bucket = await R2Bucket("profile-images");
 
-const projectDo = await DurableObjectNamespace("PROJECT_DO", {
+const projectDo = DurableObjectNamespace("PROJECT_DO", {
 	className: "ProjectDO",
 	sqlite: true,
 });

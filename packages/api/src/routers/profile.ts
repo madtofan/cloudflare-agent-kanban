@@ -12,7 +12,7 @@ import { protectedProcedure, publicProcedure } from "../index";
 const usernameRegex = /^[a-z0-9_-]{6,30}$/;
 
 const updateProfileSchema = z.object({
-	aboutMe: z.string().max(500).optional(),
+	aboutMe: z.string().optional(),
 	showcasedProjectIds: z.array(z.string()).optional(),
 });
 

@@ -51,7 +51,7 @@ function AboutMe({
 		return (
 			<div className="space-y-2">
 				<RichTextEditor
-					className="min-h-[200px]"
+					className="min-h-50"
 					onChange={setAboutMeValue}
 					placeholder="Tell others about yourself..."
 					value={aboutMeValue}
