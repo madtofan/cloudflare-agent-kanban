@@ -166,6 +166,7 @@ export function RichTextEditor({
 		<div
 			className={cn(
 				"prose prose-sm dark:prose-invert max-w-none border-b",
+				resolvedTheme === "dark" && "dark-theme",
 				isFocused && "ring-2 ring-ring ring-offset-2 ring-offset-background",
 				className
 			)}

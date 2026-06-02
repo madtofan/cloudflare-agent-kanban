@@ -53,11 +53,11 @@ function ColumnComponent({
 
 	const droppableData = useMemo(
 		() => ({ type: "column", columnId: column.id }),
-		[column.id]
+		[column.id],
 	);
 	const droppableAllowedEdges = useMemo<Edge[]>(
 		() => ["top", "bottom", "left", "right"],
-		[]
+		[],
 	);
 
 	const { ref: columnRef } = useDroppable<HTMLDivElement>({
@@ -79,15 +79,10 @@ function ColumnComponent({
 						input: { boardId, projectId },
 					}),
 				});
-				queryClient.invalidateQueries({
-					queryKey: orpc.card.getArchivedCount.queryKey({
-						input: { boardId, projectId },
-					}),
-				});
 				toast.success(`${data.archivedCount} cards archived`);
 			},
 			onError: (error) => toast.error(error.message),
-		})
+		}),
 	);
 
 	const handleArchiveAllCards = () => {

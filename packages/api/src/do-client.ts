@@ -146,7 +146,6 @@ export interface DoMethodReturnTypes {
 	deleteLink: { success: boolean };
 	deletePage: { success: boolean };
 	getArchivedCards: ArchivedCard[];
-	getArchivedCount: number;
 	getBoard: BoardData;
 	getBoards: BoardData[];
 	getCard: CardData & { labels: CardLabelData[] };
@@ -179,7 +178,7 @@ export async function callDo<T extends keyof DoMethodReturnTypes>(
 	env: Record<string, unknown>,
 	projectId: string,
 	method: T,
-	params: Record<string, unknown> = {}
+	params: Record<string, unknown> = {},
 ): Promise<DoMethodReturnTypes[T]> {
 	if (!projectId) {
 		throw new Error("projectId is required");
@@ -198,7 +197,7 @@ export async function callDo<T extends keyof DoMethodReturnTypes>(
 	};
 	if (!response.ok) {
 		throw new Error(
-			(data as { message: string }).message ?? "DO request failed"
+			(data as { message: string }).message ?? "DO request failed",
 		);
 	}
 	return data;

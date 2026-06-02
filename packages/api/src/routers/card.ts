@@ -118,7 +118,7 @@ export const cardRouter = {
 				cardId: z.string(),
 				content: z.string().min(1),
 				projectId: z.string(),
-			})
+			}),
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
@@ -164,7 +164,7 @@ export const cardRouter = {
 				description: z.string().optional(),
 				acceptanceCriteria: z.string().optional(),
 				assigneeId: z.string().optional(),
-			})
+			}),
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
@@ -203,7 +203,7 @@ export const cardRouter = {
 				position: z.number().optional(),
 				assigneeId: z.string().nullable().optional(),
 				agentTriggerUrl: z.string().nullable().optional(),
-			})
+			}),
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
@@ -253,7 +253,7 @@ export const cardRouter = {
 				projectId: z.string(),
 				columnId: z.string(),
 				position: z.number(),
-			})
+			}),
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
@@ -340,7 +340,7 @@ export const cardRouter = {
 				projectId: z.string(),
 				query: z.string(),
 				excludeCardId: z.string().optional(),
-			})
+			}),
 		)
 		.handler(async ({ context, input }) => {
 			const userId = context.session.user.id;
@@ -370,7 +370,7 @@ export const cardRouter = {
 				targetCardId: z.string(),
 				linkType: z.enum(cardLinkType),
 				projectId: z.string(),
-			})
+			}),
 		)
 		.handler(({ context, input }) => {
 			const userId = context.session.user.id;
@@ -395,7 +395,7 @@ export const cardRouter = {
 				cardId: z.string(),
 				linkId: z.string(),
 				projectId: z.string(),
-			})
+			}),
 		)
 		.handler(({ context, input }) => {
 			const userId = context.session.user.id;
@@ -486,26 +486,6 @@ export const cardRouter = {
 			return callDo(context.env, input.projectId, "unarchiveCards", {
 				cardIds: input.cardIds,
 				userId,
-			});
-		}),
-
-	getArchivedCount: protectedProcedure
-		.route({
-			method: "GET",
-			path: "/api/board/{boardId}/card/archived/count",
-			summary: "",
-			tags: ["Card"],
-		})
-		.input(z.object({ boardId: z.string(), projectId: z.string() }))
-		.handler(async ({ context, input }) => {
-			const userId = context.session.user.id;
-			const access = await getProjectAccess(input.projectId, userId);
-			if (access === "none") {
-				throw new Error("Board not found");
-			}
-
-			return callDo(context.env, input.projectId, "getArchivedCount", {
-				boardId: input.boardId,
 			});
 		}),
 };

@@ -52,7 +52,7 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "board_ownerId_idx" ON "board" ("owner_id");`
+			`CREATE INDEX IF NOT EXISTS "board_ownerId_idx" ON "board" ("owner_id");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "board_member" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -63,13 +63,13 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "board_member_boardId_idx" ON "board_member" ("board_id");`
+			`CREATE INDEX IF NOT EXISTS "board_member_boardId_idx" ON "board_member" ("board_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "board_member_userId_idx" ON "board_member" ("user_id");`
+			`CREATE INDEX IF NOT EXISTS "board_member_userId_idx" ON "board_member" ("user_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "board_member_unique_idx" ON "board_member" ("board_id","user_id");`
+			`CREATE INDEX IF NOT EXISTS "board_member_unique_idx" ON "board_member" ("board_id","user_id");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "card" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -89,16 +89,16 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_columnId_idx" ON "card" ("column_id");`
+			`CREATE INDEX IF NOT EXISTS "card_columnId_idx" ON "card" ("column_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_position_idx" ON "card" ("column_id","position");`
+			`CREATE INDEX IF NOT EXISTS "card_position_idx" ON "card" ("column_id","position");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_assigneeId_idx" ON "card" ("assignee_id");`
+			`CREATE INDEX IF NOT EXISTS "card_assigneeId_idx" ON "card" ("assignee_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_boardId_idx" ON "card" ("board_id");`
+			`CREATE INDEX IF NOT EXISTS "card_boardId_idx" ON "card" ("board_id");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "card_comment" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -109,10 +109,10 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_comment_cardId_idx" ON "card_comment" ("card_id");`
+			`CREATE INDEX IF NOT EXISTS "card_comment_cardId_idx" ON "card_comment" ("card_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_comment_createdAt_idx" ON "card_comment" ("created_at");`
+			`CREATE INDEX IF NOT EXISTS "card_comment_createdAt_idx" ON "card_comment" ("created_at");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "card_history" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -126,10 +126,10 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_history_cardId_idx" ON "card_history" ("card_id");`
+			`CREATE INDEX IF NOT EXISTS "card_history_cardId_idx" ON "card_history" ("card_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_history_createdAt_idx" ON "card_history" ("created_at");`
+			`CREATE INDEX IF NOT EXISTS "card_history_createdAt_idx" ON "card_history" ("created_at");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "card_label" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -140,7 +140,7 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_label_cardId_idx" ON "card_label" ("card_id");`
+			`CREATE INDEX IF NOT EXISTS "card_label_cardId_idx" ON "card_label" ("card_id");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "card_link" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -151,13 +151,13 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_link_sourceCardId_idx" ON "card_link" ("source_card_id");`
+			`CREATE INDEX IF NOT EXISTS "card_link_sourceCardId_idx" ON "card_link" ("source_card_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_link_targetCardId_idx" ON "card_link" ("target_card_id");`
+			`CREATE INDEX IF NOT EXISTS "card_link_targetCardId_idx" ON "card_link" ("target_card_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "card_link_card_pair_idx" ON "card_link" ("source_card_id","target_card_id");`
+			`CREATE INDEX IF NOT EXISTS "card_link_card_pair_idx" ON "card_link" ("source_card_id","target_card_id");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "column" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -170,10 +170,10 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "column_boardId_idx" ON "column" ("board_id");`
+			`CREATE INDEX IF NOT EXISTS "column_boardId_idx" ON "column" ("board_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "column_position_idx" ON "column" ("board_id","position");`
+			`CREATE INDEX IF NOT EXISTS "column_position_idx" ON "column" ("board_id","position");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "documentation_folder" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -185,7 +185,7 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "documentation_folder_parentFolderId_idx" ON "documentation_folder" ("parent_folder_id");`
+			`CREATE INDEX IF NOT EXISTS "documentation_folder_parentFolderId_idx" ON "documentation_folder" ("parent_folder_id");`,
 		);
 		sql.exec(`CREATE TABLE IF NOT EXISTS "documentation_page" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -200,10 +200,10 @@ export class ProjectDO implements DurableObject {
 );
 `);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "documentation_page_folderId_idx" ON "documentation_page" ("folder_id");`
+			`CREATE INDEX IF NOT EXISTS "documentation_page_folderId_idx" ON "documentation_page" ("folder_id");`,
 		);
 		sql.exec(
-			`CREATE INDEX IF NOT EXISTS "documentation_page_authorId_idx" ON "documentation_page" ("author_id");`
+			`CREATE INDEX IF NOT EXISTS "documentation_page_authorId_idx" ON "documentation_page" ("author_id");`,
 		);
 	}
 
@@ -227,15 +227,15 @@ export class ProjectDO implements DurableObject {
 					return this._ok(await this.getBoard(params as { boardId: string }));
 				case "createBoard":
 					return this._ok(
-						await this.createBoard(params as unknown as CreateBoardParams)
+						await this.createBoard(params as unknown as CreateBoardParams),
 					);
 				case "updateBoard":
 					return this._ok(
-						await this.updateBoard(params as unknown as UpdateBoardParams)
+						await this.updateBoard(params as unknown as UpdateBoardParams),
 					);
 				case "deleteBoard":
 					return this._ok(
-						await this.deleteBoard(params as unknown as DeleteBoardParams)
+						await this.deleteBoard(params as unknown as DeleteBoardParams),
 					);
 
 				case "getColumns":
@@ -244,82 +244,82 @@ export class ProjectDO implements DurableObject {
 					return this._ok(await this.getColumn(params as { columnId: string }));
 				case "createColumn":
 					return this._ok(
-						await this.createColumn(params as unknown as CreateColumnParams)
+						await this.createColumn(params as unknown as CreateColumnParams),
 					);
 				case "updateColumn":
 					return this._ok(
-						await this.updateColumn(params as unknown as UpdateColumnParams)
+						await this.updateColumn(params as unknown as UpdateColumnParams),
 					);
 				case "deleteColumn":
 					return this._ok(
-						await this.deleteColumn(params as unknown as DeleteColumnParams)
+						await this.deleteColumn(params as unknown as DeleteColumnParams),
 					);
 				case "reorderColumns":
 					return this._ok(
-						await this.reorderColumns(params as unknown as ReorderColumnsParams)
+						await this.reorderColumns(
+							params as unknown as ReorderColumnsParams,
+						),
 					);
 
 				case "getCardsByBoardId":
 					return this._ok(
-						await this.getCardsByBoardId(params as { boardId: string })
+						await this.getCardsByBoardId(params as { boardId: string }),
 					);
 				case "getCardsByColumnId":
 					return this._ok(
-						await this.getCardsByColumnId(params as { columnId: string })
+						await this.getCardsByColumnId(params as { columnId: string }),
 					);
 				case "getCard":
 					return this._ok(await this.getCard(params as { cardId: string }));
 				case "createCard":
 					return this._ok(
-						await this.createCard(params as unknown as CreateCardParams)
+						await this.createCard(params as unknown as CreateCardParams),
 					);
 				case "updateCard":
 					return this._ok(
-						await this.updateCard(params as unknown as UpdateCardParams)
+						await this.updateCard(params as unknown as UpdateCardParams),
 					);
 				case "deleteCard":
 					return this._ok(
-						await this.deleteCard(params as unknown as DeleteCardParams)
+						await this.deleteCard(params as unknown as DeleteCardParams),
 					);
 				case "moveCard":
 					return this._ok(
-						await this.moveCard(params as unknown as MoveCardParams)
+						await this.moveCard(params as unknown as MoveCardParams),
 					);
 				case "searchCards":
 					return this._ok(
-						await this.searchCards(params as unknown as SearchCardsParams)
+						await this.searchCards(params as unknown as SearchCardsParams),
 					);
 
 				case "getArchivedCards":
 					return this._ok(
-						await this.getArchivedCards(params as { boardId: string })
-					);
-				case "getArchivedCount":
-					return this._ok(
-						await this.getArchivedCount(params as { boardId: string })
+						await this.getArchivedCards(params as { boardId: string }),
 					);
 				case "archiveCards":
 					return this._ok(
-						await this.archiveCards(params as unknown as ArchiveCardsParams)
+						await this.archiveCards(params as unknown as ArchiveCardsParams),
 					);
 				case "archiveByColumn":
 					return this._ok(
-						await this.archiveByColumn(params as { columnId: string })
+						await this.archiveByColumn(params as { columnId: string }),
 					);
 				case "unarchiveCards":
 					return this._ok(
-						await this.unarchiveCards(params as unknown as UnarchiveCardsParams)
+						await this.unarchiveCards(
+							params as unknown as UnarchiveCardsParams,
+						),
 					);
 
 				case "getComments":
 					return this._ok(await this.getComments(params as { cardId: string }));
 				case "createComment":
 					return this._ok(
-						await this.createComment(params as unknown as CreateCommentParams)
+						await this.createComment(params as unknown as CreateCommentParams),
 					);
 				case "deleteComment":
 					return this._ok(
-						await this.deleteComment(params as { commentId: string })
+						await this.deleteComment(params as { commentId: string }),
 					);
 
 				case "getHistory":
@@ -329,11 +329,11 @@ export class ProjectDO implements DurableObject {
 					return this._ok(await this.getLinks(params as { cardId: string }));
 				case "createLink":
 					return this._ok(
-						await this.createLink(params as unknown as CreateLinkParams)
+						await this.createLink(params as unknown as CreateLinkParams),
 					);
 				case "deleteLink":
 					return this._ok(
-						await this.deleteLink(params as unknown as DeleteLinkParams)
+						await this.deleteLink(params as unknown as DeleteLinkParams),
 					);
 
 				case "getLabels":
@@ -343,15 +343,15 @@ export class ProjectDO implements DurableObject {
 					return this._ok(await this.getFolders());
 				case "createFolder":
 					return this._ok(
-						await this.createFolder(params as unknown as CreateFolderParams)
+						await this.createFolder(params as unknown as CreateFolderParams),
 					);
 				case "updateFolder":
 					return this._ok(
-						await this.updateFolder(params as unknown as UpdateFolderParams)
+						await this.updateFolder(params as unknown as UpdateFolderParams),
 					);
 				case "deleteFolder":
 					return this._ok(
-						await this.deleteFolder(params as { folderId: string })
+						await this.deleteFolder(params as { folderId: string }),
 					);
 				case "getPages":
 					return this._ok(await this.getPages());
@@ -359,11 +359,11 @@ export class ProjectDO implements DurableObject {
 					return this._ok(await this.getPage(params as { pageId: string }));
 				case "createPage":
 					return this._ok(
-						await this.createPage(params as unknown as CreatePageParams)
+						await this.createPage(params as unknown as CreatePageParams),
 					);
 				case "updatePage":
 					return this._ok(
-						await this.updatePage(params as unknown as UpdatePageParams)
+						await this.updatePage(params as unknown as UpdatePageParams),
 					);
 				case "deletePage":
 					return this._ok(await this.deletePage(params as { pageId: string }));
@@ -394,15 +394,15 @@ export class ProjectDO implements DurableObject {
 	async _getUser(userId: string) {
 		try {
 			const row = (await this.env.DB.prepare(
-				"SELECT id, name, image, email FROM user WHERE id = ?"
+				"SELECT id, name, image, email FROM user WHERE id = ?",
 			)
 				.bind(userId)
 				.first()) as {
-				id: string;
-				name: string;
-				image: string | null;
-				email: string;
-			} | null;
+					id: string;
+					name: string;
+					image: string | null;
+					email: string;
+				} | null;
 			return row ?? null;
 		} catch {
 			return null;
@@ -412,7 +412,7 @@ export class ProjectDO implements DurableObject {
 	async _getUserName(userId: string) {
 		try {
 			const row = (await this.env.DB.prepare(
-				"SELECT name FROM user WHERE id = ?"
+				"SELECT name FROM user WHERE id = ?",
 			)
 				.bind(userId)
 				.first()) as { name: string } | null;
@@ -425,14 +425,14 @@ export class ProjectDO implements DurableObject {
 	async _getUserByEmail(email: string) {
 		try {
 			const row = (await this.env.DB.prepare(
-				"SELECT id, name, image FROM user WHERE email = ?"
+				"SELECT id, name, image FROM user WHERE email = ?",
 			)
 				.bind(email)
 				.first()) as {
-				id: string;
-				name: string;
-				image: string | null;
-			} | null;
+					id: string;
+					name: string;
+					image: string | null;
+				} | null;
 			return row ?? null;
 		} catch {
 			return null;
@@ -442,7 +442,7 @@ export class ProjectDO implements DurableObject {
 	async _getUserByUsername(username: string) {
 		try {
 			const row = (await this.env.DB.prepare(
-				"SELECT id, name FROM user WHERE username = ?"
+				"SELECT id, name FROM user WHERE username = ?",
 			)
 				.bind(username)
 				.first()) as { id: string; name: string } | null;
@@ -456,11 +456,11 @@ export class ProjectDO implements DurableObject {
 		userId: string,
 		type: string,
 		sourceId: string,
-		sourceType: string
+		sourceType: string,
 	) {
 		try {
 			await this.env.DB.prepare(
-				"INSERT INTO notification (id, user_id, type, source_id, source_type, read, created_at) VALUES (?, ?, ?, ?, ?, 0, ?)"
+				"INSERT INTO notification (id, user_id, type, source_id, source_type, read, created_at) VALUES (?, ?, ?, ?, ?, 0, ?)",
 			)
 				.bind(userId, type, sourceId, sourceType, Date.now())
 				.run();
@@ -543,8 +543,8 @@ export class ProjectDO implements DurableObject {
 				.where(
 					or(
 						inArray(schema.cardLink.sourceCardId, cardIds),
-						inArray(schema.cardLink.targetCardId, cardIds)
-					)
+						inArray(schema.cardLink.targetCardId, cardIds),
+					),
 				);
 			await this.db
 				.delete(schema.cardHistory)
@@ -665,8 +665,8 @@ export class ProjectDO implements DurableObject {
 				.where(
 					or(
 						inArray(schema.cardLink.sourceCardId, cardIds),
-						inArray(schema.cardLink.targetCardId, cardIds)
-					)
+						inArray(schema.cardLink.targetCardId, cardIds),
+					),
 				);
 			await this.db
 				.delete(schema.cardHistory)
@@ -696,8 +696,8 @@ export class ProjectDO implements DurableObject {
 				.where(
 					and(
 						eq(schema.column.id, col.id),
-						eq(schema.column.boardId, params.boardId)
-					)
+						eq(schema.column.boardId, params.boardId),
+					),
 				);
 		}
 		return { success: true };
@@ -732,8 +732,8 @@ export class ProjectDO implements DurableObject {
 				.where(
 					and(
 						eq(schema.card.columnId, col.id),
-						isNull(schema.card.archivedDate)
-					)
+						isNull(schema.card.archivedDate),
+					),
 				)
 				.orderBy(schema.card.position);
 
@@ -747,7 +747,7 @@ export class ProjectDO implements DurableObject {
 		const rows = await this.db.query.card.findMany({
 			where: and(
 				eq(schema.card.columnId, params.columnId),
-				isNull(schema.card.archivedDate)
+				isNull(schema.card.archivedDate),
 			),
 			orderBy: schema.card.position,
 		});
@@ -823,7 +823,7 @@ export class ProjectDO implements DurableObject {
 				type: params.type,
 				description: params.description,
 				acceptanceCriteria: params.acceptanceCriteria,
-			})
+			}),
 		);
 
 		const card = await this.db.query.card.findFirst({
@@ -908,7 +908,7 @@ export class ProjectDO implements DurableObject {
 				"UPDATE",
 				entry.field,
 				entry.oldVal,
-				entry.newVal
+				entry.newVal,
 			);
 		}
 
@@ -932,7 +932,7 @@ export class ProjectDO implements DurableObject {
 			"DELETE",
 			null,
 			JSON.stringify(existingCard),
-			null
+			null,
 		);
 
 		await this.db
@@ -940,8 +940,8 @@ export class ProjectDO implements DurableObject {
 			.where(
 				or(
 					eq(schema.cardLink.sourceCardId, params.cardId),
-					eq(schema.cardLink.targetCardId, params.cardId)
-				)
+					eq(schema.cardLink.targetCardId, params.cardId),
+				),
 			);
 		await this.db
 			.delete(schema.cardHistory)
@@ -972,7 +972,7 @@ export class ProjectDO implements DurableObject {
 				"MOVE",
 				"columnId",
 				existingCard.columnId,
-				params.newColumnId
+				params.newColumnId,
 			);
 		}
 
@@ -1009,8 +1009,8 @@ export class ProjectDO implements DurableObject {
 						eq(schema.card.cardNumber, queryNum),
 						params.excludeCardId
 							? ne(schema.card.id, params.excludeCardId)
-							: undefined
-					)
+							: undefined,
+					),
 				);
 			return rows;
 		}
@@ -1031,8 +1031,8 @@ export class ProjectDO implements DurableObject {
 						sql`LOWER(${schema.card.title}) LIKE ${likeQuery}`,
 						params.excludeCardId
 							? ne(schema.card.id, params.excludeCardId)
-							: undefined
-					)
+							: undefined,
+					),
 				);
 			return rows;
 		}
@@ -1062,7 +1062,7 @@ export class ProjectDO implements DurableObject {
 			"ARCHIVE",
 			null,
 			null,
-			JSON.stringify({ title: existingCard.title })
+			JSON.stringify({ title: existingCard.title }),
 		);
 
 		const updatedCard = await this.db.query.card.findFirst({
@@ -1085,8 +1085,8 @@ export class ProjectDO implements DurableObject {
 			.where(
 				and(
 					eq(schema.card.columnId, params.columnId),
-					isNull(schema.card.archivedDate)
-				)
+					isNull(schema.card.archivedDate),
+				),
 			);
 
 		if (cardsToArchive.length === 0) {
@@ -1100,8 +1100,8 @@ export class ProjectDO implements DurableObject {
 			.where(
 				and(
 					eq(schema.card.columnId, params.columnId),
-					isNull(schema.card.archivedDate)
-				)
+					isNull(schema.card.archivedDate),
+				),
 			);
 
 		for (const c of cardsToArchive) {
@@ -1111,7 +1111,7 @@ export class ProjectDO implements DurableObject {
 				"ARCHIVE",
 				null,
 				null,
-				JSON.stringify({ title: c.title, columnName: col.name })
+				JSON.stringify({ title: c.title, columnName: col.name }),
 			);
 		}
 
@@ -1125,17 +1125,17 @@ export class ProjectDO implements DurableObject {
 			.where(
 				and(
 					eq(schema.card.boardId, params.boardId),
-					isNotNull(schema.card.archivedDate)
-				)
+					isNotNull(schema.card.archivedDate),
+				),
 			);
 
 		const columnIds = [...new Set(archivedCards.map((c) => c.columnId))];
 		const columns =
 			columnIds.length > 0
 				? await this.db
-						.select({ id: schema.column.id, name: schema.column.name })
-						.from(schema.column)
-						.where(inArray(schema.column.id, columnIds))
+					.select({ id: schema.column.id, name: schema.column.name })
+					.from(schema.column)
+					.where(inArray(schema.column.id, columnIds))
 				: [];
 
 		const columnMap = new Map(columns.map((c) => [c.id, c.name]));
@@ -1144,19 +1144,6 @@ export class ProjectDO implements DurableObject {
 			...c,
 			originalColumnName: columnMap.get(c.columnId) ?? "Unknown",
 		}));
-	}
-
-	async getArchivedCount(params: { boardId: string }) {
-		const result = await this.db
-			.select({ count: sql<number>`COUNT(*)` })
-			.from(schema.card)
-			.where(
-				and(
-					eq(schema.card.boardId, params.boardId),
-					isNotNull(schema.card.archivedDate)
-				)
-			);
-		return result[0]?.count ?? 0;
 	}
 
 	async unarchiveCards(params: UnarchiveCardsParams) {
@@ -1179,9 +1166,9 @@ export class ProjectDO implements DurableObject {
 		const columns =
 			columnIds.length > 0
 				? await this.db
-						.select({ id: schema.column.id, name: schema.column.name })
-						.from(schema.column)
-						.where(inArray(schema.column.id, columnIds))
+					.select({ id: schema.column.id, name: schema.column.name })
+					.from(schema.column)
+					.where(inArray(schema.column.id, columnIds))
 				: [];
 
 		const columnMap = new Map(columns.map((c) => [c.id, c.name]));
@@ -1224,7 +1211,7 @@ export class ProjectDO implements DurableObject {
 				"UNARCHIVE",
 				isDifferentColumn ? "columnId" : null,
 				c.columnId,
-				targetColumnId
+				targetColumnId,
 			);
 		}
 
@@ -1245,7 +1232,7 @@ export class ProjectDO implements DurableObject {
 					? await this._getUser(comment.userId)
 					: null;
 				return { ...comment, user: userData };
-			})
+			}),
 		);
 
 		return commentsWithUser;
@@ -1265,7 +1252,7 @@ export class ProjectDO implements DurableObject {
 		const mentions = params.content.match(mentionRegex);
 		if (mentions) {
 			const mentionedUsernames = mentions.map((m) =>
-				m.substring(1).toLowerCase()
+				m.substring(1).toLowerCase(),
 			);
 			for (const username of mentionedUsernames) {
 				const mentionedUser = await this._getUserByUsername(username);
@@ -1274,7 +1261,7 @@ export class ProjectDO implements DurableObject {
 						mentionedUser.id,
 						"mention",
 						commentId,
-						"comment"
+						"comment",
 					);
 				}
 			}
@@ -1309,7 +1296,7 @@ export class ProjectDO implements DurableObject {
 					? await this._getUserName(entry.userId)
 					: "Unknown";
 				return { ...entry, userName };
-			})
+			}),
 		);
 
 		return historyWithUser;
@@ -1390,7 +1377,7 @@ export class ProjectDO implements DurableObject {
 		const existingLink = await this.db.query.cardLink.findFirst({
 			where: and(
 				eq(schema.cardLink.sourceCardId, params.sourceCardId),
-				eq(schema.cardLink.targetCardId, params.targetCardId)
+				eq(schema.cardLink.targetCardId, params.targetCardId),
 			),
 		});
 
@@ -1401,7 +1388,7 @@ export class ProjectDO implements DurableObject {
 		const reverseExistingLink = await this.db.query.cardLink.findFirst({
 			where: and(
 				eq(schema.cardLink.sourceCardId, params.targetCardId),
-				eq(schema.cardLink.targetCardId, params.sourceCardId)
+				eq(schema.cardLink.targetCardId, params.sourceCardId),
 			),
 		});
 
@@ -1447,13 +1434,13 @@ export class ProjectDO implements DurableObject {
 				or(
 					and(
 						eq(schema.cardLink.sourceCardId, link.sourceCardId),
-						eq(schema.cardLink.targetCardId, link.targetCardId)
+						eq(schema.cardLink.targetCardId, link.targetCardId),
 					),
 					and(
 						eq(schema.cardLink.sourceCardId, link.targetCardId),
-						eq(schema.cardLink.targetCardId, link.sourceCardId)
-					)
-				)
+						eq(schema.cardLink.targetCardId, link.sourceCardId),
+					),
+				),
 			);
 
 		return { success: true };
@@ -1631,7 +1618,7 @@ export class ProjectDO implements DurableObject {
 		action: string,
 		fieldName: string | null,
 		oldValue: string | null,
-		newValue: string | null
+		newValue: string | null,
 	) {
 		try {
 			await this.db.insert(schema.cardHistory).values({
