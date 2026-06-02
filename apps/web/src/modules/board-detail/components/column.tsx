@@ -96,7 +96,7 @@ function ColumnComponent({
 
 	return (
 		<div
-			className={`flex h-full w-72 flex-col border bg-muted/30 ${isOverColumn ? "border-blue-500" : ""}`}
+			className={`flex h-full w-72 flex-col border bg-card/80 ${isOverColumn ? "border-blue-500" : ""}`}
 			ref={columnRef}
 		>
 			<div className="flex items-center justify-between rounded-t-lg border-b bg-muted/50 p-3">
