@@ -19,7 +19,7 @@ import type { Column, KanbanCard } from "./types";
 
 function findCardById(
 	cardsByColumn: Record<string, KanbanCard[]> | undefined,
-	cardId: string,
+	cardId: string
 ): KanbanCard | undefined {
 	if (!cardsByColumn) {
 		return undefined;
@@ -36,7 +36,7 @@ function findCardById(
 function calculateNewPosition(
 	targetCards: KanbanCard[],
 	cardId: string | null,
-	closestEdge: string | null,
+	closestEdge: string | null
 ): number {
 	if (!cardId) {
 		return targetCards.length > 0
@@ -62,7 +62,7 @@ function hasCardChanged(
 	card: KanbanCard,
 	targetColumnId: string,
 	targetCards: KanbanCard[],
-	newPosition: number,
+	newPosition: number
 ): boolean {
 	const hasColumnChanged = card.columnId !== targetColumnId;
 	const hasPositionChanged =
@@ -84,13 +84,13 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	const { addBreadcrumb } = useBreadcrumb();
 
 	const board = useQuery(
-		orpc.board.getById.queryOptions({ input: { boardId, projectId } }),
+		orpc.board.getById.queryOptions({ input: { boardId, projectId } })
 	);
 	const columns = useQuery(
-		orpc.column.getByBoardId.queryOptions({ input: { boardId, projectId } }),
+		orpc.column.getByBoardId.queryOptions({ input: { boardId, projectId } })
 	);
 	const cardsByColumn = useQuery(
-		orpc.card.getByBoardId.queryOptions({ input: { boardId, projectId } }),
+		orpc.card.getByBoardId.queryOptions({ input: { boardId, projectId } })
 	);
 
 	useEffect(() => {
@@ -102,7 +102,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				boardId,
 				projectId,
 				boardData: board.data,
-			}),
+			})
 		);
 	}, [board.data, addBreadcrumb, boardId, projectId]);
 
@@ -121,7 +121,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				toast.success("Column deleted");
 			},
 			onError: (error) => toast.error(error.message),
-		}),
+		})
 	);
 
 	const moveKanbanCardMutation = useMutation(
@@ -134,7 +134,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				});
 			},
 			onError: (error) => toast.error(error.message),
-		}),
+		})
 	);
 
 	const cardsByColumnDataRef = useRef(cardsByColumn.data);
@@ -164,13 +164,13 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 			const newPosition = calculateNewPosition(
 				targetColumnCards,
 				null,
-				closestEdge,
+				closestEdge
 			);
 			const hasChanged = hasCardChanged(
 				sourceCard,
 				overColumnId,
 				targetColumnCards,
-				newPosition,
+				newPosition
 			);
 
 			if (hasChanged) {
@@ -182,7 +182,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				});
 			}
 		},
-		[moveKanbanCardMutation.mutate, projectId],
+		[moveKanbanCardMutation.mutate, projectId]
 	);
 
 	const { dragState } = useDragMonitor({
@@ -207,7 +207,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				sourceCard,
 				targetColumnId,
 				targetColumnCards,
-				newPosition,
+				newPosition
 			);
 
 			if (hasChanged) {
@@ -219,7 +219,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 				});
 			}
 		},
-		[moveKanbanCardMutation.mutate, projectId],
+		[moveKanbanCardMutation.mutate, projectId]
 	);
 
 	if (board.isLoading || columns.isLoading) {

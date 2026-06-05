@@ -45,7 +45,7 @@ function Archives({ boardId, projectId }: ArchivesProps) {
 	const archivedCards = useQuery(
 		orpc.card.getArchivedByBoardId.queryOptions({
 			input: { boardId, projectId },
-		}),
+		})
 	);
 
 	const formatDate = useCallback((date: Date | null | undefined) => {
@@ -78,15 +78,15 @@ function Archives({ boardId, projectId }: ArchivesProps) {
 				toast.success(`${data.unarchivedCount} cards unarchived`);
 			},
 			onError: (error) => toast.error(error.message),
-		}),
+		})
 	);
 
 	const uniqueColumns = useMemo(
 		() =>
 			Array.from(
-				new Set(archivedCards.data?.map((c) => c.originalColumnName) ?? []),
+				new Set(archivedCards.data?.map((c) => c.originalColumnName) ?? [])
 			).sort(),
-		[archivedCards.data],
+		[archivedCards.data]
 	);
 
 	const columns: ColumnDef<ArchivedCard>[] = useMemo(
@@ -157,7 +157,7 @@ function Archives({ boardId, projectId }: ArchivesProps) {
 				},
 			},
 		],
-		[formatDate],
+		[formatDate]
 	);
 
 	const columnFilters = useMemo(
@@ -167,7 +167,7 @@ function Archives({ boardId, projectId }: ArchivesProps) {
 				: []),
 			...(dateFilter ? [{ id: "archivedDate", value: dateFilter }] : []),
 		],
-		[columnFilter, dateFilter],
+		[columnFilter, dateFilter]
 	);
 
 	const table = useReactTable({
@@ -313,8 +313,8 @@ function Archives({ boardId, projectId }: ArchivesProps) {
 					>
 						{dateFilter
 							? formatDate(dateFilter).split(" ")[0] +
-							" " +
-							formatDate(dateFilter).split(" ").slice(1, 3).join(" ")
+								" " +
+								formatDate(dateFilter).split(" ").slice(1, 3).join(" ")
 							: "Filter by Date"}
 						<svg
 							className="ml-2 h-4 w-4 opacity-50"
@@ -388,9 +388,9 @@ function Archives({ boardId, projectId }: ArchivesProps) {
 									{header.isPlaceholder
 										? null
 										: flexRender(
-											header.column.columnDef.header,
-											header.getContext(),
-										)}
+												header.column.columnDef.header,
+												header.getContext()
+											)}
 								</TableHead>
 							))}
 						</TableRow>

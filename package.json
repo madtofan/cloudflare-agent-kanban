@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@cloudflare-agent-kanban/env": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "agents": "^0.13.3",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
@@ -41,5 +43,5 @@
     "typescript": "catalog:",
     "ultracite": "7.2.3"
   },
-  "packageManager": "pnpm@10.33.2"
+  "packageManager": "pnpm@11.5.2"
 }

@@ -1,0 +1,23 @@
+{
+  "name": "@cloudflare-agent-kanban/mcp",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc -b"
+  },
+  "dependencies": {
+    "@cloudflare-agent-kanban/api": "workspace:*",
+    "@cloudflare-agent-kanban/auth": "workspace:*",
+    "@cloudflare-agent-kanban/db": "workspace:*",
+    "@cloudflare-agent-kanban/env": "workspace:*",
+    "@cloudflare-agent-kanban/types": "workspace:*",
+    "@modelcontextprotocol/sdk": "catalog:",
+    "agents": "catalog:",
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
+  }
+}

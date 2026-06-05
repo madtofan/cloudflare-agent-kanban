@@ -18,6 +18,15 @@
       "type": "remote",
       "url": "https://mcp.inkeep.com/better-auth/mcp",
       "enabled": true
+    },
+    "kanban": {
+      "type": "remote",
+      "url": "http://localhost:3000/mcp",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:KANBAN_MCP_TOKEN}"
+      }
     }
   }
 }

@@ -4,7 +4,7 @@ import * as schema from "@cloudflare-agent-kanban/db/schema/auth";
 import { env } from "@cloudflare-agent-kanban/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { username } from "better-auth/plugins";
+import { bearer, username } from "better-auth/plugins";
 
 const usernameRegex = /^[a-z0-9_-]+$/;
 
@@ -27,6 +27,7 @@ export const auth = betterAuth({
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.BETTER_AUTH_URL,
 	plugins: [
+		bearer(),
 		username({
 			minUsernameLength: 6,
 			maxUsernameLength: 30,

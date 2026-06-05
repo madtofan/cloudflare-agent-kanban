@@ -5,11 +5,13 @@ packages:
 catalog:
   '@cloudflare/workers-types': ^4.20260310.1
   '@libsql/client': 0.15.15
+  '@modelcontextprotocol/sdk': ^1.29.0
   '@orpc/client': ^1.12.2
   '@orpc/openapi': ^1.12.2
   '@orpc/server': ^1.12.2
   '@orpc/zod': ^1.12.2
   '@types/node': ^22.19.15
+  agents: ^0.13.3
   alchemy: ^0.82.2
   better-auth: ^1.4.18
   dotenv: ^17.3.1

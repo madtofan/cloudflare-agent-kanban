@@ -217,7 +217,7 @@ function KanbanCardComponent({
 				toast.success("Agent triggered successfully");
 			},
 			onError: (error) => toast.error(error.message),
-		}),
+		})
 	);
 
 	const handleTriggerAgent = () => {
@@ -251,7 +251,7 @@ function KanbanCardComponent({
 				});
 			},
 			onError: (error) => toast.error(error.message),
-		}),
+		})
 	);
 
 	const handleAssignToMe = () => {
@@ -329,7 +329,7 @@ function KanbanCardComponent({
 							<GripVertical className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
 							<div className="min-w-0 flex-1">
 								<div className="mb-2 flex items-center justify-between">
-									<div className="items-center flex flex-row gap-2">
+									<div className="flex flex-row items-center gap-2">
 										{card.cardNumber && (
 											<span className="mr-2 text-muted-foreground text-xs">
 												#{card.cardNumber}{" "}

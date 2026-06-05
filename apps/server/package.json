@@ -13,6 +13,7 @@
     "@cloudflare-agent-kanban/db": "workspace:*",
     "@cloudflare-agent-kanban/do": "workspace:*",
     "@cloudflare-agent-kanban/env": "workspace:*",
+    "@cloudflare-agent-kanban/mcp": "workspace:*",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/zod": "catalog:",
