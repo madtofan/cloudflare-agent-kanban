@@ -10,7 +10,8 @@ export const boardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/project/{projectId}/board/{boardId}",
-			summary: "",
+			summary: "Get a board by ID",
+			description: "Returns a single board within a project.",
 			tags: ["Board"],
 		})
 		.input(projectIdSchema.extend({ boardId: z.string() }))
@@ -30,7 +31,8 @@ export const boardRouter = {
 		.route({
 			method: "POST",
 			path: "/api/project/{projectId}/board",
-			summary: "",
+			summary: "Create a board in a project",
+			description: "Creates a new board within a project. Requires member-level access or higher.",
 			tags: ["Board"],
 		})
 		.input(
@@ -63,7 +65,8 @@ export const boardRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/project/{projectId}/board/{boardId}",
-			summary: "",
+			summary: "Update a board",
+			description: "Updates the name, description, or visibility of a board. Requires owner or admin access.",
 			tags: ["Board"],
 		})
 		.input(
@@ -94,7 +97,8 @@ export const boardRouter = {
 		.route({
 			method: "DELETE",
 			path: "/api/project/{projectId}/board/{boardId}",
-			summary: "",
+			summary: "Delete a board",
+			description: "Permanently deletes a board and all its columns and cards. Only the project owner can delete boards.",
 			tags: ["Board"],
 		})
 		.input(projectIdSchema.extend({ boardId: z.string() }))

@@ -26,7 +26,8 @@ export const profileRouter = {
 		.route({
 			method: "GET",
 			path: "/api/profile/{username}",
-			summary: "",
+			summary: "Get a public profile by username",
+			description: "Returns a user's public profile information and showcased projects.",
 			tags: ["Profile"],
 		})
 		.input(z.object({ username: z.string() }))
@@ -81,7 +82,8 @@ export const profileRouter = {
 		.route({
 			method: "GET",
 			path: "/api/profile",
-			summary: "",
+			summary: "Get the current user's profile",
+			description: "Returns the authenticated user's full profile, including owned and member projects.",
 			tags: ["Profile"],
 		})
 		.handler(async ({ context }) => {
@@ -146,7 +148,8 @@ export const profileRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/profile",
-			summary: "",
+			summary: "Update profile settings",
+			description: "Updates the authenticated user's profile, including about me section and showcased project IDs.",
 			tags: ["Profile"],
 		})
 		.input(updateProfileSchema)
@@ -184,9 +187,10 @@ export const profileRouter = {
 
 	uploadProfileImage: protectedProcedure
 		.route({
-			method: "POST",
-			path: "/api/profile/upload-image",
+			method: "PUT",
+			path: "/api/profile/image",
 			summary: "Upload profile image",
+			description: "Uploads or replaces the authenticated user's profile avatar image. Accepts base64-encoded JPEG, PNG, or WebP images up to 5MB.",
 			tags: ["Profile"],
 		})
 		.input(
@@ -256,8 +260,9 @@ export const profileRouter = {
 	checkUsernameAvailability: publicProcedure
 		.route({
 			method: "GET",
-			path: "/api/profile/check-username",
-			summary: "",
+			path: "/api/profile/username-check",
+			summary: "Check if a username is available",
+			description: "Checks whether a given username is available for registration. Returns the reason if unavailable.",
 			tags: ["Profile"],
 		})
 		.input(z.object({ username: z.string() }))
@@ -282,7 +287,8 @@ export const profileRouter = {
 		.route({
 			method: "GET",
 			path: "/api/profile/projects",
-			summary: "",
+			summary: "List the current user's public projects",
+			description: "Returns all projects owned by or shared with the authenticated user that have public visibility.",
 			tags: ["Profile"],
 		})
 		.handler(async ({ context }) => {

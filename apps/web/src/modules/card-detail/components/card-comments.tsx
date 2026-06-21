@@ -98,8 +98,12 @@ function CardComments({ boardId, cardId, projectId }: CardCommentsProps) {
 	};
 
 	const confirmDeleteComment = () => {
-		if (deleteCommentId) {
-			deleteCommentMutation.mutate({ cardId: deleteCommentId, projectId });
+		if (deleteCommentId && cardId) {
+			deleteCommentMutation.mutate({
+				cardId,
+				commentId: deleteCommentId,
+				projectId,
+			});
 			setDeleteCommentId(null);
 		}
 	};

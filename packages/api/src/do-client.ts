@@ -104,7 +104,7 @@ export interface PageData {
 	visibility: "public" | "private";
 }
 
-interface CardSummary {
+export interface CardSummary {
 	agentTriggerUrl: string | null;
 	assigneeId: string | null;
 	cardCommentCount: number;
@@ -117,14 +117,14 @@ interface CardSummary {
 	type: "epic" | "feature" | "user_story" | "bug" | "task";
 }
 
-interface CardSearchResult {
+export interface CardSearchResult {
 	cardNumber: number;
 	id: string;
 	title: string;
 	type: "epic" | "feature" | "user_story" | "bug" | "task";
 }
 
-interface ArchivedCard extends CardData {
+export interface ArchivedCard extends CardData {
 	originalColumnName: string;
 }
 

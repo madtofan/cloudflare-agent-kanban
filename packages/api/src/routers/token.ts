@@ -22,6 +22,7 @@ export const tokenRouter = {
 			method: "GET",
 			path: "/api/token",
 			summary: "List all API tokens for the current user",
+			description: "Returns all API tokens created by the authenticated user, including their name, partial token, and expiration.",
 			tags: ["Token"],
 		})
 		.handler(async ({ context }) => {
@@ -56,6 +57,7 @@ export const tokenRouter = {
 			method: "POST",
 			path: "/api/token",
 			summary: "Create a new API token",
+			description: "Creates a new API token for programmatic access to a specific project. The raw token is returned only once at creation.",
 			tags: ["Token"],
 		})
 		.input(
@@ -94,6 +96,7 @@ export const tokenRouter = {
 			method: "DELETE",
 			path: "/api/token/{tokenId}",
 			summary: "Revoke an API token",
+			description: "Permanently revokes an API token. Users can only revoke their own tokens.",
 			tags: ["Token"],
 		})
 		.input(z.object({ tokenId: z.string() }))

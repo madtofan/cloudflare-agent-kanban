@@ -23,6 +23,7 @@ export const documentationRouter = {
 			method: "GET",
 			path: "/api/project/{projectId}/folders",
 			summary: "Get all documentation folders",
+			description: "Returns all documentation folders for a project in a flat list.",
 			tags: ["Documentation"],
 		})
 		.input(projectIdSchema)
@@ -41,6 +42,7 @@ export const documentationRouter = {
 			method: "POST",
 			path: "/api/project/{projectId}/folder",
 			summary: "Create a documentation folder",
+			description: "Creates a new folder for organizing documentation pages. Can be nested under a parent folder.",
 			tags: ["Documentation"],
 		})
 		.input(
@@ -68,6 +70,7 @@ export const documentationRouter = {
 			method: "PUT",
 			path: "/api/project/{projectId}/folder/{folderId}",
 			summary: "Update a documentation folder",
+			description: "Updates the name or parent folder of an existing documentation folder.",
 			tags: ["Documentation"],
 		})
 		.input(
@@ -95,6 +98,7 @@ export const documentationRouter = {
 			method: "DELETE",
 			path: "/api/project/{projectId}/folder/{folderId}",
 			summary: "Delete a documentation folder",
+			description: "Permanently deletes a documentation folder and its contents.",
 			tags: ["Documentation"],
 		})
 		.input(projectIdSchema.extend({ folderId: z.string() }))
@@ -109,6 +113,7 @@ export const documentationRouter = {
 			method: "GET",
 			path: "/api/project/{projectId}/pages",
 			summary: "Get all documentation pages",
+			description: "Returns all documentation pages for a project, including author details.",
 			tags: ["Documentation"],
 		})
 		.input(projectIdSchema)
@@ -127,6 +132,7 @@ export const documentationRouter = {
 			method: "GET",
 			path: "/api/project/{projectId}/pages/{pageId}",
 			summary: "Get a single documentation page",
+			description: "Returns a single documentation page with author information.",
 			tags: ["Documentation"],
 		})
 		.input(projectIdSchema.extend({ pageId: z.string() }))
@@ -147,6 +153,7 @@ export const documentationRouter = {
 			method: "POST",
 			path: "/api/project/{projectId}/pages",
 			summary: "Create a documentation page",
+			description: "Creates a new documentation page in a project. Optionally assigns it to a folder.",
 			tags: ["Documentation"],
 		})
 		.input(
@@ -177,6 +184,7 @@ export const documentationRouter = {
 			method: "PUT",
 			path: "/api/project/{projectId}/pages/{pageId}",
 			summary: "Update a documentation page",
+			description: "Updates the title, content, folder assignment, or visibility of a documentation page.",
 			tags: ["Documentation"],
 		})
 		.input(
@@ -206,6 +214,7 @@ export const documentationRouter = {
 			method: "DELETE",
 			path: "/api/project/{projectId}/pages/{pageId}",
 			summary: "Delete a documentation page",
+			description: "Permanently deletes a documentation page.",
 			tags: ["Documentation"],
 		})
 		.input(projectIdSchema.extend({ pageId: z.string() }))

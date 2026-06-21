@@ -125,7 +125,7 @@ function BoardDetailPage({ boardId, projectId }: BoardDetailPageProps) {
 	);
 
 	const moveKanbanCardMutation = useMutation(
-		orpc.card.move.mutationOptions({
+		orpc.card.update.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries({
 					queryKey: orpc.card.getByBoardId.queryKey({

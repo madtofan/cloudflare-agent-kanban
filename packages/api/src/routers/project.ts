@@ -29,7 +29,8 @@ export const projectRouter = {
 		.route({
 			method: "GET",
 			path: "/api/project",
-			summary: "",
+			summary: "List all projects for the current user",
+			description: "Returns all projects where the user is a member or owner.",
 			tags: ["Project"],
 		})
 		.handler(async ({ context }) => {
@@ -67,7 +68,8 @@ export const projectRouter = {
 		.route({
 			method: "GET",
 			path: "/api/project/{projectId}",
-			summary: "",
+			summary: "Get a project by ID",
+			description: "Returns a single project with the user's role within it.",
 			tags: ["Project"],
 		})
 		.input(projectIdSchema)
@@ -106,7 +108,8 @@ export const projectRouter = {
 		.route({
 			method: "GET",
 			path: "/api/project/{projectId}/boards",
-			summary: "",
+			summary: "List boards in a project",
+			description: "Returns all boards belonging to a project.",
 			tags: ["Project"],
 		})
 		.input(projectIdSchema)
@@ -125,7 +128,8 @@ export const projectRouter = {
 		.route({
 			method: "POST",
 			path: "/api/project",
-			summary: "",
+			summary: "Create a new project",
+			description: "Creates a new project and sets the current user as the owner with admin role.",
 			tags: ["Project"],
 		})
 		.input(
@@ -164,7 +168,8 @@ export const projectRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/project/{projectId}",
-			summary: "",
+			summary: "Update a project",
+			description: "Updates the name, description, or visibility of a project. Requires owner or admin access.",
 			tags: ["Project"],
 		})
 		.input(
@@ -202,7 +207,8 @@ export const projectRouter = {
 		.route({
 			method: "DELETE",
 			path: "/api/project/{projectId}",
-			summary: "",
+			summary: "Delete a project",
+			description: "Permanently deletes a project and all associated data. Only the owner can delete a project.",
 			tags: ["Project"],
 		})
 		.input(projectIdSchema)
@@ -222,7 +228,8 @@ export const projectRouter = {
 		.route({
 			method: "GET",
 			path: "/api/project/{projectId}/members",
-			summary: "",
+			summary: "List project members",
+			description: "Returns all members of a project along with the project owner.",
 			tags: ["Project"],
 		})
 		.input(projectIdSchema)
@@ -280,7 +287,8 @@ export const projectRouter = {
 		.route({
 			method: "POST",
 			path: "/api/project/{projectId}/members",
-			summary: "",
+			summary: "Add a member to a project",
+			description: "Adds a user to a project by email with a specified role. Requires owner or admin access.",
 			tags: ["Project"],
 		})
 		.input(
@@ -341,8 +349,9 @@ export const projectRouter = {
 	removeMember: protectedProcedure
 		.route({
 			method: "DELETE",
-			path: "/api/project/{projectId}/members",
-			summary: "",
+			path: "/api/project/{projectId}/members/{memberId}",
+			summary: "Remove a member from a project",
+			description: "Removes a user from a project. The project owner cannot be removed. Requires owner or admin access.",
 			tags: ["Project"],
 		})
 		.input(
@@ -401,7 +410,8 @@ export const projectRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/project/{projectId}/members/{memberId}",
-			summary: "",
+			summary: "Update a member's role",
+			description: "Changes the role of a project member between admin and member. The owner's role cannot be changed.",
 			tags: ["Project"],
 		})
 		.input(

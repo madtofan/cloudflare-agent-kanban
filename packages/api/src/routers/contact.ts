@@ -8,6 +8,7 @@ export const contactRouter = {
 			method: "POST",
 			path: "/api/contact",
 			summary: "Submit contact form",
+			description: "Sends a contact form message via email to the site administrator.",
 			tags: ["Contact"],
 		})
 		.input(

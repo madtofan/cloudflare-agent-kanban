@@ -10,7 +10,8 @@ export const cardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/column/{columnId}/card",
-			summary: "",
+			summary: "List cards in a column",
+			description: "Returns all cards belonging to a specific column within a board.",
 			tags: ["Card"],
 		})
 		.input(z.object({ columnId: z.string(), projectId: z.string() }))
@@ -30,7 +31,8 @@ export const cardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/board/{boardId}/card",
-			summary: "",
+			summary: "List cards on a board",
+			description: "Returns all cards grouped by column for a specific board.",
 			tags: ["Card"],
 		})
 		.input(z.object({ boardId: z.string(), projectId: z.string() }))
@@ -50,7 +52,8 @@ export const cardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/card/{cardId}",
-			summary: "",
+			summary: "Get a card by ID",
+			description: "Returns a single card with its labels for the given card ID.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -69,8 +72,9 @@ export const cardRouter = {
 	getHistory: protectedProcedure
 		.route({
 			method: "GET",
-			path: "/api/card/history/{cardId}",
-			summary: "",
+			path: "/api/card/{cardId}/history",
+			summary: "Get card change history",
+			description: "Returns the audit log of all changes made to a card, including field updates and column moves.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -90,7 +94,8 @@ export const cardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/card/{cardId}/comment",
-			summary: "",
+			summary: "List comments on a card",
+			description: "Returns all comments for a specific card, including user details.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -110,7 +115,8 @@ export const cardRouter = {
 		.route({
 			method: "POST",
 			path: "/api/card/{cardId}/comment",
-			summary: "",
+			summary: "Create a comment on a card",
+			description: "Adds a new comment to a card. Requires edit access to the project.",
 			tags: ["Card"],
 		})
 		.input(
@@ -137,14 +143,21 @@ export const cardRouter = {
 	deleteComment: protectedProcedure
 		.route({
 			method: "DELETE",
-			path: "/api/card/{cardId}/comment",
-			summary: "",
+			path: "/api/card/{cardId}/comment/{commentId}",
+			summary: "Delete a comment from a card",
+			description: "Permanently removes a comment from a card.",
 			tags: ["Card"],
 		})
-		.input(z.object({ cardId: z.string(), projectId: z.string() }))
+		.input(
+			z.object({
+				cardId: z.string(),
+				commentId: z.string(),
+				projectId: z.string(),
+			})
+		)
 		.handler(({ context, input }) => {
 			return callDo(context.env, input.projectId, "deleteComment", {
-				commentId: input.cardId,
+				commentId: input.commentId,
 			});
 		}),
 
@@ -152,7 +165,8 @@ export const cardRouter = {
 		.route({
 			method: "POST",
 			path: "/api/card",
-			summary: "",
+			summary: "Create a new card",
+			description: "Creates a new card in the specified column. Requires edit access to the project.",
 			tags: ["Card"],
 		})
 		.input(
@@ -186,7 +200,8 @@ export const cardRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/card/{cardId}",
-			summary: "",
+			summary: "Update a card",
+			description: "Updates one or more fields of a card. If columnId is provided, the card is moved to that column at the specified position.",
 			tags: ["Card"],
 		})
 		.input(
@@ -209,6 +224,15 @@ export const cardRouter = {
 			const userId = context.session.user.id;
 			await requireEditAccess(input.projectId, userId);
 
+			if (input.columnId !== undefined) {
+				return callDo(context.env, input.projectId, "moveCard", {
+					cardId: input.cardId,
+					userId,
+					newColumnId: input.columnId,
+					newPosition: input.position ?? 0,
+				});
+			}
+
 			return callDo(context.env, input.projectId, "updateCard", {
 				cardId: input.cardId,
 				userId,
@@ -226,7 +250,8 @@ export const cardRouter = {
 		.route({
 			method: "DELETE",
 			path: "/api/card/{cardId}",
-			summary: "",
+			summary: "Delete a card",
+			description: "Permanently deletes a card and all its associated comments and links.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -240,38 +265,12 @@ export const cardRouter = {
 			});
 		}),
 
-	move: protectedProcedure
-		.route({
-			method: "PUT",
-			path: "/api/card/{cardId}/move",
-			summary: "",
-			tags: ["Card"],
-		})
-		.input(
-			z.object({
-				cardId: z.string(),
-				projectId: z.string(),
-				columnId: z.string(),
-				position: z.number(),
-			})
-		)
-		.handler(async ({ context, input }) => {
-			const userId = context.session.user.id;
-			await requireEditAccess(input.projectId, userId);
-
-			return callDo(context.env, input.projectId, "moveCard", {
-				cardId: input.cardId,
-				userId,
-				newColumnId: input.columnId,
-				newPosition: input.position,
-			});
-		}),
-
 	triggerAgent: protectedProcedure
 		.route({
-			method: "GET",
+			method: "POST",
 			path: "/api/card/{cardId}/agent",
-			summary: "",
+			summary: "Trigger an external agent for a card",
+			description: "Fires the configured agent trigger URL for a card, sending card details to an external automation system.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -311,7 +310,8 @@ export const cardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/card/{cardId}/link",
-			summary: "",
+			summary: "Get card links",
+			description: "Returns all outgoing and incoming links for a card, including linked card details.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -331,7 +331,8 @@ export const cardRouter = {
 		.route({
 			method: "GET",
 			path: "/api/card/search",
-			summary: "",
+			summary: "Search cards",
+			description: "Searches cards within a board by title or other criteria. Returns matching cards with basic information.",
 			tags: ["Card"],
 		})
 		.input(
@@ -361,7 +362,8 @@ export const cardRouter = {
 		.route({
 			method: "POST",
 			path: "/api/card/{sourceCardId}/link/{targetCardId}",
-			summary: "",
+			summary: "Link two cards together",
+			description: "Creates a relationship link between two cards with a specified link type (e.g., blocks, relates to).",
 			tags: ["Card"],
 		})
 		.input(
@@ -387,7 +389,8 @@ export const cardRouter = {
 		.route({
 			method: "DELETE",
 			path: "/api/card/{cardId}/link/{linkId}",
-			summary: "",
+			summary: "Remove a link between cards",
+			description: "Deletes a specific link relationship between two cards.",
 			tags: ["Card"],
 		})
 		.input(
@@ -409,9 +412,10 @@ export const cardRouter = {
 
 	archive: protectedProcedure
 		.route({
-			method: "PUT",
+			method: "POST",
 			path: "/api/card/{cardId}/archive",
-			summary: "",
+			summary: "Archive a card",
+			description: "Archives a card, moving it out of the active board view while preserving its data.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
@@ -427,9 +431,10 @@ export const cardRouter = {
 
 	archiveByColumnId: protectedProcedure
 		.route({
-			method: "PUT",
-			path: "/api/column/{columnId}/archive-cards",
-			summary: "",
+			method: "POST",
+			path: "/api/column/{columnId}/archive",
+			summary: "Archive all cards in a column",
+			description: "Archives every card within a specified column at once.",
 			tags: ["Card"],
 		})
 		.input(z.object({ columnId: z.string(), projectId: z.string() }))
@@ -446,8 +451,9 @@ export const cardRouter = {
 	getArchivedByBoardId: protectedProcedure
 		.route({
 			method: "GET",
-			path: "/api/board/{boardId}/card/archived",
-			summary: "",
+			path: "/api/board/{boardId}/archive",
+			summary: "List archived cards on a board",
+			description: "Returns all archived cards for a board, including their original column names.",
 			tags: ["Card"],
 		})
 		.input(z.object({ boardId: z.string(), projectId: z.string() }))
@@ -465,9 +471,10 @@ export const cardRouter = {
 
 	unarchive: protectedProcedure
 		.route({
-			method: "PUT",
-			path: "/api/card/unarchive",
-			summary: "",
+			method: "POST",
+			path: "/api/card/bulk/unarchive",
+			summary: "Bulk unarchive cards",
+			description: "Restores multiple archived cards back to their original columns on the board.",
 			tags: ["Card"],
 		})
 		.input(z.object({ cardIds: z.array(z.string()), projectId: z.string() }))

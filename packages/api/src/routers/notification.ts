@@ -9,7 +9,8 @@ export const notificationRouter = {
 		.route({
 			method: "GET",
 			path: "/api/notifications",
-			summary: "",
+			summary: "List notifications for the current user",
+			description: "Returns a paginated list of notifications for the authenticated user, ordered by most recent first. Supports cursor-based pagination.",
 			tags: ["Notifications"],
 		})
 		.input(
@@ -59,7 +60,8 @@ export const notificationRouter = {
 		.route({
 			method: "GET",
 			path: "/api/notifications/unread/count",
-			summary: "",
+			summary: "Get unread notification count",
+			description: "Returns the total number of unread notifications for the authenticated user.",
 			tags: ["Notifications"],
 		})
 		.handler(async ({ context }) => {
@@ -77,9 +79,10 @@ export const notificationRouter = {
 
 	markAsRead: protectedProcedure
 		.route({
-			method: "GET",
-			path: "/api/notifications/mark-read/{id}",
-			summary: "",
+			method: "PUT",
+			path: "/api/notifications/{id}/read",
+			summary: "Mark a notification as read",
+			description: "Marks a specific notification as read for the authenticated user.",
 			tags: ["Notifications"],
 		})
 		.input(z.object({ id: z.string() }))
@@ -98,9 +101,10 @@ export const notificationRouter = {
 
 	markAllAsRead: protectedProcedure
 		.route({
-			method: "GET",
-			path: "/api/notifications/mark-all-read",
-			summary: "",
+			method: "PUT",
+			path: "/api/notifications/read-all",
+			summary: "Mark all notifications as read",
+			description: "Marks every unread notification as read for the authenticated user.",
 			tags: ["Notifications"],
 		})
 		.handler(async ({ context }) => {

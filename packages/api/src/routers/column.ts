@@ -9,7 +9,8 @@ export const columnRouter = {
 		.route({
 			method: "GET",
 			path: "/api/project/{projectId}/board/{boardId}/column",
-			summary: "",
+			summary: "List columns in a board",
+			description: "Returns all columns for a specific board, ordered by position.",
 			tags: ["Column"],
 		})
 		.input(z.object({ boardId: z.string(), projectId: z.string() }))
@@ -29,7 +30,8 @@ export const columnRouter = {
 		.route({
 			method: "POST",
 			path: "/api/project/{projectId}/board/{boardId}/column",
-			summary: "",
+			summary: "Create a column in a board",
+			description: "Creates a new column within a board. Requires edit access to the project.",
 			tags: ["Column"],
 		})
 		.input(
@@ -56,7 +58,8 @@ export const columnRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/project/{projectId}/board/{boardId}/column/{columnId}",
-			summary: "",
+			summary: "Update a column",
+			description: "Updates the name, description, or position of a column. Requires edit access to the project.",
 			tags: ["Column"],
 		})
 		.input(
@@ -87,7 +90,8 @@ export const columnRouter = {
 		.route({
 			method: "DELETE",
 			path: "/api/project/{projectId}/board/{boardId}/column/{columnId}",
-			summary: "",
+			summary: "Delete a column",
+			description: "Permanently deletes a column and all its cards from a board. Requires edit access to the project.",
 			tags: ["Column"],
 		})
 		.input(
@@ -112,7 +116,8 @@ export const columnRouter = {
 		.route({
 			method: "PUT",
 			path: "/api/project/{projectId}/board/{boardId}/column/sort",
-			summary: "",
+			summary: "Reorder columns in a board",
+			description: "Updates the position of multiple columns at once to reflect a new sort order.",
 			tags: ["Column"],
 		})
 		.input(
