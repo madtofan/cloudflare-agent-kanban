@@ -29,7 +29,7 @@ function BreadcrumbList({ className, ...props }: ComponentProps<"ol">) {
 		<ol
 			className={cn(
 				"wrap-break-word flex flex-wrap items-center gap-1.5 text-muted-foreground text-xs",
-				className
+				className,
 			)}
 			data-slot="breadcrumb-list"
 			{...props}
@@ -58,7 +58,7 @@ function BreadcrumbLink({
 			{
 				className: cn("transition-colors hover:text-foreground", className),
 			},
-			props
+			props,
 		),
 		render,
 		state: {
@@ -104,7 +104,7 @@ function BreadcrumbEllipsis({ className, ...props }: ComponentProps<"span">) {
 			aria-hidden="true"
 			className={cn(
 				"flex size-5 items-center justify-center [&>svg]:size-4",
-				className
+				className,
 			)}
 			data-slot="breadcrumb-ellipsis"
 			role="presentation"
@@ -121,7 +121,8 @@ export type BreadcrumbTag =
 	| "project-list"
 	| "project-detail"
 	| "board-detail"
-	| "board-archive";
+	| "board-archive"
+	| "settings";
 
 export interface BreadcrumbInterface {
 	href?: LinkProps;
@@ -132,7 +133,7 @@ export interface BreadcrumbInterface {
 interface BreadcrumbContextType {
 	addBreadcrumb: (
 		breadcrumb: BreadcrumbInterface,
-		parentTag?: BreadcrumbTag
+		parentTag?: BreadcrumbTag,
 	) => void;
 	breadcrumbs: BreadcrumbInterface[];
 	setBreadcrumbs: (items: BreadcrumbInterface[]) => void;
@@ -243,6 +244,17 @@ export function generateProjectListParams(): [
 	];
 }
 
+export function generateSettingsParams(): [BreadcrumbInterface, BreadcrumbTag] {
+	return [
+		{
+			href: { to: "/app/settings" },
+			label: "Settings",
+			tag: "settings",
+		},
+		"app",
+	];
+}
+
 export function generateAppParams(): [BreadcrumbInterface] {
 	return [
 		{
@@ -255,17 +267,17 @@ export function generateAppParams(): [BreadcrumbInterface] {
 
 function generateBreadcrumbs(
 	breadcrumb: BreadcrumbInterface,
-	parentTag: BreadcrumbTag
+	parentTag: BreadcrumbTag,
 ): Promise<BreadcrumbInterface>[] {
 	if (parentTag === "board-detail") {
 		const projectId =
 			breadcrumb?.href &&
-			"projectId" in (breadcrumb.href.params as Record<string, string>)
+				"projectId" in (breadcrumb.href.params as Record<string, string>)
 				? (breadcrumb.href.params as Record<string, string>).projectId
 				: "";
 		const boardId =
 			breadcrumb?.href &&
-			"boardId" in (breadcrumb.href.params as Record<string, string>)
+				"boardId" in (breadcrumb.href.params as Record<string, string>)
 				? (breadcrumb.href.params as Record<string, string>).boardId
 				: "";
 		if (!(projectId && boardId)) {
@@ -285,11 +297,11 @@ function generateBreadcrumbs(
 						resolve(currentBreadcrumb);
 					})
 					.catch(() => reject("Failed to obtain Board Data"));
-			}
+			},
 		);
 		const otherBreadcrumbs = generateBreadcrumbs(
 			currentBreadcrumb,
-			nextParentTag
+			nextParentTag,
 		);
 		otherBreadcrumbs.push(boardDetailPromise);
 		return otherBreadcrumbs;
@@ -298,7 +310,7 @@ function generateBreadcrumbs(
 	if (parentTag === "project-detail") {
 		const projectId =
 			breadcrumb?.href &&
-			"projectId" in (breadcrumb.href.params as Record<string, string>)
+				"projectId" in (breadcrumb.href.params as Record<string, string>)
 				? (breadcrumb.href.params as Record<string, string>).projectId
 				: "";
 		if (!projectId) {
@@ -317,11 +329,11 @@ function generateBreadcrumbs(
 						resolve(currentBreadcrumb);
 					})
 					.catch(() => reject("Failed to obtain Board Data"));
-			}
+			},
 		);
 		const otherBreadcrumbs = generateBreadcrumbs(
 			currentBreadcrumb,
-			nextParentTag
+			nextParentTag,
 		);
 		otherBreadcrumbs.push(projectDetailPromise);
 		return otherBreadcrumbs;
@@ -332,11 +344,11 @@ function generateBreadcrumbs(
 		const projectListPromise = new Promise<BreadcrumbInterface>(
 			(resolve, _reject) => {
 				resolve(currentBreadcrumb);
-			}
+			},
 		);
 		const otherBreadcrumbs = generateBreadcrumbs(
 			currentBreadcrumb,
-			nextParentTag
+			nextParentTag,
 		);
 		otherBreadcrumbs.push(projectListPromise);
 		return otherBreadcrumbs;
@@ -358,21 +370,21 @@ export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
 
 	const initializeBreadcrumb = (
 		breadcrumb: BreadcrumbInterface,
-		parentTag?: BreadcrumbTag
+		parentTag?: BreadcrumbTag,
 	) => {
 		if (!parentTag) {
 			return;
 		}
 
 		const parentCrumbIndex = breadcrumbs.findIndex(
-			(crumb) => crumb.tag === parentTag
+			(crumb) => crumb.tag === parentTag,
 		);
 
 		if (parentCrumbIndex < 0) {
 			Promise.all(generateBreadcrumbs(breadcrumb, parentTag)).then(
 				(resultingBreadcrumbs) => {
 					setBreadcrumbs([...resultingBreadcrumbs, breadcrumb]);
-				}
+				},
 			);
 		}
 	};
@@ -389,7 +401,7 @@ export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
 
 			setBreadcrumbs((prevBreadcrumbs) => {
 				const parentCrumbIndex = prevBreadcrumbs.findIndex(
-					(crumb) => crumb.tag === parentTag
+					(crumb) => crumb.tag === parentTag,
 				);
 
 				if (parentCrumbIndex < 0) {
@@ -399,7 +411,7 @@ export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
 				return [...prevBreadcrumbs.slice(0, parentCrumbIndex + 1), breadcrumb];
 			});
 		},
-		[]
+		[],
 	);
 
 	const value = useMemo(
@@ -408,7 +420,7 @@ export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
 			setBreadcrumbs,
 			addBreadcrumb,
 		}),
-		[breadcrumbs, addBreadcrumb]
+		[breadcrumbs, addBreadcrumb],
 	);
 
 	return (

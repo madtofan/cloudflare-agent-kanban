@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, KeyRound, Loader2, Plus, Trash2 } from "lucide-react";
-import { type ReactNode, useCallback, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,10 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { orpc } from "@/utils/orpc";
+import {
+	generateSettingsParams,
+	useBreadcrumb,
+} from "@/components/ui/breadcrumb";
 
 const EXPIRY_OPTIONS = [
 	{ label: "Never", value: "null" },
@@ -51,7 +55,7 @@ function SettingsPage() {
 
 	const { data: projects } = useQuery(orpc.project.getAll.queryOptions());
 	const { data: tokens, isLoading } = useQuery(
-		orpc.token.listTokens.queryOptions()
+		orpc.token.listTokens.queryOptions(),
 	);
 
 	const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -60,6 +64,11 @@ function SettingsPage() {
 	const [selectedExpiry, setSelectedExpiry] = useState("null");
 	const [createdToken, setCreatedToken] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
+	const { addBreadcrumb } = useBreadcrumb();
+
+	useEffect(() => {
+		addBreadcrumb(...generateSettingsParams());
+	}, [addBreadcrumb]);
 
 	const createMutation = useMutation(
 		orpc.token.createToken.mutationOptions({
@@ -72,7 +81,7 @@ function SettingsPage() {
 			onError: (error) => {
 				toast.error(error.message);
 			},
-		})
+		}),
 	);
 
 	const revokeMutation = useMutation(
@@ -86,7 +95,7 @@ function SettingsPage() {
 			onError: (error) => {
 				toast.error(error.message);
 			},
-		})
+		}),
 	);
 
 	const handleCreate = useCallback(() => {
