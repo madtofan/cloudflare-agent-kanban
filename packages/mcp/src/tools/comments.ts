@@ -2,7 +2,7 @@ import { getProjectAccess } from "@cloudflare-agent-kanban/api/utils";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { McpAuthContext } from "../auth";
 import { createComment } from "../utils/do-client";
-import { addCommentInput } from "../utils/schemas";
+import { addCommentInput, assertProjectScope } from "../utils/schemas";
 
 export function registerCommentTools(
 	server: McpServer,
@@ -17,6 +17,7 @@ export function registerCommentTools(
 			inputSchema: addCommentInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			const access = await getProjectAccess(input.projectId, auth.user.id);
 			if (access === "none" || access === "viewer") {
 				throw new Error(

@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { LogOut, User2 } from "lucide-react";
+import { LogOut, Settings, User2 } from "lucide-react";
 import { useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -58,6 +58,14 @@ function SidebarUserDropdown() {
 						<DropdownMenuLabel>My Account</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem disabled>{user?.email}</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => {
+								navigate({ to: "/app/settings" });
+							}}
+						>
+							<Settings />
+							Settings
+						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => {
 								if (user?.username) {

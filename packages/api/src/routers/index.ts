@@ -13,6 +13,7 @@ import { documentationRouter } from "./documentation";
 import { notificationRouter } from "./notification";
 import { profileRouter } from "./profile";
 import { projectRouter } from "./project";
+import { tokenRouter } from "./token";
 
 export const appRouter = {
 	healthCheck: publicProcedure.handler(() => {
@@ -26,6 +27,7 @@ export const appRouter = {
 	notification: notificationRouter,
 	profile: profileRouter,
 	project: projectRouter,
+	token: tokenRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

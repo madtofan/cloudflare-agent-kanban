@@ -1,11 +1,11 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { McpAuthContext } from "../auth";
 import { getBoards } from "../utils/do-client";
-import { listBoardsInput } from "../utils/schemas";
+import { assertProjectScope, listBoardsInput } from "../utils/schemas";
 
 export function registerBoardTools(
 	server: McpServer,
-	_auth: McpAuthContext,
+	auth: McpAuthContext,
 	env: Record<string, unknown>
 ) {
 	server.registerTool(
@@ -15,6 +15,7 @@ export function registerBoardTools(
 			inputSchema: listBoardsInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			const boards = await getBoards(env, input.projectId);
 
 			const result = boards.map((b) => ({

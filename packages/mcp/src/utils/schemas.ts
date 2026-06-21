@@ -1,4 +1,16 @@
 import z from "zod";
+import type { McpAuthContext } from "../auth";
+
+export function assertProjectScope(
+	auth: McpAuthContext,
+	projectId: string
+): void {
+	if (auth.tokenProjectId && auth.tokenProjectId !== projectId) {
+		throw new Error(
+			`Token is scoped to project ${auth.tokenProjectId}, but tried to access project ${projectId}`
+		);
+	}
+}
 
 export const projectId = z.string().describe("The ID of the project");
 export const boardId = z.string().describe("The ID of the board");

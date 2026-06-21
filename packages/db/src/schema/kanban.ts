@@ -67,3 +67,43 @@ export const projectMemberRelations = relations(projectMember, ({ one }) => ({
 		references: [user.id],
 	}),
 }));
+
+export const apiToken = sqliteTable(
+	"api_token",
+	{
+		id: text("id").primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		name: text("name").notNull(),
+		projectId: text("project_id")
+			.notNull()
+			.references(() => project.id, { onDelete: "cascade" }),
+		tokenHash: text("token_hash").notNull().unique(),
+		partialToken: text("partial_token").notNull(),
+		expiresAt: integer("expires_at", { mode: "timestamp_ms" }),
+		lastUsedAt: integer("last_used_at", { mode: "timestamp_ms" }),
+		createdAt: integer("created_at", { mode: "timestamp_ms" })
+			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+			.notNull(),
+		updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+			.default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+			.$onUpdate(() => /* @__PURE__ */ new Date())
+			.notNull(),
+	},
+	(table) => [
+		index("api_token_userId_idx").on(table.userId),
+		index("api_token_projectId_idx").on(table.projectId),
+	]
+);
+
+export const apiTokenRelations = relations(apiToken, ({ one }) => ({
+	user: one(user, {
+		fields: [apiToken.userId],
+		references: [user.id],
+	}),
+	project: one(project, {
+		fields: [apiToken.projectId],
+		references: [project.id],
+	}),
+}));

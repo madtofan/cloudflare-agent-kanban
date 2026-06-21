@@ -8,6 +8,13 @@
       "when": 1779554920743,
       "tag": "0000_shiny_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1780678495539,
+      "tag": "0001_smiling_whiplash",
+      "breakpoints": true
     }
   ]
 }

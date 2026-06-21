@@ -27,10 +27,7 @@ export function registerProjectTools(
 
 			const accessibleProjects = await db.query.project.findMany({
 				where: (fields, { or }) =>
-					or(
-						eq(fields.ownerId, userId),
-						inArray(fields.id, memberProjectIds)
-					),
+					or(eq(fields.ownerId, userId), inArray(fields.id, memberProjectIds)),
 			});
 
 			const projectsWithRole = accessibleProjects.map((p) => ({

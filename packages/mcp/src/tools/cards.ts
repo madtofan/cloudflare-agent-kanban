@@ -14,6 +14,7 @@ import {
 } from "../utils/do-client";
 import {
 	archiveCardInput,
+	assertProjectScope,
 	createCardInput,
 	deleteCardInput,
 	getCardInput,
@@ -44,6 +45,7 @@ export function registerCardTools(
 			inputSchema: getCardInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			const result = await getCard(env, input.projectId, input.cardId);
 			return {
 				content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
@@ -59,6 +61,7 @@ export function registerCardTools(
 			inputSchema: listCardsInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			if (input.columnId) {
 				const cards = await getCardsByColumnId(
 					env,
@@ -104,6 +107,7 @@ export function registerCardTools(
 			inputSchema: searchCardsInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			const results = await searchCards(
 				env,
 				input.projectId,
@@ -124,6 +128,7 @@ export function registerCardTools(
 			inputSchema: createCardInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			await requireEditAccess(input.projectId, auth.user.id);
 
 			const result = await createCard(env, input.projectId, {
@@ -149,6 +154,7 @@ export function registerCardTools(
 			inputSchema: updateCardInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			await requireEditAccess(input.projectId, auth.user.id);
 
 			const result = await updateCard(env, input.projectId, {
@@ -176,6 +182,7 @@ export function registerCardTools(
 			inputSchema: deleteCardInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			await requireEditAccess(input.projectId, auth.user.id);
 
 			const result = await deleteCard(
@@ -204,6 +211,7 @@ export function registerCardTools(
 			inputSchema: moveCardInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			await requireEditAccess(input.projectId, auth.user.id);
 
 			const result = await moveCard(env, input.projectId, {
@@ -226,6 +234,7 @@ export function registerCardTools(
 			inputSchema: archiveCardInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			await requireEditAccess(input.projectId, auth.user.id);
 
 			const result = await archiveCard(

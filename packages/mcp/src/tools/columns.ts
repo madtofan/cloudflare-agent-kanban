@@ -1,11 +1,11 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { McpAuthContext } from "../auth";
 import { getColumns } from "../utils/do-client";
-import { listColumnsInput } from "../utils/schemas";
+import { assertProjectScope, listColumnsInput } from "../utils/schemas";
 
 export function registerColumnTools(
 	server: McpServer,
-	_auth: McpAuthContext,
+	auth: McpAuthContext,
 	env: Record<string, unknown>
 ) {
 	server.registerTool(
@@ -15,6 +15,7 @@ export function registerColumnTools(
 			inputSchema: listColumnsInput,
 		},
 		async (input) => {
+			assertProjectScope(auth, input.projectId);
 			const columns = await getColumns(env, input.projectId, input.boardId);
 
 			const result = columns.map((c) => ({
