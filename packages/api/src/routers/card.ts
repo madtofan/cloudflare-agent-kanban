@@ -2,7 +2,7 @@ import { cardLinkType } from "@cloudflare-agent-kanban/types";
 import z from "zod";
 import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
-import { getProjectAccess } from "../utils";
+import { getProjectAccess, withErrorResponses } from "../utils";
 import { requireEditAccess } from "./project";
 
 export const cardRouter = {
@@ -13,6 +13,9 @@ export const cardRouter = {
 			summary: "List cards in a column",
 			description: "Returns all cards belonging to a specific column within a board.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "List of cards in the column.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Board not found." }),
 		})
 		.input(z.object({ columnId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -34,6 +37,9 @@ export const cardRouter = {
 			summary: "List cards on a board",
 			description: "Returns all cards grouped by column for a specific board.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Cards grouped by column for the board.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Board not found." }),
 		})
 		.input(z.object({ boardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -55,6 +61,9 @@ export const cardRouter = {
 			summary: "Get a card by ID",
 			description: "Returns a single card with its labels for the given card ID.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "The card with its labels.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Card not found." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -76,6 +85,9 @@ export const cardRouter = {
 			summary: "Get card change history",
 			description: "Returns the audit log of all changes made to a card, including field updates and column moves.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Audit log of changes made to the card.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Card not found." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -97,6 +109,9 @@ export const cardRouter = {
 			summary: "List comments on a card",
 			description: "Returns all comments for a specific card, including user details.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "List of comments on the card with user details.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Card not found." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -118,6 +133,9 @@ export const cardRouter = {
 			summary: "Create a comment on a card",
 			description: "Adds a new comment to a card. Requires edit access to the project.",
 			tags: ["Card"],
+			successStatus: 201,
+			successDescription: "Comment created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to comment.", "404": "Card not found." }),
 		})
 		.input(
 			z.object({
@@ -147,6 +165,9 @@ export const cardRouter = {
 			summary: "Delete a comment from a card",
 			description: "Permanently removes a comment from a card.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Comment deleted successfully.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(
 			z.object({
@@ -168,6 +189,9 @@ export const cardRouter = {
 			summary: "Create a new card",
 			description: "Creates a new card in the specified column. Requires edit access to the project.",
 			tags: ["Card"],
+			successStatus: 201,
+			successDescription: "Card created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to create cards." }),
 		})
 		.input(
 			z.object({
@@ -203,6 +227,9 @@ export const cardRouter = {
 			summary: "Update a card",
 			description: "Updates one or more fields of a card. If columnId is provided, the card is moved to that column at the specified position.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Card updated successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to update cards." }),
 		})
 		.input(
 			z.object({
@@ -253,6 +280,9 @@ export const cardRouter = {
 			summary: "Delete a card",
 			description: "Permanently deletes a card and all its associated comments and links.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Card deleted successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to delete cards." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -272,6 +302,9 @@ export const cardRouter = {
 			summary: "Trigger an external agent for a card",
 			description: "Fires the configured agent trigger URL for a card, sending card details to an external automation system.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Agent triggered successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions.", "404": "No agent trigger URL configured for this card.", "500": "Failed to trigger agent." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -313,6 +346,9 @@ export const cardRouter = {
 			summary: "Get card links",
 			description: "Returns all outgoing and incoming links for a card, including linked card details.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "List of outgoing and incoming links for the card.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Card not found." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -334,6 +370,9 @@ export const cardRouter = {
 			summary: "Search cards",
 			description: "Searches cards within a board by title or other criteria. Returns matching cards with basic information.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Matching cards with basic information.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(
 			z.object({
@@ -365,6 +404,9 @@ export const cardRouter = {
 			summary: "Link two cards together",
 			description: "Creates a relationship link between two cards with a specified link type (e.g., blocks, relates to).",
 			tags: ["Card"],
+			successStatus: 201,
+			successDescription: "Link created between the two cards.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(
 			z.object({
@@ -392,6 +434,9 @@ export const cardRouter = {
 			summary: "Remove a link between cards",
 			description: "Deletes a specific link relationship between two cards.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Link removed successfully.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(
 			z.object({
@@ -417,6 +462,9 @@ export const cardRouter = {
 			summary: "Archive a card",
 			description: "Archives a card, moving it out of the active board view while preserving its data.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Card archived successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to archive cards." }),
 		})
 		.input(z.object({ cardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -436,6 +484,9 @@ export const cardRouter = {
 			summary: "Archive all cards in a column",
 			description: "Archives every card within a specified column at once.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "All cards in the column archived successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to archive cards." }),
 		})
 		.input(z.object({ columnId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -455,6 +506,9 @@ export const cardRouter = {
 			summary: "List archived cards on a board",
 			description: "Returns all archived cards for a board, including their original column names.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "List of archived cards with original column information.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Board not found." }),
 		})
 		.input(z.object({ boardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -476,6 +530,9 @@ export const cardRouter = {
 			summary: "Bulk unarchive cards",
 			description: "Restores multiple archived cards back to their original columns on the board.",
 			tags: ["Card"],
+			successStatus: 200,
+			successDescription: "Cards unarchived successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to unarchive cards." }),
 		})
 		.input(z.object({ cardIds: z.array(z.string()), projectId: z.string() }))
 		.handler(async ({ context, input }) => {

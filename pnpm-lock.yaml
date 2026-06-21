@@ -8,7 +8,7 @@ catalogs:
   default:
     '@cloudflare/workers-types':
       specifier: ^4.20260310.1
-      version: 4.20260523.1
+      version: 4.20260620.1
     '@libsql/client':
       specifier: 0.15.15
       version: 0.15.15
@@ -29,7 +29,7 @@ catalogs:
       version: 1.13.5
     '@types/node':
       specifier: ^22.19.15
-      version: 22.19.17
+      version: 22.19.21
     agents:
       specifier: ^0.13.3
       version: 0.13.3
@@ -137,7 +137,7 @@ importers:
         version: 1.13.5(@opentelemetry/api@1.9.1)(@orpc/contract@1.13.5(@opentelemetry/api@1.9.1))(@orpc/server@1.13.5(@opentelemetry/api@1.9.1)(ws@8.19.0))(ws@8.19.0)(zod@4.3.6)
       better-auth:
         specifier: 'catalog:'
-        version: 1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260303.0)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       dotenv:
         specifier: 'catalog:'
         version: 17.3.1
@@ -156,13 +156,13 @@ importers:
         version: link:../../packages/config
       '@cloudflare/workers-types':
         specifier: 'catalog:'
-        version: 4.20260303.0
+        version: 4.20260620.1
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.11
+        version: 22.19.21
       alchemy:
         specifier: 'catalog:'
-        version: 0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260303.0))
+        version: 0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260620.1))
       tsdown:
         specifier: ^0.16.5
         version: 0.16.8(typescript@5.9.3)
@@ -171,7 +171,7 @@ importers:
         version: 5.9.3
       wrangler:
         specifier: ^4.54.0
-        version: 4.68.0(@cloudflare/workers-types@4.20260303.0)
+        version: 4.68.0(@cloudflare/workers-types@4.20260620.1)
 
   apps/web:
     dependencies:
@@ -219,7 +219,7 @@ importers:
         version: 0.5.19(tailwindcss@4.2.1)
       '@tailwindcss/vite':
         specifier: ^4.0.15
-        version: 4.2.1(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+        version: 4.2.1(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       '@tanstack/react-form':
         specifier: ^1.28.0
         version: 1.28.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -264,7 +264,7 @@ importers:
         version: 3.20.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.20.0(@tiptap/pm@3.20.0))(@tiptap/pm@3.20.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       better-auth:
         specifier: 'catalog:'
-        version: 1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -309,7 +309,7 @@ importers:
         version: 1.0.19(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(alien-signals@3.1.2)(emojibase@17.0.0)(prosemirror-model@1.25.4)(prosemirror-state@1.4.4)(prosemirror-view@1.41.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)
       shadcn:
         specifier: ^3.6.2
-        version: 3.8.5(@cfworker/json-schema@4.1.1)(@types/node@22.19.11)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
+        version: 3.8.5(@cfworker/json-schema@4.1.1)(@types/node@22.19.21)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -327,7 +327,7 @@ importers:
         version: 1.4.0
       vite-plugin-pwa:
         specifier: ^1.0.1
-        version: 1.2.0(@vite-pwa/assets-generator@1.0.2)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0)
+        version: 1.2.0(@vite-pwa/assets-generator@1.0.2)(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0)
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -343,10 +343,10 @@ importers:
         version: 1.162.8(@tanstack/react-router@1.162.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@tanstack/router-core@1.162.6)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@tanstack/router-plugin':
         specifier: ^1.141.1
-        version: 1.162.8(@tanstack/react-router@1.162.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+        version: 1.162.8(@tanstack/react-router@1.162.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.11
+        version: 22.19.21
       '@types/react':
         specifier: 19.2.7
         version: 19.2.7
@@ -358,10 +358,10 @@ importers:
         version: 1.0.2
       '@vitejs/plugin-react':
         specifier: ^4.3.4
-        version: 4.7.0(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
+        version: 4.7.0(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       alchemy:
         specifier: 'catalog:'
-        version: 0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260602.1))
+        version: 0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260620.1))
       postcss:
         specifier: ^8.5.3
         version: 8.5.6
@@ -373,7 +373,7 @@ importers:
         version: 5.9.3
       vite:
         specifier: ^6.2.2
-        version: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+        version: 6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/api:
     dependencies:
@@ -406,7 +406,7 @@ importers:
         version: 17.3.1
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
+        version: 0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
@@ -423,6 +423,9 @@ importers:
       hono:
         specifier: 'catalog:'
         version: 4.12.2
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -437,7 +440,7 @@ importers:
         version: link:../env
       better-auth:
         specifier: 'catalog:'
-        version: 1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       dotenv:
         specifier: 'catalog:'
         version: 17.3.1
@@ -470,7 +473,7 @@ importers:
         version: 17.3.1
       drizzle-orm:
         specifier: 'catalog:'
-        version: 0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
+        version: 0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
       libsql:
         specifier: 'catalog:'
         version: 0.5.22
@@ -533,7 +536,7 @@ importers:
         version: link:../infra
       '@types/node':
         specifier: 'catalog:'
-        version: 22.19.11
+        version: 22.19.21
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -552,7 +555,7 @@ importers:
         version: link:../config
       alchemy:
         specifier: 'catalog:'
-        version: 0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260602.1))
+        version: 0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260310.1))
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -1566,9 +1569,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@4.20260303.0':
-    resolution: {integrity: sha512-soUlr4NJVkh5dR09RwtziTMbBQ+lbdoEesTGw8WUlvmnQ2M4h7CmJzAjC6a7IivUodiiCSjbLcGV/8PyZpvZkA==}
-
   '@cloudflare/workers-types@4.20260310.1':
     resolution: {integrity: sha512-Cg4gyGDtfimNMgBr2h06aGR5Bt8puUbblyzPNZN55mBfVYCTWwQiUd9PrbkcoddKrWHlsy0ACH/16dAeGf5BQg==}
 
@@ -1577,6 +1577,9 @@ packages:
 
   '@cloudflare/workers-types@4.20260602.1':
     resolution: {integrity: sha512-0VssYYXHUn4VR1BaV+GXfhFpI53P2f6AIi17qyA9lQFyTs/u5ZF6IDPda2enDTIPFz/02872RM8CYVlXvRKtUA==}
+
+  '@cloudflare/workers-types@4.20260620.1':
+    resolution: {integrity: sha512-WB81w9u1bAS7KcekpC7/nYhLpIXAEtgybso7XgGJV8CQKNkNPYcyjvICLdghOlDBi/9Ivk+f7NRckV2Bkq1bDg==}
 
   '@codemirror/autocomplete@6.20.1':
     resolution: {integrity: sha512-1cvg3Vz1dSSToCNlJfRA2WSI4ht3K+WplO0UMOgmUYPivCyy2oueZY6Lx7M9wThm7SDUBViRmuT+OG/i8+ON9A==}
@@ -5139,14 +5142,14 @@ packages:
   '@types/ms@2.1.0':
     resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
-  '@types/node@22.19.11':
-    resolution: {integrity: sha512-BH7YwL6rA93ReqeQS1c4bsPpcfOmJasG+Fkr6Y59q83f9M1WcBRHR2vM+P9eOisYRcN3ujQoiZY8uk5W+1WL8w==}
-
   '@types/node@22.19.15':
     resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
 
   '@types/node@22.19.17':
     resolution: {integrity: sha512-wGdMcf+vPYM6jikpS/qhg6WiqSV/OhG+jeeHT/KlVqxYfD40iYJf9/AE1uQxVWFvU7MipKRkRv8NSHiCGgPr8Q==}
+
+  '@types/node@22.19.21':
+    resolution: {integrity: sha512-VMeFBSCKQKmm2swI2kW51SFusDqekC6q9trBCvJ/JliDchFSuoYYKN7yVNjPthP1HKZcx3U1gI/wTcEBjEFKTA==}
 
   '@types/node@25.4.0':
     resolution: {integrity: sha512-9wLpoeWuBlcbBpOY3XmzSTG3oscB6xjBEEtn+pYXTfhyXhIxC5FsBer2KTopBlvKEiW9l13po9fq+SJY/5lkhw==}
@@ -5193,6 +5196,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@upsetjs/venn.js@2.0.0':
     resolution: {integrity: sha512-WbBhLrooyePuQ1VZxrJjtLvTc4NVfpOyKx0sKqioq9bX1C1m7Jgykkn8gLrtwumBioXIqam8DLxp88Adbue6Hw==}
@@ -8641,6 +8645,7 @@ packages:
 
   sliced@1.0.1:
     resolution: {integrity: sha512-VZBmZP8WU3sMOZm1bdgTadsQbcscK0UM8oKxKVBs4XAhUo2Xxzm/OFMGBkPusxw9xL3Uy8LrzEqGqJhclsr0yA==}
+    deprecated: Unsupported
 
   smob@1.6.1:
     resolution: {integrity: sha512-KAkBqZl3c2GvNgNhcoyJae1aKldDW0LO279wF9bk1PnluRTETKBq0WyzRXxEhoQLk56yHaOY4JCBEKDuJIET5g==}
@@ -9155,6 +9160,7 @@ packages:
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uvu@0.5.6:
@@ -10960,13 +10966,13 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260302.0':
     optional: true
 
-  '@cloudflare/workers-types@4.20260303.0': {}
-
   '@cloudflare/workers-types@4.20260310.1': {}
 
   '@cloudflare/workers-types@4.20260523.1': {}
 
   '@cloudflare/workers-types@4.20260602.1': {}
+
+  '@cloudflare/workers-types@4.20260620.1': {}
 
   '@codemirror/autocomplete@6.20.1':
     dependencies:
@@ -11906,31 +11912,31 @@ snapshots:
 
   '@inquirer/ansi@1.0.2': {}
 
-  '@inquirer/confirm@5.1.21(@types/node@22.19.11)':
+  '@inquirer/confirm@5.1.21(@types/node@22.19.21)':
     dependencies:
-      '@inquirer/core': 10.3.2(@types/node@22.19.11)
-      '@inquirer/type': 3.0.10(@types/node@22.19.11)
+      '@inquirer/core': 10.3.2(@types/node@22.19.21)
+      '@inquirer/type': 3.0.10(@types/node@22.19.21)
     optionalDependencies:
-      '@types/node': 22.19.11
+      '@types/node': 22.19.21
 
-  '@inquirer/core@10.3.2(@types/node@22.19.11)':
+  '@inquirer/core@10.3.2(@types/node@22.19.21)':
     dependencies:
       '@inquirer/ansi': 1.0.2
       '@inquirer/figures': 1.0.15
-      '@inquirer/type': 3.0.10(@types/node@22.19.11)
+      '@inquirer/type': 3.0.10(@types/node@22.19.21)
       cli-width: 4.1.0
       mute-stream: 2.0.0
       signal-exit: 4.1.0
       wrap-ansi: 6.2.0
       yoctocolors-cjs: 2.1.3
     optionalDependencies:
-      '@types/node': 22.19.11
+      '@types/node': 22.19.21
 
   '@inquirer/figures@1.0.15': {}
 
-  '@inquirer/type@3.0.10(@types/node@22.19.11)':
+  '@inquirer/type@3.0.10(@types/node@22.19.21)':
     optionalDependencies:
-      '@types/node': 22.19.11
+      '@types/node': 22.19.21
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -14110,12 +14116,12 @@ snapshots:
       postcss-selector-parser: 6.0.10
       tailwindcss: 4.2.1
 
-  '@tailwindcss/vite@4.2.1(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@tailwindcss/vite@4.2.1(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@tailwindcss/node': 4.2.1
       '@tailwindcss/oxide': 4.2.1
       tailwindcss: 4.2.1
-      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
   '@tanstack/devtools-event-client@0.4.0': {}
 
@@ -14226,7 +14232,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@tanstack/router-plugin@1.162.8(@tanstack/react-router@1.162.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@tanstack/router-plugin@1.162.8(@tanstack/react-router@1.162.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-syntax-jsx': 7.28.6(@babel/core@7.29.0)
@@ -14243,7 +14249,7 @@ snapshots:
       zod: 3.25.76
     optionalDependencies:
       '@tanstack/react-router': 1.162.8(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -14725,15 +14731,15 @@ snapshots:
 
   '@types/ms@2.1.0': {}
 
-  '@types/node@22.19.11':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/node@22.19.15':
     dependencies:
       undici-types: 6.21.0
 
   '@types/node@22.19.17':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@types/node@22.19.21':
     dependencies:
       undici-types: 6.21.0
 
@@ -14791,7 +14797,7 @@ snapshots:
       sharp-ico: 0.1.5
       unconfig: 7.5.0
 
-  '@vitejs/plugin-react@4.7.0(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
+  '@vitejs/plugin-react@4.7.0(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.0)
@@ -14799,7 +14805,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -14881,7 +14887,7 @@ snapshots:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
-  alchemy@0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260303.0)):
+  alchemy@0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260620.1)):
     dependencies:
       '@aws-sdk/credential-providers': 3.996.0
       '@cloudflare/unenv-preset': 2.7.7(unenv@2.0.0-rc.21)(workerd@1.20260302.0)
@@ -14910,12 +14916,12 @@ snapshots:
       proper-lockfile: 4.1.2
       signal-exit: 4.1.0
       unenv: 2.0.0-rc.21
-      wrangler: 4.68.0(@cloudflare/workers-types@4.20260303.0)
+      wrangler: 4.68.0(@cloudflare/workers-types@4.20260620.1)
       ws: 8.19.0
       yaml: 2.8.2
     optionalDependencies:
       '@libsql/client': 0.15.15
-      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - '@aws-sdk/client-rds-data'
       - '@electric-sql/pglite'
@@ -14949,7 +14955,7 @@ snapshots:
       - utf-8-validate
       - workerd
 
-  alchemy@0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260602.1)):
+  alchemy@0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260310.1)):
     dependencies:
       '@aws-sdk/credential-providers': 3.996.0
       '@cloudflare/unenv-preset': 2.7.7(unenv@2.0.0-rc.21)(workerd@1.20260302.0)
@@ -14978,75 +14984,7 @@ snapshots:
       proper-lockfile: 4.1.2
       signal-exit: 4.1.0
       unenv: 2.0.0-rc.21
-      wrangler: 4.68.0(@cloudflare/workers-types@4.20260602.1)
-      ws: 8.19.0
-      yaml: 2.8.2
-    optionalDependencies:
-      '@libsql/client': 0.15.15
-      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@electric-sql/pglite'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - aws-crt
-      - better-sqlite3
-      - bufferutil
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
-      - utf-8-validate
-      - workerd
-
-  alchemy@0.82.2(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)(vite@6.4.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workerd@1.20260302.0)(wrangler@4.68.0(@cloudflare/workers-types@4.20260602.1)):
-    dependencies:
-      '@aws-sdk/credential-providers': 3.996.0
-      '@cloudflare/unenv-preset': 2.7.7(unenv@2.0.0-rc.21)(workerd@1.20260302.0)
-      '@cloudflare/workers-types': 4.20260310.1
-      '@iarna/toml': 2.2.5
-      '@octokit/rest': 21.1.1
-      '@smithy/node-config-provider': 4.3.9
-      '@smithy/types': 4.12.1
-      aws4fetch: 1.0.20
-      drizzle-orm: 0.45.1(@cloudflare/workers-types@4.20260310.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
-      env-paths: 3.0.0
-      esbuild: 0.25.12
-      execa: 9.6.1
-      fast-json-patch: 3.1.1
-      fast-xml-parser: 5.3.7
-      find-process: 2.0.0
-      glob: 10.5.0
-      jszip: 3.10.1
-      libsodium-wrappers: 0.7.16
-      miniflare: 4.20260302.0
-      neverthrow: 8.2.0
-      open: 10.2.0
-      openapi-types: 12.1.3
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      proper-lockfile: 4.1.2
-      signal-exit: 4.1.0
-      unenv: 2.0.0-rc.21
-      wrangler: 4.68.0(@cloudflare/workers-types@4.20260602.1)
+      wrangler: 4.68.0(@cloudflare/workers-types@4.20260310.1)
       ws: 8.19.0
       yaml: 2.8.2
     optionalDependencies:
@@ -15199,7 +15137,7 @@ snapshots:
 
   before-after-hook@3.0.2: {}
 
-  better-auth@1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260303.0)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  better-auth@1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       '@better-auth/core': 1.4.19(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.0)
       '@better-auth/telemetry': 1.4.19(@better-auth/core@1.4.19(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.0))
@@ -15215,27 +15153,7 @@ snapshots:
       zod: 4.3.6
     optionalDependencies:
       drizzle-kit: 0.31.9
-      drizzle-orm: 0.45.1(@cloudflare/workers-types@4.20260303.0)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
-      react: 19.2.3
-      react-dom: 19.2.3(react@19.2.3)
-
-  better-auth@1.4.19(drizzle-kit@0.31.9)(drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11))(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
-    dependencies:
-      '@better-auth/core': 1.4.19(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.0)
-      '@better-auth/telemetry': 1.4.19(@better-auth/core@1.4.19(@better-auth/utils@0.3.0)(@better-fetch/fetch@1.1.21)(better-call@1.1.8(zod@4.3.6))(jose@6.1.3)(kysely@0.28.11)(nanostores@1.1.0))
-      '@better-auth/utils': 0.3.0
-      '@better-fetch/fetch': 1.1.21
-      '@noble/ciphers': 2.1.1
-      '@noble/hashes': 2.0.1
-      better-call: 1.1.8(zod@4.3.6)
-      defu: 6.1.4
-      jose: 6.1.3
-      kysely: 0.28.11
-      nanostores: 1.1.0
-      zod: 4.3.6
-    optionalDependencies:
-      drizzle-kit: 0.31.9
-      drizzle-orm: 0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
+      drizzle-orm: 0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11)
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
 
@@ -15938,14 +15856,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260303.0)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11):
-    optionalDependencies:
-      '@cloudflare/workers-types': 4.20260303.0
-      '@libsql/client': 0.15.15
-      '@opentelemetry/api': 1.9.1
-      kysely: 0.28.11
-    optional: true
-
   drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260310.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11):
     optionalDependencies:
       '@cloudflare/workers-types': 4.20260310.1
@@ -15963,6 +15873,13 @@ snapshots:
   drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260602.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11):
     optionalDependencies:
       '@cloudflare/workers-types': 4.20260602.1
+      '@libsql/client': 0.15.15
+      '@opentelemetry/api': 1.9.1
+      kysely: 0.28.11
+
+  drizzle-orm@0.45.1(@cloudflare/workers-types@4.20260620.1)(@libsql/client@0.15.15)(@opentelemetry/api@1.9.1)(kysely@0.28.11):
+    optionalDependencies:
+      '@cloudflare/workers-types': 4.20260620.1
       '@libsql/client': 0.15.15
       '@opentelemetry/api': 1.9.1
       kysely: 0.28.11
@@ -17870,9 +17787,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@2.12.10(@types/node@22.19.11)(typescript@5.9.3):
+  msw@2.12.10(@types/node@22.19.21)(typescript@5.9.3):
     dependencies:
-      '@inquirer/confirm': 5.1.21(@types/node@22.19.11)
+      '@inquirer/confirm': 5.1.21(@types/node@22.19.21)
       '@mswjs/interceptors': 0.41.3
       '@open-draft/deferred-promise': 2.2.0
       '@types/statuses': 2.0.6
@@ -18970,7 +18887,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn@3.8.5(@cfworker/json-schema@4.1.1)(@types/node@22.19.11)(babel-plugin-macros@3.1.0)(typescript@5.9.3):
+  shadcn@3.8.5(@cfworker/json-schema@4.1.1)(@types/node@22.19.21)(babel-plugin-macros@3.1.0)(typescript@5.9.3):
     dependencies:
       '@antfu/ni': 25.0.0
       '@babel/core': 7.29.0
@@ -18992,7 +18909,7 @@ snapshots:
       fuzzysort: 3.1.0
       https-proxy-agent: 7.0.6
       kleur: 4.1.5
-      msw: 2.12.10(@types/node@22.19.11)(typescript@5.9.3)
+      msw: 2.12.10(@types/node@22.19.21)(typescript@5.9.3)
       node-fetch: 3.3.2
       open: 11.0.0
       ora: 8.2.0
@@ -19678,12 +19595,12 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-pwa@1.2.0(@vite-pwa/assets-generator@1.0.2)(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0):
+  vite-plugin-pwa@1.2.0(@vite-pwa/assets-generator@1.0.2)(vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(workbox-build@7.4.0(@types/babel__core@7.20.5))(workbox-window@7.4.0):
     dependencies:
       debug: 4.4.3
       pretty-bytes: 6.1.1
       tinyglobby: 0.2.15
-      vite: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+      vite: 6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
       workbox-build: 7.4.0(@types/babel__core@7.20.5)
       workbox-window: 7.4.0
     optionalDependencies:
@@ -19691,7 +19608,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2):
+  vite@6.4.1(@types/node@22.19.21)(jiti@2.6.1)(lightningcss@1.31.1)(sass@1.51.0)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       esbuild: 0.25.12
       fdir: 6.5.0(picomatch@4.0.3)
@@ -19700,7 +19617,7 @@ snapshots:
       rollup: 4.59.0
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 22.19.11
+      '@types/node': 22.19.21
       fsevents: 2.3.3
       jiti: 2.6.1
       lightningcss: 1.31.1
@@ -19935,7 +19852,7 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20260302.0
       '@cloudflare/workerd-windows-64': 1.20260302.0
 
-  wrangler@4.68.0(@cloudflare/workers-types@4.20260303.0):
+  wrangler@4.68.0(@cloudflare/workers-types@4.20260310.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.2
       '@cloudflare/unenv-preset': 2.14.0(unenv@2.0.0-rc.24)(workerd@1.20260302.0)
@@ -19946,13 +19863,13 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260302.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260303.0
+      '@cloudflare/workers-types': 4.20260310.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  wrangler@4.68.0(@cloudflare/workers-types@4.20260602.1):
+  wrangler@4.68.0(@cloudflare/workers-types@4.20260620.1):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.2
       '@cloudflare/unenv-preset': 2.14.0(unenv@2.0.0-rc.24)(workerd@1.20260302.0)
@@ -19963,7 +19880,7 @@ snapshots:
       unenv: 2.0.0-rc.24
       workerd: 1.20260302.0
     optionalDependencies:
-      '@cloudflare/workers-types': 4.20260602.1
+      '@cloudflare/workers-types': 4.20260620.1
       fsevents: 2.3.3
     transitivePeerDependencies:
       - bufferutil

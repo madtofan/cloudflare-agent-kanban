@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import z from "zod";
 import { publicProcedure } from "../index";
+import { withErrorResponses } from "../utils";
 
 export const contactRouter = {
 	submit: publicProcedure
@@ -10,6 +11,13 @@ export const contactRouter = {
 			summary: "Submit contact form",
 			description: "Sends a contact form message via email to the site administrator.",
 			tags: ["Contact"],
+			successStatus: 200,
+			successDescription:
+				"Contact form submitted successfully. An email has been sent to the site administrator.",
+			spec: withErrorResponses({
+				"400": "Invalid input. Name, email, and message are required.",
+				"500": "Failed to send email.",
+			}),
 		})
 		.input(
 			z.object({

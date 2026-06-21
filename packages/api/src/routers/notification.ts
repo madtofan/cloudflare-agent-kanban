@@ -2,6 +2,7 @@ import { db } from "@cloudflare-agent-kanban/db";
 import { notification } from "@cloudflare-agent-kanban/db/schema/auth";
 import { and, desc, eq, sql } from "drizzle-orm";
 import z from "zod";
+import { withErrorResponses } from "../utils";
 import { protectedProcedure } from "../index";
 
 export const notificationRouter = {
@@ -12,6 +13,9 @@ export const notificationRouter = {
 			summary: "List notifications for the current user",
 			description: "Returns a paginated list of notifications for the authenticated user, ordered by most recent first. Supports cursor-based pagination.",
 			tags: ["Notifications"],
+			successStatus: 200,
+			successDescription: "Paginated list of notifications for the authenticated user.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(
 			z.object({
@@ -63,6 +67,9 @@ export const notificationRouter = {
 			summary: "Get unread notification count",
 			description: "Returns the total number of unread notifications for the authenticated user.",
 			tags: ["Notifications"],
+			successStatus: 200,
+			successDescription: "The number of unread notifications.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.handler(async ({ context }) => {
 			const userId = context.session.user.id;
@@ -84,6 +91,9 @@ export const notificationRouter = {
 			summary: "Mark a notification as read",
 			description: "Marks a specific notification as read for the authenticated user.",
 			tags: ["Notifications"],
+			successStatus: 200,
+			successDescription: "Notification marked as read.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Notification not found." }),
 		})
 		.input(z.object({ id: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -106,6 +116,9 @@ export const notificationRouter = {
 			summary: "Mark all notifications as read",
 			description: "Marks every unread notification as read for the authenticated user.",
 			tags: ["Notifications"],
+			successStatus: 200,
+			successDescription: "All notifications marked as read.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.handler(async ({ context }) => {
 			const userId = context.session.user.id;

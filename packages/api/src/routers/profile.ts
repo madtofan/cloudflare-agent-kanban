@@ -8,6 +8,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import z from "zod";
 import { protectedProcedure, publicProcedure } from "../index";
+import { withErrorResponses } from "../utils";
 
 const usernameRegex = /^[a-z0-9_-]{6,30}$/;
 
@@ -29,6 +30,9 @@ export const profileRouter = {
 			summary: "Get a public profile by username",
 			description: "Returns a user's public profile information and showcased projects.",
 			tags: ["Profile"],
+			successStatus: 200,
+			successDescription: "The user's public profile with showcased projects.",
+			spec: withErrorResponses({ "404": "User not found." }),
 		})
 		.input(z.object({ username: z.string() }))
 		.handler(async ({ input }) => {
@@ -85,6 +89,9 @@ export const profileRouter = {
 			summary: "Get the current user's profile",
 			description: "Returns the authenticated user's full profile, including owned and member projects.",
 			tags: ["Profile"],
+			successStatus: 200,
+			successDescription: "The authenticated user's full profile with projects.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "User not found." }),
 		})
 		.handler(async ({ context }) => {
 			const userId = context.session.user.id;
@@ -151,6 +158,9 @@ export const profileRouter = {
 			summary: "Update profile settings",
 			description: "Updates the authenticated user's profile, including about me section and showcased project IDs.",
 			tags: ["Profile"],
+			successStatus: 200,
+			successDescription: "Profile updated successfully.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(updateProfileSchema)
 		.handler(async ({ context, input }) => {
@@ -192,6 +202,9 @@ export const profileRouter = {
 			summary: "Upload profile image",
 			description: "Uploads or replaces the authenticated user's profile avatar image. Accepts base64-encoded JPEG, PNG, or WebP images up to 5MB.",
 			tags: ["Profile"],
+			successStatus: 200,
+			successDescription: "Profile image uploaded successfully. Returns the image URL.",
+			spec: withErrorResponses({ "401": "Authentication required.", "400": "Invalid image type or file size exceeds 5MB limit.", "500": "R2 bucket not configured." }),
 		})
 		.input(
 			z.object({
@@ -264,6 +277,8 @@ export const profileRouter = {
 			summary: "Check if a username is available",
 			description: "Checks whether a given username is available for registration. Returns the reason if unavailable.",
 			tags: ["Profile"],
+			successStatus: 200,
+			successDescription: "Username availability status with reason if unavailable.",
 		})
 		.input(z.object({ username: z.string() }))
 		.handler(async ({ input }) => {
@@ -290,6 +305,9 @@ export const profileRouter = {
 			summary: "List the current user's public projects",
 			description: "Returns all projects owned by or shared with the authenticated user that have public visibility.",
 			tags: ["Profile"],
+			successStatus: 200,
+			successDescription: "List of the user's public projects.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.handler(async ({ context }) => {
 			const userId = context.session.user.id;

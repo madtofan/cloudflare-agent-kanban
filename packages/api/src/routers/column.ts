@@ -1,7 +1,7 @@
 import z from "zod";
 import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
-import { getProjectAccess } from "../utils";
+import { getProjectAccess, withErrorResponses } from "../utils";
 import { requireEditAccess } from "./project";
 
 export const columnRouter = {
@@ -12,6 +12,9 @@ export const columnRouter = {
 			summary: "List columns in a board",
 			description: "Returns all columns for a specific board, ordered by position.",
 			tags: ["Column"],
+			successStatus: 200,
+			successDescription: "List of columns in the board, ordered by position.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Board not found." }),
 		})
 		.input(z.object({ boardId: z.string(), projectId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -33,6 +36,9 @@ export const columnRouter = {
 			summary: "Create a column in a board",
 			description: "Creates a new column within a board. Requires edit access to the project.",
 			tags: ["Column"],
+			successStatus: 201,
+			successDescription: "The column was created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to create a column." }),
 		})
 		.input(
 			z.object({
@@ -61,6 +67,9 @@ export const columnRouter = {
 			summary: "Update a column",
 			description: "Updates the name, description, or position of a column. Requires edit access to the project.",
 			tags: ["Column"],
+			successStatus: 200,
+			successDescription: "The column was updated successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to update a column." }),
 		})
 		.input(
 			z.object({
@@ -93,6 +102,9 @@ export const columnRouter = {
 			summary: "Delete a column",
 			description: "Permanently deletes a column and all its cards from a board. Requires edit access to the project.",
 			tags: ["Column"],
+			successStatus: 200,
+			successDescription: "The column was deleted successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to delete a column." }),
 		})
 		.input(
 			z.object({
@@ -119,6 +131,9 @@ export const columnRouter = {
 			summary: "Reorder columns in a board",
 			description: "Updates the position of multiple columns at once to reflect a new sort order.",
 			tags: ["Column"],
+			successStatus: 200,
+			successDescription: "Columns reordered successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to reorder columns." }),
 		})
 		.input(
 			z.object({

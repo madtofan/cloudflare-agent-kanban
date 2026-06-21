@@ -9,7 +9,11 @@ import { nanoid } from "nanoid";
 import z from "zod";
 import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
-import { getProjectAccess, type ProjectAccess } from "../utils";
+import {
+	getProjectAccess,
+	withErrorResponses,
+	type ProjectAccess,
+} from "../utils";
 
 const projectIdSchema = z.object({ projectId: z.string() });
 
@@ -32,6 +36,10 @@ export const projectRouter = {
 			summary: "List all projects for the current user",
 			description: "Returns all projects where the user is a member or owner.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription:
+				"List of projects where the user is a member or owner.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.handler(async ({ context }) => {
 			const userId = context.session.user.id;
@@ -71,6 +79,12 @@ export const projectRouter = {
 			summary: "Get a project by ID",
 			description: "Returns a single project with the user's role within it.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription: "The project details with the user's role.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"404": "Project not found.",
+			}),
 		})
 		.input(projectIdSchema)
 		.handler(async ({ context, input }) => {
@@ -111,6 +125,12 @@ export const projectRouter = {
 			summary: "List boards in a project",
 			description: "Returns all boards belonging to a project.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription: "List of boards in the project.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"404": "Project not found.",
+			}),
 		})
 		.input(projectIdSchema)
 		.handler(async ({ context, input }) => {
@@ -131,6 +151,9 @@ export const projectRouter = {
 			summary: "Create a new project",
 			description: "Creates a new project and sets the current user as the owner with admin role.",
 			tags: ["Project"],
+			successStatus: 201,
+			successDescription: "The project was created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.input(
 			z.object({
@@ -171,6 +194,13 @@ export const projectRouter = {
 			summary: "Update a project",
 			description: "Updates the name, description, or visibility of a project. Requires owner or admin access.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription: "The project was updated successfully.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"403": "Only owner and admins can update the project.",
+				"404": "Project not found.",
+			}),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -210,6 +240,12 @@ export const projectRouter = {
 			summary: "Delete a project",
 			description: "Permanently deletes a project and all associated data. Only the owner can delete a project.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription: "The project was deleted successfully.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"403": "Only the project owner can delete the project.",
+			}),
 		})
 		.input(projectIdSchema)
 		.handler(async ({ context, input }) => {
@@ -231,6 +267,13 @@ export const projectRouter = {
 			summary: "List project members",
 			description: "Returns all members of a project along with the project owner.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription:
+				"The project owner and list of members with their roles.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"404": "Project not found.",
+			}),
 		})
 		.input(projectIdSchema)
 		.handler(async ({ context, input }) => {
@@ -290,6 +333,14 @@ export const projectRouter = {
 			summary: "Add a member to a project",
 			description: "Adds a user to a project by email with a specified role. Requires owner or admin access.",
 			tags: ["Project"],
+			successStatus: 201,
+			successDescription: "Member added to the project successfully.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"403": "Only owner and admins can add members.",
+				"404": "Project or user not found.",
+				"409": "User is already a member of this project.",
+			}),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -353,6 +404,13 @@ export const projectRouter = {
 			summary: "Remove a member from a project",
 			description: "Removes a user from a project. The project owner cannot be removed. Requires owner or admin access.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription: "Member removed from the project successfully.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"403": "Only owner and admins can remove members.",
+				"404": "Member not found.",
+			}),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -413,6 +471,13 @@ export const projectRouter = {
 			summary: "Update a member's role",
 			description: "Changes the role of a project member between admin and member. The owner's role cannot be changed.",
 			tags: ["Project"],
+			successStatus: 200,
+			successDescription: "Member role updated successfully.",
+			spec: withErrorResponses({
+				"401": "Authentication required.",
+				"403": "Only owner and admins can update member roles.",
+				"404": "Member not found.",
+			}),
 		})
 		.input(
 			projectIdSchema.extend({

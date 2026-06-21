@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import z from "zod";
 import { protectedProcedure } from "../index";
-import { generateToken, getPartialToken, hashToken } from "../utils";
+import { generateToken, getPartialToken, hashToken, withErrorResponses } from "../utils";
 import { requireEditAccess } from "./project";
 
 function calculateExpiry(expiresInDays: number | null): Date | null {
@@ -24,6 +24,9 @@ export const tokenRouter = {
 			summary: "List all API tokens for the current user",
 			description: "Returns all API tokens created by the authenticated user, including their name, partial token, and expiration.",
 			tags: ["Token"],
+			successStatus: 200,
+			successDescription: "List of API tokens with metadata (name, partial token, expiration).",
+			spec: withErrorResponses({ "401": "Authentication required." }),
 		})
 		.handler(async ({ context }) => {
 			const userId = context.session.user.id;
@@ -59,6 +62,9 @@ export const tokenRouter = {
 			summary: "Create a new API token",
 			description: "Creates a new API token for programmatic access to a specific project. The raw token is returned only once at creation.",
 			tags: ["Token"],
+			successStatus: 201,
+			successDescription: "API token created successfully. The raw token is returned only once.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to create tokens for this project." }),
 		})
 		.input(
 			z.object({
@@ -98,6 +104,9 @@ export const tokenRouter = {
 			summary: "Revoke an API token",
 			description: "Permanently revokes an API token. Users can only revoke their own tokens.",
 			tags: ["Token"],
+			successStatus: 200,
+			successDescription: "Token was revoked successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "You can only revoke your own tokens.", "404": "Token not found." }),
 		})
 		.input(z.object({ tokenId: z.string() }))
 		.handler(async ({ context, input }) => {

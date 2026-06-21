@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 import z from "zod";
 import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
-import { getProjectAccess, type ProjectAccess } from "../utils";
+import { getProjectAccess, withErrorResponses, type ProjectAccess } from "../utils";
 
 const projectIdSchema = z.object({ projectId: z.string() });
 
@@ -25,6 +25,9 @@ export const documentationRouter = {
 			summary: "Get all documentation folders",
 			description: "Returns all documentation folders for a project in a flat list.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "List of documentation folders in the project.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Project not found." }),
 		})
 		.input(projectIdSchema)
 		.handler(async ({ context, input }) => {
@@ -44,6 +47,9 @@ export const documentationRouter = {
 			summary: "Create a documentation folder",
 			description: "Creates a new folder for organizing documentation pages. Can be nested under a parent folder.",
 			tags: ["Documentation"],
+			successStatus: 201,
+			successDescription: "The documentation folder was created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to create folders." }),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -72,6 +78,9 @@ export const documentationRouter = {
 			summary: "Update a documentation folder",
 			description: "Updates the name or parent folder of an existing documentation folder.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "The documentation folder was updated successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to update folders." }),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -100,6 +109,9 @@ export const documentationRouter = {
 			summary: "Delete a documentation folder",
 			description: "Permanently deletes a documentation folder and its contents.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "The documentation folder was deleted successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to delete folders." }),
 		})
 		.input(projectIdSchema.extend({ folderId: z.string() }))
 		.handler(({ context, input }) => {
@@ -115,6 +127,9 @@ export const documentationRouter = {
 			summary: "Get all documentation pages",
 			description: "Returns all documentation pages for a project, including author details.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "List of documentation pages with author details.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Project not found." }),
 		})
 		.input(projectIdSchema)
 		.handler(async ({ context, input }) => {
@@ -134,6 +149,9 @@ export const documentationRouter = {
 			summary: "Get a single documentation page",
 			description: "Returns a single documentation page with author information.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "The documentation page with author information.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Page not found." }),
 		})
 		.input(projectIdSchema.extend({ pageId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -155,6 +173,9 @@ export const documentationRouter = {
 			summary: "Create a documentation page",
 			description: "Creates a new documentation page in a project. Optionally assigns it to a folder.",
 			tags: ["Documentation"],
+			successStatus: 201,
+			successDescription: "The documentation page was created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to create pages." }),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -186,6 +207,9 @@ export const documentationRouter = {
 			summary: "Update a documentation page",
 			description: "Updates the title, content, folder assignment, or visibility of a documentation page.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "The documentation page was updated successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to update pages." }),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -216,6 +240,9 @@ export const documentationRouter = {
 			summary: "Delete a documentation page",
 			description: "Permanently deletes a documentation page.",
 			tags: ["Documentation"],
+			successStatus: 200,
+			successDescription: "The documentation page was deleted successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to delete pages." }),
 		})
 		.input(projectIdSchema.extend({ pageId: z.string() }))
 		.handler(({ context, input }) => {

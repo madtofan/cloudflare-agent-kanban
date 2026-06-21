@@ -31,6 +31,7 @@
   "devDependencies": {
     "@cloudflare-agent-kanban/config": "workspace:*",
     "hono": "catalog:",
+    "openapi-types": "^12.1.3",
     "typescript": "catalog:"
   }
 }

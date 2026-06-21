@@ -1,7 +1,7 @@
 import z from "zod";
 import { callDo } from "../do-client";
 import { protectedProcedure } from "../index";
-import { getProjectAccess } from "../utils";
+import { getProjectAccess, withErrorResponses } from "../utils";
 
 const projectIdSchema = z.object({ projectId: z.string() });
 
@@ -13,6 +13,9 @@ export const boardRouter = {
 			summary: "Get a board by ID",
 			description: "Returns a single board within a project.",
 			tags: ["Board"],
+			successStatus: 200,
+			successDescription: "The board details.",
+			spec: withErrorResponses({ "401": "Authentication required.", "404": "Board not found." }),
 		})
 		.input(projectIdSchema.extend({ boardId: z.string() }))
 		.handler(async ({ context, input }) => {
@@ -34,6 +37,9 @@ export const boardRouter = {
 			summary: "Create a board in a project",
 			description: "Creates a new board within a project. Requires member-level access or higher.",
 			tags: ["Board"],
+			successStatus: 201,
+			successDescription: "The board was created successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Insufficient permissions to create a board.", "404": "Project not found." }),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -68,6 +74,9 @@ export const boardRouter = {
 			summary: "Update a board",
 			description: "Updates the name, description, or visibility of a board. Requires owner or admin access.",
 			tags: ["Board"],
+			successStatus: 200,
+			successDescription: "The board was updated successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Only owner and admins can update the board." }),
 		})
 		.input(
 			projectIdSchema.extend({
@@ -100,6 +109,9 @@ export const boardRouter = {
 			summary: "Delete a board",
 			description: "Permanently deletes a board and all its columns and cards. Only the project owner can delete boards.",
 			tags: ["Board"],
+			successStatus: 200,
+			successDescription: "The board was deleted successfully.",
+			spec: withErrorResponses({ "401": "Authentication required.", "403": "Only the project owner can delete the board." }),
 		})
 		.input(projectIdSchema.extend({ boardId: z.string() }))
 		.handler(async ({ context, input }) => {
